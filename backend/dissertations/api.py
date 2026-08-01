@@ -2,7 +2,7 @@ import datetime
 import os
 import re
 import tempfile
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 from django.conf import settings
 from django.db.models import Q
@@ -20,18 +20,15 @@ from ninja import (
 from categories.models import Category
 from ediauth import auth_check
 from util import response, s3_util
+from util.schemas import ValueWrapped
 
 from .models import Dissertation
 from .pdf_redactor import RedactorOptions, redactor
 
 bucket_name = "dissertations"
-router = Router()
+router = Router(tags=["Dissertations"])
 
 T = TypeVar("T")
-
-
-class ValueWrapped(Schema, Generic[T]):
-    value: T
 
 
 class SlugDisplayNameSchema(Schema):
@@ -140,7 +137,9 @@ def redact_file(file: UploadedFile, words_to_redact: list[str]) -> str:
     return temp_file_path
 
 
-@router.post("/", response=ValueWrapped[DissertationSchema])
+@router.post(
+    "/", response=ValueWrapped[DissertationSchema], operation_id="uploadDissertation"
+)
 @auth_check.require_login
 def upload_dissertation(
     request, data: Form[DissertationUploadSchema], pdf_file: File[UploadedFile]
@@ -194,7 +193,7 @@ class DissertationRedactionSchema(Schema):
     words: str  # comma separated, since our frontend doesn't explode arrays
 
 
-@router.post("/redact/", response=ValueWrapped[str])
+@router.post("/redact/", response=ValueWrapped[str], operation_id="redactDissertation")
 @auth_check.require_login
 def redact_dissertation(
     request, pdf_file: File[UploadedFile], data: Form[DissertationRedactionSchema]
@@ -240,7 +239,11 @@ def redact_dissertation(
     return {"value": presigned_url}
 
 
-@router.get("/", response=ValueWrapped[list[DissertationSchema]])
+@router.get(
+    "/",
+    response=ValueWrapped[list[DissertationSchema]],
+    operation_id="listDissertations",
+)
 @auth_check.require_login
 def list_dissertations(
     request,
@@ -281,14 +284,22 @@ def list_dissertations(
     return {"value": dissertations}
 
 
-@router.get("/{dissertation_id}/", response=ValueWrapped[DissertationSchema])
+@router.get(
+    "/{dissertation_id}/",
+    response=ValueWrapped[DissertationSchema],
+    operation_id="getDissertationDetail",
+)
 @auth_check.require_login
 def get_dissertation_detail(request, dissertation_id: int):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
     return {"value": dissertation}
 
 
-@router.get("/{dissertation_id}/download/", response=ValueWrapped[str])
+@router.get(
+    "/{dissertation_id}/download/",
+    response=ValueWrapped[str],
+    operation_id="downloadDissertation",
+)
 @auth_check.require_login
 def download_dissertation(request, dissertation_id: int):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
@@ -309,7 +320,11 @@ def download_dissertation(request, dissertation_id: int):
     return {"value": presigned_url}
 
 
-@router.put("/{dissertation_id}/", response=ValueWrapped[DissertationSchema])
+@router.put(
+    "/{dissertation_id}/",
+    response=ValueWrapped[DissertationSchema],
+    operation_id="updateDissertation",
+)
 @auth_check.require_login
 def update_dissertation(
     request,
@@ -365,7 +380,7 @@ def update_dissertation(
     return {"value": dissertation}
 
 
-@router.delete("/{dissertation_id}/")
+@router.delete("/{dissertation_id}/", operation_id="deleteDissertation")
 @auth_check.require_login
 def delete_dissertation(request, dissertation_id: int):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
