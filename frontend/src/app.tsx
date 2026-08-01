@@ -17,7 +17,6 @@ import chroma from "chroma-js";
 import "@mantine/core/styles.css";
 import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Navigate, Route, Routes, useSearchParams } from "react-router-dom";
-import tinycolor from "tinycolor2";
 import { authenticated, fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import { AuthenticatedRoutes } from "./auth/AuthenticatedRoutes";
