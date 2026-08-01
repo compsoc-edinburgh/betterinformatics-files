@@ -1,8 +1,9 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
+import babel from "@rolldown/plugin-babel";
 
 const parent_dirname = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -37,6 +38,9 @@ export default defineConfig({
     react(),
     svgr({
       include: "**/*.svg?react",
+    }),
+    babel({
+      presets: [reactCompilerPreset()],
     }),
   ],
   build: {

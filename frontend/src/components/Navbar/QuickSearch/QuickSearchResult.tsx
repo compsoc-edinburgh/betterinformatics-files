@@ -1,7 +1,7 @@
 import { Badge, Group } from "@mantine/core";
 import React, { MouseEventHandler } from "react";
 import classes from "./QuickSearchResult.module.css";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import { Link } from "react-router-dom";
 
 interface Props {

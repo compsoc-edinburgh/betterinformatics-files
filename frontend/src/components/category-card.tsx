@@ -16,7 +16,7 @@ import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
-import clsx, { ClassValue } from "clsx";
+import { clsx, ClassValue } from "clsx";
 import classes from "../utils/focus-outline.module.css";
 import { useMutation } from "../api/hooks";
 import { addNewFavourite, removeFavourite } from "../api/favourite";
@@ -38,8 +38,9 @@ const CategoryCard: React.FC<Props> = ({
   const navigate = useNavigate();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
-      if (!authenticated()) navigate(`/login/?rd=/category/${category.slug}`);
-      else navigate(`/category/${category.slug}`);
+      if (!authenticated())
+        void navigate(`/login/?rd=/category/${category.slug}`);
+      else void navigate(`/category/${category.slug}`);
     }
   };
 
@@ -48,11 +49,11 @@ const CategoryCard: React.FC<Props> = ({
   const computedColorScheme = useComputedColorScheme("light");
   const subTextColor = computedColorScheme === "light" ? "gray.8" : "gray.5";
 
-  const [favouriteLoading, add] = useMutation(addNewFavourite, res => {
+  const [favouriteLoading, add] = useMutation(addNewFavourite, () => {
     refresh();
   });
 
-  const [favouriteRemoveLoading, remove] = useMutation(removeFavourite, res => {
+  const [favouriteRemoveLoading, remove] = useMutation(removeFavourite, () => {
     refresh();
   });
 
@@ -68,9 +69,9 @@ const CategoryCard: React.FC<Props> = ({
     e.preventDefault();
     if (favouriteLoading || favouriteRemoveLoading) return;
     if (category.favourite) {
-      remove(category.slug);
+      void remove(category.slug);
     } else {
-      add(category.slug);
+      void add(category.slug);
     }
   };
 
@@ -81,7 +82,7 @@ const CategoryCard: React.FC<Props> = ({
       onClick={e => {
         if (!authenticated()) {
           e.preventDefault();
-          navigate(
+          void navigate(
             `/login/?rd=${encodeURIComponent(`/category/${category.slug}`)}`,
           );
         }

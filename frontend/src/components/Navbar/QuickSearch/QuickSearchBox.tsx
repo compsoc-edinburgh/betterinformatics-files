@@ -8,7 +8,6 @@ import {
 } from "react";
 import {
   Modal,
-  Button,
   Group,
   Text,
   TextInput,
@@ -32,6 +31,7 @@ import {
 } from "@mantine/hooks";
 import { useDebounce, useRequest } from "ahooks";
 import { loadAllCategories, loadSearch } from "../../../api/hooks";
+import { useUser } from "../../../auth";
 import {
   AnswerSearchResult,
   CommentSearchResult,
@@ -46,7 +46,7 @@ import { QuickSearchResult } from "./QuickSearchResult";
 import { QuickSearchResults } from "./QuickSearchResults";
 import { QuickSearchFilterContext } from "./QuickSearchFilterContext";
 import { useNavigate } from "react-router-dom";
-import clsx from "clsx";
+import { clsx } from "clsx";
 
 /**
  * Return the max depth of an array.
@@ -73,6 +73,7 @@ const displayOrder = [
 ] as const;
 
 export const QuickSearchBox: React.FC = () => {
+  const loggedIn = useUser()?.loggedin ?? false;
   const [opened, { open, close }] = useDisclosure(false);
 
   // Reference to the input element so that we can select all text upon modal open
@@ -132,6 +133,7 @@ export const QuickSearchBox: React.FC = () => {
         true,
       ),
     {
+      ready: loggedIn,
       refreshDeps: [debouncedSearchQuery, isGlobal],
     },
   );
@@ -224,13 +226,13 @@ export const QuickSearchBox: React.FC = () => {
   const confirmSelection = useCallback(() => {
     if (!currentSelection.type) return; // Make sure we don't navivate to invalid selections
 
-    navigate(
+    void navigate(
       // TODO: fix duplicate logic here to get the path for an item; we already
       // do that in QuickSearchResults to create the link href prop of results
       itemToPath(results[currentSelection.type][currentSelection.index]),
     );
     close();
-  }, [currentSelection, history, results, close]);
+  }, [currentSelection, results, close, navigate]);
 
   useEffect(() => {
     // Do some raw-JS scrollIntoView so that moving up/down via keyboard scrolls

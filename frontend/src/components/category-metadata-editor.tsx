@@ -102,8 +102,8 @@ const applyChanges = async (
   slug: string,
   oldMetaData: CategoryMetaData,
   newMetaData: CategoryMetaDataDraft,
-  oldOfferedIn: Array<readonly [string, string]>,
-  newOfferedIn: Array<readonly [string, string]>,
+  oldOfferedIn: (readonly [string, string])[],
+  newOfferedIn: (readonly [string, string])[],
 ) => {
   const metaDataDiff: Partial<CategoryMetaData> = {};
   if (oldMetaData.displayname !== newMetaData.displayname)
@@ -237,7 +237,7 @@ interface CategoryMetaDataEditorProps {
   currentMetaData: CategoryMetaData;
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
   close: () => void;
-  offeredIn: Array<readonly [string, string]>;
+  offeredIn: (readonly [string, string])[];
 }
 const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
   onMetaDataChange,
@@ -257,11 +257,11 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
     },
   });
   const [offeredIn, setOfferedIn] =
-    useInitialState<Array<readonly [string, string]>>(propOfferedIn);
+    useInitialState<(readonly [string, string])[]>(propOfferedIn);
   const { registerInput, reset, formState, setFormValue, onSubmit } = useForm(
     currentMetaData as CategoryMetaDataDraft,
     data => {
-      runApplyChanges(
+      void runApplyChanges(
         currentMetaData.slug,
         currentMetaData,
         data,

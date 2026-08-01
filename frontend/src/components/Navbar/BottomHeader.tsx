@@ -23,7 +23,7 @@ interface Props {
 const BottomHeader: React.FC<Props> = ({
   lang,
   appNav,
-  title,
+  title: _unused,
   loginButton,
   size,
   icon,

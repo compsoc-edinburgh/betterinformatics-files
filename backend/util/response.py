@@ -1,4 +1,3 @@
-from ninja import Schema
 from datetime import datetime
 from functools import wraps
 
@@ -8,6 +7,7 @@ from django.http import (
     HttpResponseNotAllowed,
     JsonResponse,
 )
+from ninja import Schema
 
 
 def request_method(methods: "tuple[str] | list[str]"):

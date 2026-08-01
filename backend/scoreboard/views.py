@@ -1,11 +1,9 @@
-from answers.models import Answer
-from django.db.models.expressions import Case, When
-from util import response, func_cache
-from ediauth import auth_check
 from django.contrib.auth.models import User
+from django.db.models import F
 from django.shortcuts import get_object_or_404
-from django.db.models import F, Q, Value as V
-from django.db.models.functions import Concat
+
+from ediauth import auth_check
+from util import func_cache, response
 
 
 def get_user_scores(user, res):
@@ -15,18 +13,19 @@ def get_user_scores(user, res):
         rank = list.index(user.username) + 1
     else:
         rank = total_users
+
+    scores = user.scores
+
     res.update(
         {
             "rank": rank,
             "total_users": total_users,
-            "score": user.scores.document_likes
-            + user.scores.upvotes
-            - user.scores.downvotes,
-            "score_answers": user.answer_set.filter(kind=Answer.Kind.PERSONAL).count(),
-            "score_comments": user.answers_comments.count(),
-            "score_cuts": user.answersection_set.count(),
-            "score_official": user.answer_set.filter(kind=Answer.Kind.OFFICIAL).count(),
-            "score_documents": user.document_set.count(),
+            "score": scores.document_likes + scores.upvotes - scores.downvotes,
+            "score_answers": scores.answers,
+            "score_comments": scores.comments,
+            "score_cuts": scores.cuts,
+            "score_official": scores.official,
+            "score_documents": scores.documents,
         }
     )
     return res
@@ -91,7 +90,7 @@ def get_scoreboard_top(scoretype, limit):
 @response.request_get()
 @auth_check.require_login
 def userinfo(request, username):
-    user = get_object_or_404(User, username=username)
+    user = get_object_or_404(User.objects.select_related("scores"), username=username)
     res = {
         "username": username,
         "displayName": user.profile.display_username,

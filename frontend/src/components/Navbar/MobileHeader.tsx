@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ReactNode } from "react";
-import { Burger, Container, Group, Stack } from "@mantine/core";
+import { Burger, Container, Group, Indicator, Stack } from "@mantine/core";
 import { useLocalStorageState } from "ahooks";
 import { NavItem, translate } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
@@ -48,12 +48,26 @@ const BottomHeader: React.FC<Props> = ({
             {title}
           </Link>
         </div>
-        <ColorSchemeToggle />
-        <Burger
-          opened={opened}
-          onClick={() => setOpened((o: boolean) => !o)}
-          size="sm"
-        />
+        <Group>
+          <ColorSchemeToggle />
+          <Indicator
+            /** All items have no indicators, and all subitems (if they exist) have no indicators */
+            disabled={appNav.every(
+              item =>
+                !item.indicator &&
+                (!item.childItems ||
+                  item.childItems.every(child => !child.indicator)),
+            )}
+            offset={4}
+            color="compsocMain"
+          >
+            <Burger
+              opened={opened}
+              onClick={() => setOpened((o: boolean) => !o)}
+              size="sm"
+            />
+          </Indicator>
+        </Group>
       </Group>
       {opened ? (
         <Stack align="flex-start" gap="xs" py="xs">

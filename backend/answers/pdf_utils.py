@@ -1,13 +1,10 @@
-import subprocess
-import os
-import tempfile
-from bs4 import BeautifulSoup
-from backend import settings
+import logging
+
+import pypdfium2 as pdfium
+
 from answers.models import (
     ExamPage as ExamPageModel,
 )
-import logging
-import pypdfium2 as pdfium
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +13,7 @@ def get_page_text(path_to_pdf, page):
     with pdfium.PdfDocument(path_to_pdf) as pdf:
         if page > len(pdf):
             logger.warning(
-                "Page number out of range when reading PDF text: {path_to_pdf} page {page}".format(
-                    path_to_pdf=path_to_pdf, page=page
-                )
+                f"Page number out of range when reading PDF text: {path_to_pdf} page {page}"
             )
             return ""
 
@@ -58,5 +53,5 @@ def analyze_pdf(
                 exam_page.save()
 
         return True
-    except (FileNotFoundError, pdfium.PdfiumError) as e:
+    except (FileNotFoundError, pdfium.PdfiumError):
         return False

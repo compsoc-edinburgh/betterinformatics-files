@@ -8,9 +8,13 @@ import {
   SimpleGrid,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
+import {
+  removeImage,
+  useListImages,
+  useUploadImage,
+} from "../api/hooks/images";
 
 interface ModalProps {
   isOpen: boolean;
@@ -22,15 +26,33 @@ const ImageModal: React.FC<ModalProps> = ({
   onClose,
   closeWithImage,
 }) => {
-  const { images, add, remove, reload } = useImages();
   const [selected, select, unselect, setSelected] = useSet<string>();
-  useEffect(() => setSelected(), [images, setSelected]);
+  useEffect(() => setSelected(), [setSelected]);
   const [file, setFile] = useState<File | undefined>(undefined);
-  const removeSelected = () => {
+  const removeSelected = async () => {
     for (const image of selected) {
-      remove(image);
+      await removeImage(image);
     }
+    setSelected();
+    await images.refetch();
   };
+
+  const images = useListImages({
+    query: {
+      select(data) {
+        return data.value;
+      },
+    },
+  });
+
+  const uploadImage = useUploadImage({
+    mutation: {
+      onSuccess() {
+        images.refetch();
+      },
+    },
+  });
+
   return (
     <Modal title="Images" size="lg" opened={isOpen} onClose={onClose}>
       <Modal.Body>
@@ -39,7 +61,11 @@ const ImageModal: React.FC<ModalProps> = ({
           <Button
             onClick={() => {
               if (file) {
-                add(file);
+                uploadImage.mutate({
+                  data: {
+                    file,
+                  },
+                });
                 setFile(undefined);
               }
             }}
@@ -47,7 +73,13 @@ const ImageModal: React.FC<ModalProps> = ({
           >
             Upload
           </Button>
-          <Button onClick={reload}>Reload</Button>
+          <Button
+            onClick={() => {
+              void images.refetch();
+            }}
+          >
+            Reload
+          </Button>
           <Button
             color="red"
             disabled={selected.size === 0}
@@ -58,7 +90,7 @@ const ImageModal: React.FC<ModalProps> = ({
         </Group>
 
         <SimpleGrid cols={3} mt="sm">
-          {images?.map(image => (
+          {images.data?.map(image => (
             <div key={image} style={{ padding: "0 0.75em" }}>
               <Card
                 color={selected.has(image) ? "primary" : undefined}

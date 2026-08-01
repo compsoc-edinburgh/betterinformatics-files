@@ -120,7 +120,7 @@ const PdfCutter: React.FC<PdfSelectorProps> = ({ selectedPdf, onCrop }) => {
     let active = true;
 
     async function loadPdf() {
-      const loadingTask: PDFDocumentLoadingTask = getDocument(pdfUrl);
+      const loadingTask: PDFDocumentLoadingTask = getDocument({ url: pdfUrl });
       const pdf = await loadingTask.promise;
 
       if (active) {

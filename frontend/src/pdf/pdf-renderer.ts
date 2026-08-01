@@ -1,4 +1,3 @@
-import * as pdfjs from "./pdfjs";
 import { globalFactory } from "./canvas-factory";
 import {
   PdfCanvasReference,
@@ -38,11 +37,6 @@ interface MainCanvas {
 export default class PDF {
   document: PDFDocumentProxy;
   private pageMap = new Map<number, Promise<PDFPageProxy>>();
-  // SVGs aren't mentioned in pdf-js types :(
-  private operatorListMap = new Map<number, Promise<any[]>>();
-  private gfxMap = new Map<number, any>();
-  private svgMap = new Map<number, SVGElement>();
-  private embedFontsSvgMap = new Map<number, SVGElement>();
   private textMap = new Map<number, Promise<TextContent>>();
   /**
    * Each `Set` once set shouldn't change anymore as it saves us from having to lookup
@@ -59,59 +53,6 @@ export default class PDF {
     const loadedPage = this.document.getPage(pageNumber);
     this.pageMap.set(pageNumber, loadedPage);
     return loadedPage;
-  }
-  private async getOperatorList(pageNumber: number): Promise<any[]> {
-    const cachedOperatorList = this.operatorListMap.get(pageNumber);
-    if (cachedOperatorList !== undefined) return cachedOperatorList;
-    const page = await this.getPage(pageNumber);
-    const operatorList = (page as any).getOperatorList();
-    this.operatorListMap.set(pageNumber, operatorList);
-    return operatorList;
-  }
-  private async getGfx(pageNumber: number): Promise<any> {
-    const cachedGfx = this.gfxMap.get(pageNumber);
-    if (cachedGfx !== undefined) return cachedGfx;
-
-    const page = await this.getPage(pageNumber);
-    const gfx = new (pdfjs as any).SVGGraphics(
-      (page as any).commonObjs,
-      (page as any).objs,
-    );
-    this.gfxMap.set(pageNumber, gfx);
-    return gfx;
-  }
-  /**
-   * Renders the page `pageNumber` to an SVGElement. The returned instance will
-   * be unique and the caller is free to mount it anywhere in the tree.
-   * @param pageNumber
-   * @param embedFonts Wheter the fonts should be embedded into the SVG
-   */
-  async renderSvg(
-    pageNumber: number,
-    embedFonts: boolean = false,
-  ): Promise<SVGElement> {
-    if (embedFonts) {
-      const cachedSvg = this.embedFontsSvgMap.get(pageNumber);
-      if (cachedSvg !== undefined)
-        return cachedSvg.cloneNode(true) as SVGElement;
-    } else {
-      const cachedSvg = this.svgMap.get(pageNumber);
-      if (cachedSvg !== undefined)
-        return cachedSvg.cloneNode(true) as SVGElement;
-    }
-    const page = await this.getPage(pageNumber);
-    const viewport = page.getViewport({ scale: 1 });
-    const operatorList = await this.getOperatorList(pageNumber);
-    const gfx = await this.getGfx(pageNumber);
-    gfx.embedFonts = embedFonts;
-    const element = await gfx.getSVG(operatorList, viewport);
-    if (embedFonts) {
-      this.embedFontsSvgMap.set(pageNumber, element);
-    } else {
-      this.svgMap.set(pageNumber, element);
-    }
-
-    return element;
   }
   /**
    * Renders the page `pageNumber` to `canvasObject` with a scale of
@@ -313,7 +254,7 @@ export default class PDF {
       // destination
       const [dx, dy, dw, dh] = [0, 0, width, height];
       const renderingReference = newManager.createRetainedRef();
-      mainCanvas.rendered.then(() => {
+      void mainCanvas.rendered.then(() => {
         const ctx = obj.context;
         if (ctx === null) throw new Error("Rendering failed.");
         if (mainCanvas === undefined) throw new Error();

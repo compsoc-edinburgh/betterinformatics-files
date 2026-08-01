@@ -1,7 +1,7 @@
 export class PdfCanvasReference {
   active: boolean;
   manager: PdfCanvasReferenceManager;
-  private listeners: Array<() => void> = [];
+  private listeners: (() => void)[] = [];
   constructor(manager: PdfCanvasReferenceManager) {
     this.active = true;
     this.manager = manager;
@@ -18,7 +18,7 @@ export class PdfCanvasReference {
 }
 export class PdfCanvasReferenceManager {
   private refCount: number;
-  private listeners: Array<(cnt: number) => void> = [];
+  private listeners: ((cnt: number) => void)[] = [];
   constructor(initialRefCount: number) {
     this.refCount = initialRefCount;
   }

@@ -46,7 +46,7 @@ const ModQueue: React.FC = () => {
   const [confirm, modals] = useRemoveConfirm();
   const { run: runRemoveExam } = useRequest(removeExam, {
     manual: true,
-    onSuccess: reloadExams,
+    onSuccess: void reloadExams,
   });
   const handleRemoveClick = (exam: CategoryExam) => {
     confirm(

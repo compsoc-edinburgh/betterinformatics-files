@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import { Text, Title } from "@mantine/core";
 import Panel from "./panel-left";
 import { CategoryMetaData } from "../interfaces";
+import { slugify } from "../utils/slugify";
 
 export interface DisplayOptions {
   displayHiddenPdfSections: boolean;
@@ -15,49 +16,34 @@ interface CourseCategoriesPanelProps {
   isOpen: boolean;
   toggle: () => void;
   metaList: [string, [string, CategoryMetaData[]][]][] | undefined;
+  categories: readonly CategoryMetaData[];
 }
 const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
   mode,
   isOpen,
   toggle,
   metaList,
+  categories,
 }) => {
-  const scrollToTop = useCallback(() => {
-    const c = document.documentElement.scrollTop || document.body.scrollTop;
-    if (c > 0) {
-      window.requestAnimationFrame(scrollToTop);
-      window.scrollTo(0, c - c / 10 - 1);
-    } else {
-      toggle();
+  const availableLetters = useMemo<ReadonlyMap<string, string>>(() => {
+    const letters = new Map<string, string>();
+    const sorted = categories.toSorted((a, b) =>
+      a.displayname.localeCompare(b.displayname),
+    );
+    for (const category of sorted) {
+      const letter = category.displayname.at(0)?.toUpperCase();
+      if (letter && !letters.has(letter)) {
+        letters.set(letter, category.slug);
+      }
     }
-  }, [toggle]);
 
-  const slugify = (str: string): string =>
-    str
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+    return letters;
+  }, [categories]);
 
   const scrollToElementById = (id: string): void => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: "smooth" });
   };
-
-  const [availableLetters, setAvailableLetters] = useState<Map<string, string>>(); //mapping between available letters and element id of first category card with that letter
-  
-  useEffect(() => {
-    const letters = new Map<string, string>();
-    const elems = Array.from(document.getElementsByClassName("category-card")).sort((a, b) => a.id.localeCompare(b.id)); //make sure to sort category cards by id (not guaranteed if mode isn't alphabetical)
-    for (let i = 0; i < elems.length; i++) {
-      const letter = elems[i].id.toUpperCase().at(0);
-      if (letter && !letters.has(letter)) {
-        letters.set(letter, elems[i].id);
-      }
-    }
-    setAvailableLetters(letters);
-  }, []);
 
   return (
     <Panel
@@ -66,7 +52,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
       toggle={toggle}
     >
       {mode === "alphabetical"
-        ? availableLetters && Array.from(availableLetters, ([letter, id]) => (
+        ? [...availableLetters].map(([letter, id]) => (
             <div key={letter}>
               <Title
                 order={5}
@@ -92,14 +78,16 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
               >
                 {meta1display}
               </Title>
-              {meta2.map(([meta2display, categories]) => (
+              {meta2.map(([meta2display]) => (
                 <div key={meta2display}>
                   <Text
                     mb="xs"
                     style={{
                       cursor: "pointer",
                     }}
-                    onClick={() => scrollToElementById(slugify(meta1display) + slugify(meta2display))}
+                    onClick={() =>
+                      scrollToElementById(slugify(meta1display + meta2display))
+                    }
                   >
                     {meta2display}
                   </Text>

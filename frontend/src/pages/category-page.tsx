@@ -123,7 +123,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const editorOnMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
       onMetaDataChange(newMetaData);
-      run();
+      void run();
     },
     [run, onMetaDataChange],
   );
@@ -193,7 +193,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         <Anchor tt="uppercase" size="xs" component={Link} to="/">
           Home
         </Anchor>
-        <Anchor tt="uppercase" size="xs">
+        <Anchor
+          tt="uppercase"
+          size="xs"
+          component={Link}
+          to={`/category/${metaData.slug}`}
+        >
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
@@ -210,7 +215,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 <CategoryMetaDataEditor
                   onMetaDataChange={editorOnMetaDataChange}
                   close={() => {
-                    navigate("./..");
+                    void navigate("./..");
                   }}
                   currentMetaData={metaData}
                   offeredIn={offeredIn.flatMap(b =>
@@ -524,7 +529,7 @@ const CategoryPage: React.FC = () => {
     (newMetaData: CategoryMetaData) => {
       mutate(newMetaData);
       if (slug !== newMetaData.slug) {
-        navigate(`/category/${newMetaData.slug}`);
+        void navigate(`/category/${newMetaData.slug}`);
       }
     },
     [mutate, navigate, slug],

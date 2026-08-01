@@ -1,12 +1,14 @@
 from django.urls import path
 
-from . import views
-from . import views_answers
-from . import views_comments
-from . import views_cuts
-from . import views_files
-from . import views_listings
-from . import views_search
+from . import (
+    views,
+    views_answers,
+    views_comments,
+    views_cuts,
+    views_files,
+    views_listings,
+    views_search,
+)
 
 urlpatterns = [
     path("search/", views_search.search, name="search"),

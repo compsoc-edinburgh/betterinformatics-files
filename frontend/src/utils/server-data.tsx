@@ -5,14 +5,15 @@ interface IServerData {
   imprint: string;
   privacy_policy: string;
   faro_url?: string;
-  announcements: [{
-    id: string,
-    variant: string | undefined,
-    color: string,
-    title: string,
-    content: string,
-    icon: string | undefined,
-  }]
+  announcements: {
+    id: string;
+    variant: string | undefined;
+    color: string;
+    title: string;
+    content: string;
+    icon: string | undefined;
+  }[];
+  document_download_safe_extensions: string[];
 }
 const getServerData = () => {
   const element = document.getElementById("server-data");

@@ -1,10 +1,9 @@
 from django.shortcuts import get_object_or_404
-from ediauth import auth_check
-from util import response
-from notifications.notification_util import get_relative_notification_url
 
-from notifications.models import (Notification, NotificationSetting,
-                                  NotificationType)
+from ediauth import auth_check
+from notifications.models import Notification, NotificationSetting, NotificationType
+from notifications.notification_util import get_relative_notification_url
+from util import response
 
 
 @response.request_get()
@@ -17,22 +16,25 @@ def getenabled(request):
             "enabled": setting.enabled,
             "email_enabled": setting.email_enabled,
         }
-        for setting in settings if setting.enabled or setting.email_enabled
+        for setting in settings
+        if setting.enabled or setting.email_enabled
     ]
     return response.success(value=res)
 
 
-@response.request_post('type')
+@response.request_post("type")
 @auth_check.require_login
 def setenabled(request):
-    type_ = int(request.POST['type'])
+    type_ = int(request.POST["type"])
     if type_ < 1 or type_ > len(NotificationType.__members__):
-        return response.not_possible('Invalid Type')
-    setting, _ = NotificationSetting.objects.get_or_create(user=request.user, type=type_)
-    if 'enabled' in request.POST:
-        setting.enabled = request.POST['enabled'] != 'false'
-    if 'email_enabled' in request.POST:
-        setting.email_enabled = request.POST['email_enabled'] != 'false'
+        return response.not_possible("Invalid Type")
+    setting, _ = NotificationSetting.objects.get_or_create(
+        user=request.user, type=type_
+    )
+    if "enabled" in request.POST:
+        setting.enabled = request.POST["enabled"] != "false"
+    if "email_enabled" in request.POST:
+        setting.email_enabled = request.POST["email_enabled"] != "false"
     setting.save()
     return response.success()
 
@@ -40,25 +42,33 @@ def setenabled(request):
 @response.request_get()
 @auth_check.require_login
 def get_notifications(request, unread):
-    notifications = Notification.objects.filter(receiver=request.user).select_related('receiver', 'sender', 'answer', 'document','answer__answer_section', 'answer__answer_section__exam')
+    notifications = Notification.objects.filter(receiver=request.user).select_related(
+        "receiver",
+        "sender",
+        "answer",
+        "document",
+        "answer__answer_section",
+        "answer__answer_section__exam",
+    )
     if unread:
         notifications = notifications.filter(read=False)
-    notifications = notifications.order_by('-time')
+    notifications = notifications.order_by("-time")
     res = [
         {
-            'oid': notification.id,
-            'receiver': notification.receiver.username,
-            'type': notification.type,
-            'time': notification.time,
-            'sender': notification.sender.username,
-            'senderDisplayName': notification.sender.profile.display_username,
-            'title': notification.title,
-            'message': notification.text,
-            'link': get_relative_notification_url(
+            "oid": notification.id,
+            "receiver": notification.receiver.username,
+            "type": notification.type,
+            "time": notification.time,
+            "sender": notification.sender.username,
+            "senderDisplayName": notification.sender.profile.display_username,
+            "title": notification.title,
+            "message": notification.text,
+            "link": get_relative_notification_url(
                 notification.answer or notification.document
             ),
-            'read': notification.read,
-        } for notification in notifications
+            "read": notification.read,
+        }
+        for notification in notifications
     ]
     return response.success(value=res)
 
@@ -72,7 +82,9 @@ def unread(request):
 @response.request_get()
 @auth_check.require_login
 def unreadcount(request):
-    return response.success(value=Notification.objects.filter(receiver=request.user, read=False).count())
+    return response.success(
+        value=Notification.objects.filter(receiver=request.user, read=False).count()
+    )
 
 
 @response.request_get()
@@ -81,10 +93,10 @@ def all(request):
     return get_notifications(request, False)
 
 
-@response.request_post('read')
+@response.request_post("read")
 @auth_check.require_login
 def setread(request, oid):
     notification = get_object_or_404(Notification, pk=oid)
-    notification.read = request.POST['read'] != 'false'
+    notification.read = request.POST["read"] != "false"
     notification.save()
     return response.success()

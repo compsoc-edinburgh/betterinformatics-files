@@ -1,10 +1,17 @@
-import { Button, Card, Flex, Group, TextInput, Title } from "@mantine/core";
-import React, { useCallback, useState } from "react";
-import { imageHandler } from "../api/fetch-utils";
+import {
+  Button,
+  Card,
+  Flex,
+  Group,
+  Loader,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import React, { lazy, Suspense, useCallback, useState } from "react";
+import { usePendingImages } from "./Editor/pending-images";
 import { useUser } from "../auth";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { FAQEntry } from "../interfaces";
-import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
@@ -16,6 +23,9 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
+
+const Editor = lazy(() => import("./Editor"));
+
 interface Props {
   isAdmin?: boolean;
   entry: FAQEntry;
@@ -38,6 +48,7 @@ const FAQEntryComponent: React.FC<Props> = ({
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
+  const { deferredImageHandler, flushPendingImages, pendingObjectUrls } = usePendingImages();
   const startEditing = useCallback(() => {
     setQuestion(entry.question);
     setAnswer(entry.answer);
@@ -45,8 +56,9 @@ const FAQEntryComponent: React.FC<Props> = ({
     setEditing(true);
   }, [entry.question, entry.answer]);
   const cancel = useCallback(() => setEditing(false), []);
-  const save = () => {
-    onUpdate({ question, answer });
+  const save = async () => {
+    const finalAnswer = await flushPendingImages(answer);
+    onUpdate({ question, answer: finalAnswer });
     setEditing(false);
   };
   const { isAdmin } = useUser()!;
@@ -66,7 +78,7 @@ const FAQEntryComponent: React.FC<Props> = ({
         </Group>
       )}
       {editing ? (
-        <>
+        <Suspense fallback={<Loader />}>
           <TextInput
             placeholder="Question"
             mb="sm"
@@ -74,14 +86,14 @@ const FAQEntryComponent: React.FC<Props> = ({
             onChange={e => setQuestion(e.target.value)}
           />
           <Editor
-            imageHandler={imageHandler}
+            imageHandler={deferredImageHandler}
             value={answer}
             onChange={setAnswer}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
-            preview={value => <MarkdownText value={value} />}
+            preview={value => <MarkdownText value={value} pendingImages={pendingObjectUrls} />}
           />
-        </>
+        </Suspense>
       ) : (
         <MarkdownText value={entry.answer} />
       )}

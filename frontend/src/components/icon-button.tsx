@@ -1,7 +1,7 @@
 import { ActionIconProps, ActionIcon, Tooltip } from "@mantine/core";
 import React from "react";
 import classes from "./icon-button.module.css";
-import clsx from "clsx";
+import { clsx } from "clsx";
 
 interface IconButtonProps extends ActionIconProps {
   icon: React.ReactNode;

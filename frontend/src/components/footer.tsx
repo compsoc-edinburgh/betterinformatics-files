@@ -26,10 +26,10 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({
   logo,
-  disclaimer,
-  privacy,
+  disclaimer: _unused,
+  privacy: _unused1,
   organizationNav,
-  orgHomepage,
+  orgHomepage: _unused2,
 }) => {
   const [uwu, setLocalUwu] = useLocalStorageState("uwu", false);
   const setUwu = () => {

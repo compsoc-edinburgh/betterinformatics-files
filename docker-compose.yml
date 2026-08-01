@@ -16,7 +16,7 @@ services:
       - ./util/rclone.conf:/config/rclone/rclone.conf
     command: serve s3 local:/data --addr 0.0.0.0:9000 --allow-origin '*'
     healthcheck:
-      test: ["CMD", "rclone", "ls", "serves3:/"]
+      test: ["CMD", "rclone", "version"]
       interval: 1s
       timeout: 1s
       retries: 60

@@ -21,7 +21,7 @@ import {
   mapExamsToExamType,
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
-import UploadPdfCard from "./upload-pdf-card";
+import { UploadPdfForm } from "./upload-pdf-card";
 import { IconDownload, IconPlus, IconSearch } from "@tabler/icons-react";
 import ShimmerButton from "./shimmer-button";
 
@@ -143,9 +143,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         title="Upload a new exam PDF"
         onClose={() => setFormIsOpen(r => !r)}
       >
-        <Modal.Body>
-          <UploadPdfCard preChosenCategory={metaData.slug} />
-        </Modal.Body>
+        <UploadPdfForm preChosenCategory={metaData.slug} />
       </Modal>
     </>
   );

@@ -1,14 +1,21 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom";
 import { useUser } from ".";
 import LoadingOverlay from "../components/loading-overlay";
-import LoginOverlay from "../pages/login-page";
+import { lazy, Suspense } from "react";
+import { Center, Loader } from "@mantine/core";
+
+const LoginOverlay = lazy(() => import("../pages/login-page"));
 
 export const AuthenticatedRoutes = () => {
   const user = useUser();
   const location = useLocation();
 
   if (user !== undefined && !user.loggedin) {
-    if (location.pathname === "/") return <LoginOverlay isHome={true} />;
+    if (location.pathname === "/") return (
+      <Suspense fallback={<Center><Loader /></Center>}>
+        <LoginOverlay isHome={true} />
+      </Suspense>
+    );
 
     return <Navigate replace to={{
       pathname: "/login/",

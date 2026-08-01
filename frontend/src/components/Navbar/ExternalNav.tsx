@@ -1,9 +1,9 @@
 import * as React from "react";
 import { ReactNode } from "react";
-import { Anchor, Center, Menu } from "@mantine/core";
+import { Anchor, Center, Group, Menu } from "@mantine/core";
 
 import { NavItem } from "./GlobalNav";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import { NavLink } from "react-router-dom";
 import { IconChevronDown } from "@tabler/icons-react";
 import classes from "./ExternalNav.module.css";
@@ -21,11 +21,24 @@ const ExternalNavElement: React.FC<Props> = ({
   isExternal,
   titleClassName: textClassName,
 }) => {
+  // Use own indicator, or first child indicator if it exists, or null
+  const indicator =
+    item.indicator ??
+    item.childItems?.find(child => Boolean(child.indicator))?.indicator ??
+    null;
+
   return item.childItems ? (
     mobile ? (
       <>
         <div className={clsx(classes.navItem, textClassName)}>
-          {item.title as ReactNode}
+          {indicator ? (
+            <Group wrap="nowrap" gap="xs">
+              {item.title as ReactNode}
+              {indicator}
+            </Group>
+          ) : (
+            (item.title as ReactNode)
+          )}
         </div>
         {item.childItems.map((childItem, i) => (
           <Anchor
@@ -35,7 +48,14 @@ const ExternalNavElement: React.FC<Props> = ({
             to={childItem.href!}
             className={clsx(classes.link, classes.mobileChild, textClassName)}
           >
-            {childItem.title as ReactNode}
+            {childItem.indicator ? (
+              <Group wrap="nowrap" gap="xs">
+                {childItem.title as ReactNode}
+                {childItem.indicator}
+              </Group>
+            ) : (
+              (childItem.title as ReactNode)
+            )}
           </Anchor>
         ))}
       </>
@@ -59,7 +79,14 @@ const ExternalNavElement: React.FC<Props> = ({
           >
             <Center>
               <div style={{ lineHeight: "1.75rem", marginRight: "6px" }}>
-                {item.title as ReactNode}
+                {indicator ? (
+                  <Group wrap="nowrap" gap="xs">
+                    {item.title as ReactNode}
+                    {indicator}
+                  </Group>
+                ) : (
+                  (item.title as ReactNode)
+                )}
               </div>
               <IconChevronDown style={{ marginTop: "2px" }} />
             </Center>
@@ -78,7 +105,14 @@ const ExternalNavElement: React.FC<Props> = ({
                 key={i}
                 pl="xs"
               >
-                {childItem.title as ReactNode}
+                {childItem.indicator ? (
+                  <Group wrap="nowrap" gap="xs">
+                    {childItem.title as ReactNode}
+                    {childItem.indicator}
+                  </Group>
+                ) : (
+                  (childItem.title as ReactNode)
+                )}
               </Menu.Item>
             ) : (
               <Menu.Item
@@ -90,7 +124,14 @@ const ExternalNavElement: React.FC<Props> = ({
                 key={i}
                 pl="xs"
               >
-                {childItem.title as ReactNode}
+                {childItem.indicator ? (
+                  <Group wrap="nowrap" gap="xs">
+                    {childItem.title as ReactNode}
+                    {childItem.indicator}
+                  </Group>
+                ) : (
+                  (childItem.title as ReactNode)
+                )}
               </Menu.Item>
             ),
           )}
@@ -104,7 +145,14 @@ const ExternalNavElement: React.FC<Props> = ({
       size="lg"
       className={clsx(classes.navItem, classes.link, textClassName)}
     >
-      {item.title as ReactNode}
+      {item.indicator ? (
+        <Group wrap="nowrap" gap="xs">
+          {item.title as ReactNode}
+          {item.indicator}
+        </Group>
+      ) : (
+        (item.title as ReactNode)
+      )}
     </Anchor>
   );
 };
