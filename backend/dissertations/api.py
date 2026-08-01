@@ -2,7 +2,7 @@ import datetime
 import os
 import re
 import tempfile
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 from django.conf import settings
 from django.db.models import Q
@@ -20,18 +20,15 @@ from ninja import (
 from categories.models import Category
 from ediauth import auth_check
 from util import response, s3_util
+from util.schemas import ValueWrapped
 
 from .models import Dissertation
 from .pdf_redactor import RedactorOptions, redactor
 
 bucket_name = "dissertations"
-router = Router()
+router = Router(tags=["Dissertations"])
 
 T = TypeVar("T")
-
-
-class ValueWrapped(Schema, Generic[T]):
-    value: T
 
 
 class SlugDisplayNameSchema(Schema):
@@ -44,6 +41,13 @@ class DissertationSchema(ModelSchema):
     upload_date: str = Field(..., alias="upload_date.isoformat")
     relevant_categories: list[SlugDisplayNameSchema]
     can_edit: bool
+    id: int  # Explicitly include ID since it is known to exist; vitalik/django-ninja#1160
+    year: int  # Explicitly include year since it is known to exist; vitalik/django-ninja#1160
+    grade_band: (
+        str | None
+    )  # Explicitly include grade_band since it is known to exist; vitalik/django-ninja#1160
+    study_level: str  # Explicitly include study_level since it is known to exist; vitalik/django-ninja#1160
+    notes: str  # Explicitly include notes since it is known to exist; vitalik/django-ninja#1160
 
     @staticmethod
     def resolve_relevant_categories(
@@ -63,15 +67,10 @@ class DissertationSchema(ModelSchema):
     class Meta:
         model = Dissertation
         fields = [
-            "id",
             "title",
             "field_of_study",
             "supervisors",
-            "notes",
             "file_path",
-            "study_level",
-            "grade_band",
-            "year",
         ]
 
 
@@ -123,6 +122,13 @@ def redact_file(file: UploadedFile, words_to_redact: list[str]) -> str:
     """
     handle, temp_file_path = tempfile.mkstemp(dir=settings.COMSOL_UPLOAD_FOLDER)
 
+    if not words_to_redact:
+        # If no words to redact, just copy the file to the handle
+        with os.fdopen(handle, "wb") as temp_file:
+            for chunk in file.chunks():
+                temp_file.write(chunk)
+        return temp_file_path
+
     options = RedactorOptions()
     options.content_filters = [
         # Replace each phrase with some periods.
@@ -140,7 +146,9 @@ def redact_file(file: UploadedFile, words_to_redact: list[str]) -> str:
     return temp_file_path
 
 
-@router.post("/", response=ValueWrapped[DissertationSchema])
+@router.post(
+    "/", response=ValueWrapped[DissertationSchema], operation_id="uploadDissertation"
+)
 @auth_check.require_login
 def upload_dissertation(
     request, data: Form[DissertationUploadSchema], pdf_file: File[UploadedFile]
@@ -153,10 +161,13 @@ def upload_dissertation(
     grade_band = data.grade_band
     year = data.year
 
-    temp_file_path = redact_file(
-        pdf_file,
-        [w.strip() for w in (data.words_to_redact or "").split(",") if w.strip()],
-    )
+    try:
+        temp_file_path = redact_file(
+            pdf_file,
+            [w.strip() for w in (data.words_to_redact or "").split(",") if w.strip()],
+        )
+    except Exception as e:
+        return response.not_possible(f"Error redacting file: {str(e)}")
 
     # Upload PDF to Minio
     # Assuming the bucket already exists or is created by Minio setup
@@ -194,7 +205,7 @@ class DissertationRedactionSchema(Schema):
     words: str  # comma separated, since our frontend doesn't explode arrays
 
 
-@router.post("/redact/", response=ValueWrapped[str])
+@router.post("/redact/", response=ValueWrapped[str], operation_id="redactDissertation")
 @auth_check.require_login
 def redact_dissertation(
     request, pdf_file: File[UploadedFile], data: Form[DissertationRedactionSchema]
@@ -209,14 +220,18 @@ def redact_dissertation(
                 f"Redaction phrase has to be alphanumeric: {word}"
             )
 
-    temp_file_path = redact_file(
-        pdf_file, [w.strip() for w in data.words.split(",") if w.strip()]
-    )
+    try:
+        temp_file_path = redact_file(
+            pdf_file, [w.strip() for w in data.words.split(",") if w.strip()]
+        )
+    except Exception as e:
+        return response.not_possible(f"Error redacting file: {str(e)}")
 
     s3_util.save_file_to_s3(
         bucket_name + "_temp_redacted/",
         f"redacted_{pdf_file.name}",
         temp_file_path,
+        pdf_file.content_type or "application/pdf",
     )
 
     os.remove(temp_file_path)
@@ -240,7 +255,11 @@ def redact_dissertation(
     return {"value": presigned_url}
 
 
-@router.get("/", response=ValueWrapped[list[DissertationSchema]])
+@router.get(
+    "/",
+    response=ValueWrapped[list[DissertationSchema]],
+    operation_id="listDissertations",
+)
 @auth_check.require_login
 def list_dissertations(
     request,
@@ -281,14 +300,22 @@ def list_dissertations(
     return {"value": dissertations}
 
 
-@router.get("/{dissertation_id}/", response=ValueWrapped[DissertationSchema])
+@router.get(
+    "/{dissertation_id}/",
+    response=ValueWrapped[DissertationSchema],
+    operation_id="getDissertationDetail",
+)
 @auth_check.require_login
 def get_dissertation_detail(request, dissertation_id: int):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
     return {"value": dissertation}
 
 
-@router.get("/{dissertation_id}/download/", response=ValueWrapped[str])
+@router.get(
+    "/{dissertation_id}/download/",
+    response=ValueWrapped[str],
+    operation_id="downloadDissertation",
+)
 @auth_check.require_login
 def download_dissertation(request, dissertation_id: int):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
@@ -309,7 +336,11 @@ def download_dissertation(request, dissertation_id: int):
     return {"value": presigned_url}
 
 
-@router.put("/{dissertation_id}/", response=ValueWrapped[DissertationSchema])
+@router.put(
+    "/{dissertation_id}/",
+    response=ValueWrapped[DissertationSchema],
+    operation_id="updateDissertation",
+)
 @auth_check.require_login
 def update_dissertation(
     request,
@@ -333,6 +364,10 @@ def update_dissertation(
                 return response.not_possible("One or more categories not found.")
             dissertation.relevant_categories.set(categories)
             continue
+
+        # Form fields don't support null so parse "none" as custom value
+        if attr == "grade_band" and value == "none":
+            value = None
         setattr(dissertation, attr, value)
 
     if pdf_file:
@@ -343,10 +378,17 @@ def update_dissertation(
             old_file_name = "/".join(old_path_parts[2:])
             s3_util.delete_file(old_bucket_name + "/", old_file_name)
 
-        temp_file_path = redact_file(
-            pdf_file,
-            [w.strip() for w in (data.words_to_redact or "").split(",") if w.strip()],
-        )
+        try:
+            temp_file_path = redact_file(
+                pdf_file,
+                [
+                    w.strip()
+                    for w in (data.words_to_redact or "").split(",")
+                    if w.strip()
+                ],
+            )
+        except Exception as e:
+            return response.not_possible(f"Error redacting file: {str(e)}")
 
         # Upload PDF to Minio
         file_name = f"{dissertation.title.replace(' ', '_')}_{pdf_file.name}"
@@ -365,7 +407,7 @@ def update_dissertation(
     return {"value": dissertation}
 
 
-@router.delete("/{dissertation_id}/")
+@router.delete("/{dissertation_id}/", operation_id="deleteDissertation")
 @auth_check.require_login
 def delete_dissertation(request, dissertation_id: int):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)

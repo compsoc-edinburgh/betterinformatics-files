@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { useDissertations } from "../api/hooks";
 import {
   Text,
   Table,
@@ -18,6 +17,7 @@ import {
 import { IconSearch } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { Link } from "react-router-dom";
+import { useListDissertations } from "../api/hooks/dissertations";
 
 interface Props {
   slug?: string;
@@ -30,14 +30,28 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
   const [searchField, setSearchField] = useState<string | null>("title");
 
   const {
-    error,
-    loading,
     data: dissertations,
-  } = useDissertations(debouncedSearchQuery, searchField ?? "", slug);
+    isFetching,
+    isError,
+    error,
+  } = useListDissertations(
+    {
+      query: debouncedSearchQuery,
+      field: searchField ?? "",
+      category: slug,
+    },
+    {
+      query: {
+        select({ value: document }) {
+          return document;
+        },
+      },
+    },
+  );
 
   // Show larger loading indicator only if it's taking a while - otherwise it's
   // a bit too annoying. there already is a small spinner in the search box.
-  const [loadingDebounced] = useDebouncedValue(loading, 500);
+  const [loadingDebounced] = useDebouncedValue(isFetching, 500);
   const rows = useMemo(() => {
     return dissertations
       ? dissertations.map(dissertation => (
@@ -103,7 +117,7 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
               onChange={event => setSearchQuery(event.currentTarget.value)}
               leftSection={<IconSearch size={16} />}
               rightSection={
-                loading ? (
+                loadingDebounced ? (
                   <Loader size="xs" />
                 ) : (
                   <CloseButton
@@ -130,7 +144,7 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
         </>
       )}
 
-      {error && (
+      {isError && (
         <Notification title="Error" color="red">
           {String(error)}
         </Notification>
@@ -144,8 +158,8 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
           <Progress value={100} animated striped />
         </Collapse>
 
-        {!loading &&
-          !error &&
+        {!loadingDebounced &&
+          !isError &&
           (dissertations?.length === 0 ? (
             <Text>No dissertations found. :(</Text>
           ) : (
