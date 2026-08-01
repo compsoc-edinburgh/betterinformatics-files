@@ -269,7 +269,7 @@ const AcceptTransferBanner: React.FC<AcceptTransferBannerProps> = ({
         {/* Only show accept button if user is the target (and not owner self, just in case) */}
         {showBecause.targetUser && !showBecause.documentOwner ? (
           <Button
-            color="brand"
+            color="compsocMain"
             variant="filled"
             size="compact-sm"
             type="button"
