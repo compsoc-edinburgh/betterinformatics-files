@@ -41,12 +41,13 @@ class DissertationSchema(ModelSchema):
     upload_date: str = Field(..., alias="upload_date.isoformat")
     relevant_categories: list[SlugDisplayNameSchema]
     can_edit: bool
-    id: int  # Explicitly include ID due to vitalik/django-ninja#1160
-    year: int  # Explicitly include year due to vitalik/django-ninja#1160
+    id: int  # Explicitly include ID since it is known to exist; vitalik/django-ninja#1160
+    year: int  # Explicitly include year since it is known to exist; vitalik/django-ninja#1160
     grade_band: (
         str | None
-    )  # Explicitly include grade_band due to vitalik/django-ninja#1160
-    notes: str | None  # Explicitly include notes due to vitalik/django-ninja#1160
+    )  # Explicitly include grade_band since it is known to exist; vitalik/django-ninja#1160
+    study_level: str  # Explicitly include study_level since it is known to exist; vitalik/django-ninja#1160
+    notes: str  # Explicitly include notes since it is known to exist; vitalik/django-ninja#1160
 
     @staticmethod
     def resolve_relevant_categories(
@@ -70,7 +71,6 @@ class DissertationSchema(ModelSchema):
             "field_of_study",
             "supervisors",
             "file_path",
-            "study_level",
         ]
 
 
@@ -364,6 +364,10 @@ def update_dissertation(
                 return response.not_possible("One or more categories not found.")
             dissertation.relevant_categories.set(categories)
             continue
+
+        # Form fields don't support null so parse "none" as custom value
+        if attr == "grade_band" and value == "none":
+            value = None
         setattr(dissertation, attr, value)
 
     if pdf_file:

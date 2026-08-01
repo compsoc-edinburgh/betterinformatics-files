@@ -95,6 +95,8 @@ const DissertationUploadPage: React.FC<Props> = ({
       supervisors: editing_existing?.supervisors ?? "",
       notes: editing_existing?.notes ?? "",
       study_level: editing_existing?.study_level ?? "",
+      // Mantine select uses undefined for no selection, but our API uses null
+      // - coerce one way here, and the other way when we submit
       grade_band: editing_existing?.grade_band ?? undefined,
       // Mantine Select only accepts strings as data - we need to convert back
       // when we submit
@@ -191,7 +193,7 @@ const DissertationUploadPage: React.FC<Props> = ({
           supervisors: values.supervisors,
           notes: values.notes,
           study_level: values.study_level,
-          grade_band: values.grade_band,
+          grade_band: values.grade_band ?? null,
           year: Number(values.year),
           relevant_categories: values.relevant_categories.join(","),
         },
@@ -207,7 +209,7 @@ const DissertationUploadPage: React.FC<Props> = ({
           supervisors: values.supervisors,
           notes: values.notes,
           study_level: values.study_level,
-          grade_band: values.grade_band,
+          grade_band: values.grade_band ?? null,
           year: Number(values.year),
           relevant_categories: values.relevant_categories.join(","),
         },
@@ -490,6 +492,7 @@ const DissertationUploadPage: React.FC<Props> = ({
               placeholder="Select grade band"
               mt="md"
               data={[
+                { value: "none", label: "--" },
                 { value: "40-49", label: "40-49" },
                 { value: "50-59", label: "50-59" },
                 { value: "60-69", label: "60-69" },
@@ -498,7 +501,7 @@ const DissertationUploadPage: React.FC<Props> = ({
                 { value: "90-100", label: "90-100" },
               ]}
               {...form.getInputProps("grade_band")}
-              clearable
+              defaultValue="none"
             />
 
             <Textarea
