@@ -34,6 +34,10 @@ const Footer: React.FC<FooterProps> = ({
   const [uwu, setLocalUwu] = useLocalStorageState("uwu", false);
   const setUwu = () => {
     setLocalUwu(!uwu);
+    // Remove any hardcoded uwu query parameter from the URL to avoid confusion
+    const url = new URL(window.location.href);
+    url.searchParams.delete("uwu");
+    window.history.replaceState({}, "", url.toString());
     window.location.reload();
   };
 
