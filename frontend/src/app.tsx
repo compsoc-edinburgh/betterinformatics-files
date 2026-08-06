@@ -177,8 +177,9 @@ const App: React.FC = () => {
   // Update local storage if a new uwu query parameter is set
   const [uwu, setLocalUwu] = useLocalStorageState("uwu", false);
   const [searchParams] = useSearchParams();
-  const newUwu = !!searchParams.get("uwu");
-  if (uwu !== newUwu) setLocalUwu(newUwu);
+  const newUwu = searchParams.get("uwu");
+  const newUwuBool = newUwu === "" || newUwu === "true" || newUwu === "1";
+  if (newUwu !== null && newUwuBool !== uwu) setLocalUwu(newUwuBool);
 
   // Retrieve the config options (such as the logo, global menu items, etc) from
   // the global configOptions variable if set (in index.html). The defaults are
