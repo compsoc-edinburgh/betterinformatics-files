@@ -1,15 +1,13 @@
 import datetime
-from typing import Optional
 
+import diff_match_patch as dmp_module
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 from ninja.decorators import decorate_view
 
-import diff_match_patch as dmp_module
-
-from categories.models import Category
 from backend import settings
+from categories.models import Category
 from ediauth import auth_check
 from pages.models import Page, PageAuthor, PageRevision
 
@@ -19,14 +17,14 @@ router = Router(tags=["Pages"])
 class PageAuthorResponse(Schema):
     display_name: str
     anonymised: bool
-    username: Optional[str]
+    username: str | None
 
 
 class PageResponse(Schema):
     title: str
     slug: str
     kind: Page.Kind
-    category: Optional[str]
+    category: str | None
     parents: list[str]
     created_at: datetime.datetime
     edited_at: datetime.datetime
@@ -38,7 +36,7 @@ class PageListResponseItem(Schema):
     title: str
     slug: str
     kind: Page.Kind
-    category: Optional[str]
+    category: str | None
     parents: list[str]
     created_at: datetime.datetime
     edited_at: datetime.datetime
@@ -100,11 +98,11 @@ def get_page_author(request) -> PageAuthor:
     return author
 
 
-@router.get("/", response=PageListResponse)
+@router.get("/", response=PageListResponse, operation_id="list_pages")
 def list_pages(
     request,
-    child_of: Optional[str] = None,
-    category: Optional[str] = None,
+    child_of: str | None = None,
+    category: str | None = None,
 ):
     query = Page.objects.all()
 
@@ -145,7 +143,7 @@ def list_pages(
     return {"pages": page_list}
 
 
-@router.get("/{slug}")
+@router.get("/{slug}", operation_id="get_page", response=PageResponse)
 def get_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
 
@@ -164,7 +162,7 @@ def get_page(request, slug: str):
 
 class PageCreateRequest(Schema):
     title: str
-    category: Optional[str]
+    category: str | None
     parents: list[str]
     is_anonymous: bool
 
@@ -206,7 +204,7 @@ def calculate_patch(old_content: str, new_content: str) -> str:
     return dmp.patch_toText(patch)
 
 
-@router.post("/", response=PageCreateResponse)
+@router.post("/", response=PageCreateResponse, operation_id="create_page")
 @decorate_view(auth_check.supports_temp_user)
 def create_page(request, data: PageCreateRequest):
     slug = create_page_slug(data.title)
@@ -262,14 +260,14 @@ def create_page(request, data: PageCreateRequest):
 
 class PageUpdateRequest(Schema):
     title: str
-    category: Optional[str]
+    category: str | None
     parents: list[str]
     content: str
     revision_message: str
     is_anonymous: bool
 
 
-@router.put("/{slug}", response=PageUpdateResponse)
+@router.put("/{slug}", response=PageUpdateResponse, operation_id="update_page")
 @decorate_view(auth_check.supports_temp_user)
 def update_page(request, slug: str, data: PageUpdateRequest):
     page = get_object_or_404(Page, slug=slug)
@@ -317,7 +315,11 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     return {"slug": page.slug}
 
 
-@router.get("/{slug}/revisions/", response=PageRevisionListResponse)
+@router.get(
+    "/{slug}/revisions/",
+    response=PageRevisionListResponse,
+    operation_id="list_revisions",
+)
 @auth_check.require_login
 def list_revisions(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
@@ -337,7 +339,7 @@ def list_revisions(request, slug: str):
     return {"revisions": revision_list}
 
 
-@router.delete("/{slug}", response={204: None, 403: str})
+@router.delete("/{slug}", response={204: None, 403: str}, operation_id="delete_page")
 def delete_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
 
