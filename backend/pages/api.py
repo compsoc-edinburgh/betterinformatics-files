@@ -86,13 +86,9 @@ def get_page_author_response(
 
 def get_page_author(request) -> PageAuthor:
     if request.user:
-        author, _created = PageAuthor.objects.get_or_create(
-            user=request.user, is_anonymous=False
-        )
+        author, _created = PageAuthor.objects.get_or_create(user=request.user)
     elif request.temp_user:
-        author, _created = PageAuthor.objects.get_or_create(
-            temp_user=request.temp_user, is_anonymous=False
-        )
+        author, _created = PageAuthor.objects.get_or_create(temp_user=request.temp_user)
     else:
         raise ValueError("No user or temp user found in request")
     return author
@@ -238,6 +234,7 @@ def create_page(request, data: PageCreateRequest):
         kind=Page.Kind.GUIDE,
         category=category,
         author=author,
+        anonymised=data.is_anonymous,
         content="",
     )
     page.save()
@@ -250,6 +247,7 @@ def create_page(request, data: PageCreateRequest):
     PageRevision.objects.create(
         page=page,
         author=author,
+        anonymised=data.is_anonymous,
         content_delta=content_patch,
         title_delta=title_patch,
         message="Created empty page",
@@ -307,6 +305,7 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     PageRevision.objects.create(
         page=page,
         author=author,
+        anonymised=data.is_anonymous,
         content_delta=content_patch,
         title_delta=title_patch,
         message=data.revision_message,
