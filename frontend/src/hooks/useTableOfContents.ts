@@ -1,6 +1,14 @@
 import React from "react";
 
-export const useTableOfContents = (markdown: string) => {
+export interface TableOfContentsEntry {
+  level: number;
+  text: string;
+  slug: string;
+}
+
+export const useTableOfContents = (
+  markdown: string,
+): IteratorObject<TableOfContentsEntry> => {
   const headings = React.useMemo(() => {
     const regex = /^(#{1,6})\s+(.*)$/gm;
     return markdown.matchAll(regex).map(match => {

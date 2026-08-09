@@ -1,27 +1,28 @@
 import React from "react";
 import {
   Container,
-  Title,
   Text,
   Paper,
   Flex,
   Stack,
-  Group,
   Anchor,
   Button,
   Divider,
 } from "@mantine/core";
-import { IconMenu3, IconPencil, IconSquarePlus } from "@tabler/icons-react";
+import { IconSquarePlus } from "@tabler/icons-react";
 import { useGetPage, useListPages } from "../api/hooks/pages";
 import { Link, useParams } from "react-router";
-import { useTableOfContents } from "../hooks/useTableOfContents";
 import { PageArticle } from "../components/page-article";
+import { GuideSidebarRight } from "../components/guide-sidebar-right";
+import { useTableOfContents } from "../hooks/useTableOfContents";
 
 const GuidePage: React.FC = () => {
   const { slug } = useParams() as { slug?: string };
   const { data: page, isError } = useGetPage(slug ?? "year1");
   const { data: pages } = useListPages({ child_of: "", category: "" });
   const toc = useTableOfContents(page?.content ?? "");
+  const parentPages =
+    pages?.pages.filter(p => page?.parents.includes(p.slug)) ?? [];
 
   if (isError) {
     return (
@@ -65,65 +66,7 @@ const GuidePage: React.FC = () => {
             </Paper>
           </Stack>
           {page ? <PageArticle page={page} /> : <div />}
-          <Stack gap="xs" style={{ minWidth: "200px" }}>
-            <Paper shadow="none" p="md">
-              <Group gap="xs" mb="md">
-                <IconPencil size={16} />
-                <Title
-                  order={2}
-                  fz="h6"
-                  style={{ textTransform: "uppercase" }}
-                  opacity={0.8}
-                >
-                  Admin
-                </Title>
-              </Group>
-              <Button size="compact-sm" variant="outline">
-                Edit
-              </Button>
-              <Group gap="xs" my="md">
-                <IconMenu3 size={16} />
-                <Title
-                  order={2}
-                  fz="h6"
-                  style={{ textTransform: "uppercase" }}
-                  opacity={0.8}
-                >
-                  On This Page
-                </Title>
-              </Group>
-              {toc.map(({ level, text, slug }) => (
-                <Anchor
-                  display="block"
-                  key={slug}
-                  href={`#${slug}`}
-                  style={{ marginLeft: `${(level - 1) * 10}px` }}
-                >
-                  {text}
-                </Anchor>
-              ))}
-              {page && page.parents.length > 0 && (
-                <>
-                  <Group gap="xs" mb="md">
-                    <IconMenu3 size={16} />
-                    <Title
-                      order={2}
-                      fz="h6"
-                      style={{ textTransform: "uppercase" }}
-                      opacity={0.8}
-                    >
-                      Parent Pages
-                    </Title>
-                  </Group>
-                  {page.parents.map(slug => (
-                    <Anchor display="block" key={slug} href={`#${slug}`}>
-                      {pages?.pages.find(p => p.slug === slug)?.title ?? slug}
-                    </Anchor>
-                  ))}
-                </>
-              )}
-            </Paper>
-          </Stack>
+          <GuideSidebarRight toc={toc} parentPages={parentPages} />
         </Flex>
       </Container>
     </>
