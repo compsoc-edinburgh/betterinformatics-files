@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PageResponse } from "../api/model";
 import { Group, Paper, TextInput, Title } from "@mantine/core";
 import MarkdownText from "./markdown-text";
@@ -10,8 +10,10 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 export const PageArticle: React.FC<{
   page: PageResponse;
   editing: boolean;
+  hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
   setEditing: (editing: boolean) => void;
-}> = ({ page, editing }) => {
+}> = ({ page, editing, hasUnsavedChanges, setHasUnsavedChanges }) => {
   const [editingTitle, setEditingTitle] = useState(page.title);
   const [editingContent, setEditingContent] = useState(page.content);
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
@@ -31,7 +33,12 @@ export const PageArticle: React.FC<{
         <TextInput
           placeholder="Title"
           value={editingTitle}
-          onChange={e => setEditingTitle(e.target.value)}
+          onChange={e => {
+            setEditingTitle(e.target.value);
+            if (e.target.value !== page.title && !hasUnsavedChanges) {
+              setHasUnsavedChanges(true);
+            }
+          }}
           classNames={{
             input: style.editingTitle,
           }}
@@ -61,7 +68,12 @@ export const PageArticle: React.FC<{
         <Editor
           value={editingContent}
           allowOfficialAnswer={false}
-          onChange={setEditingContent}
+          onChange={value => {
+            setEditingContent(value);
+            if (value !== page.content && !hasUnsavedChanges) {
+              setHasUnsavedChanges(true);
+            }
+          }}
           imageHandler={file => {
             throw new Error("Function not implemented");
           }}

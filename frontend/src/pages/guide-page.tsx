@@ -24,6 +24,7 @@ const GuidePage: React.FC = () => {
   const parentPages =
     pages?.pages.filter(p => page?.parents.includes(p.slug)) ?? [];
   const [editing, setEditing] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   if (isError) {
     return (
@@ -70,6 +71,8 @@ const GuidePage: React.FC = () => {
               page={page}
               editing={editing}
               setEditing={setEditing}
+              hasUnsavedChanges={hasUnsavedChanges}
+              setHasUnsavedChanges={setHasUnsavedChanges}
             />
           ) : (
             <div />
@@ -81,6 +84,7 @@ const GuidePage: React.FC = () => {
             createdAt={page ? parseISO(page.created_at) : undefined}
             author={page?.author}
             editing={editing}
+            hasUnsavedChanges={hasUnsavedChanges}
             setEditing={setEditing}
           />
         </Flex>

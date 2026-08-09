@@ -16,6 +16,7 @@ import { TableOfContentsEntry } from "../hooks/useTableOfContents";
 import { formatISO, formatRelative } from "date-fns";
 import { useUser } from "../auth";
 import style from "./guide-sidebar-right.module.css";
+import { clsx } from "clsx";
 
 export const GuideSidebarRight: React.FC<{
   toc: TableOfContentsEntry[];
@@ -24,6 +25,7 @@ export const GuideSidebarRight: React.FC<{
   createdAt?: Date;
   author?: PageAuthorResponse;
   editing: boolean;
+  hasUnsavedChanges: boolean;
   setEditing: (editing: boolean) => void;
 }> = ({
   toc,
@@ -32,6 +34,7 @@ export const GuideSidebarRight: React.FC<{
   createdAt,
   author,
   editing,
+  hasUnsavedChanges,
   setEditing,
 }) => {
   const user = useUser();
@@ -50,7 +53,12 @@ export const GuideSidebarRight: React.FC<{
         </Title>
       </Group>
       {editing ? (
-        <>
+        <div
+          className={clsx(
+            style.editingActions,
+            hasUnsavedChanges && style.unsaved,
+          )}
+        >
           <TextInput label="Describe your changes" w="100%" />
           <Button
             size="compact-sm"
@@ -59,7 +67,7 @@ export const GuideSidebarRight: React.FC<{
           >
             Save
           </Button>
-        </>
+        </div>
       ) : (
         <Button
           size="compact-sm"
