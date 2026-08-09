@@ -68,6 +68,13 @@ class PageRevisionListResponse(Schema):
 def get_page_author_response(
     author: PageAuthor, anonymised: bool, request: HttpRequest
 ) -> PageAuthorResponse:
+    if not request.user:
+        return PageAuthorResponse(
+            display_name="Hidden",
+            anonymised=True,
+            username=None,
+        )
+
     if anonymised and not auth_check.has_admin_rights(request):
         display_name = "Anonymous"
     elif author.user:
