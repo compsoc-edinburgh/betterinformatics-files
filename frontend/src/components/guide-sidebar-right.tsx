@@ -60,13 +60,22 @@ export const GuideSidebarRight: React.FC<{
           )}
         >
           <TextInput label="Describe your changes" w="100%" />
-          <Button
-            size="compact-sm"
-            variant="outline"
-            onClick={() => setEditing(false)}
-          >
-            Save
-          </Button>
+          <Group gap="xs" justify="space-between">
+            <Button
+              size="compact-sm"
+              variant="outline"
+              onClick={() => setEditing(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="compact-sm"
+              variant="filled"
+              onClick={() => setEditing(false)}
+            >
+              Save
+            </Button>
+          </Group>
         </div>
       ) : (
         <Button
