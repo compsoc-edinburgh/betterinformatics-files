@@ -8,10 +8,10 @@ export interface TableOfContentsEntry {
 
 export const useTableOfContents = (
   markdown: string,
-): IteratorObject<TableOfContentsEntry> => {
+): TableOfContentsEntry[] => {
   const headings = React.useMemo(() => {
     const regex = /^(#{1,6})\s+(.*)$/gm;
-    return markdown.matchAll(regex).map(match => {
+    return [...markdown.matchAll(regex)].map(match => {
       const level = match[1].length;
       const text = match[2];
 

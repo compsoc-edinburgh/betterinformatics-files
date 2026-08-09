@@ -14,6 +14,7 @@ import { Link, useParams } from "react-router";
 import { PageArticle } from "../components/page-article";
 import { GuideSidebarRight } from "../components/guide-sidebar-right";
 import { useTableOfContents } from "../hooks/useTableOfContents";
+import { parseISO } from "date-fns";
 
 const GuidePage: React.FC = () => {
   const { slug } = useParams() as { slug?: string };
@@ -76,6 +77,9 @@ const GuidePage: React.FC = () => {
           <GuideSidebarRight
             toc={toc}
             parentPages={parentPages}
+            updatedAt={page ? parseISO(page.edited_at) : undefined}
+            createdAt={page ? parseISO(page.created_at) : undefined}
+            author={page?.author}
             editing={editing}
             setEditing={setEditing}
           />

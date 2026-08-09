@@ -1,15 +1,40 @@
 import React from "react";
-import { Anchor, Button, Group, Stack, TextInput, Title } from "@mantine/core";
+import {
+  Anchor,
+  Button,
+  Divider,
+  Group,
+  Stack,
+  TextInput,
+  Title,
+  Text,
+  Tooltip,
+} from "@mantine/core";
 import { IconMenu3, IconPencil } from "@tabler/icons-react";
-import { PageListResponseItem } from "../api/model";
+import { PageAuthorResponse, PageListResponseItem } from "../api/model";
 import { TableOfContentsEntry } from "../hooks/useTableOfContents";
+import { formatISO, formatRelative } from "date-fns";
+import { useUser } from "../auth";
 
 export const GuideSidebarRight: React.FC<{
-  toc: IteratorObject<TableOfContentsEntry>;
+  toc: TableOfContentsEntry[];
   parentPages: PageListResponseItem[];
+  updatedAt?: Date;
+  createdAt?: Date;
+  author?: PageAuthorResponse;
   editing: boolean;
   setEditing: (editing: boolean) => void;
-}> = ({ toc, parentPages, editing, setEditing }) => {
+}> = ({
+  toc,
+  parentPages,
+  updatedAt,
+  createdAt,
+  author,
+  editing,
+  setEditing,
+}) => {
+  const user = useUser();
+
   return (
     <Stack gap={0} style={{ minWidth: "200px" }} align="flex-start">
       <Group gap="xs" mb="md">
@@ -83,6 +108,58 @@ export const GuideSidebarRight: React.FC<{
             </Anchor>
           ))}
         </>
+      )}
+      <Divider my="md" w="100%" />
+      {updatedAt && (
+        <dl>
+          <dt>
+            <Text size="xs" c="gray.5">
+              Last Updated
+            </Text>
+          </dt>
+          <dd>
+            <Tooltip label={formatISO(updatedAt)} withArrow>
+              <Text size="xs" c="gray.5">
+                {formatRelative(updatedAt, new Date())}
+              </Text>
+            </Tooltip>
+          </dd>
+        </dl>
+      )}
+      {createdAt && (
+        <dl>
+          <dt>
+            <Text size="xs" c="gray.5">
+              Created
+            </Text>
+          </dt>
+          <dd>
+            <Tooltip label={formatISO(createdAt)} withArrow>
+              <Text size="xs" c="gray.5">
+                {formatRelative(createdAt, new Date())}
+              </Text>
+            </Tooltip>
+          </dd>
+        </dl>
+      )}
+      {author && user?.loggedin && (
+        <dl>
+          <dt>
+            <Text size="xs" c="gray.5">
+              Created by
+            </Text>
+          </dt>
+          <dd>
+            <Tooltip
+              label={!author.anonymised && `@${author.username}`}
+              withArrow
+            >
+              <Text size="xs" c="gray.5">
+                {author.anonymised ? "Anonymous" : author.display_name}
+              </Text>
+            </Tooltip>
+          </dd>
+        </dl>
       )}
     </Stack>
   );
