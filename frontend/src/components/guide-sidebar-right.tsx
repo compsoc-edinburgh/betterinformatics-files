@@ -11,7 +11,7 @@ export const GuideSidebarRight: React.FC<{
   setEditing: (editing: boolean) => void;
 }> = ({ toc, parentPages, editing, setEditing }) => {
   return (
-    <Stack gap="xs" style={{ minWidth: "200px" }} align="flex-start">
+    <Stack gap={0} style={{ minWidth: "200px" }} align="flex-start">
       <Group gap="xs" mb="md">
         <IconPencil size={16} />
         <Title
@@ -20,7 +20,7 @@ export const GuideSidebarRight: React.FC<{
           style={{ textTransform: "uppercase" }}
           opacity={0.8}
         >
-          Admin
+          Actions
         </Title>
       </Group>
       {editing ? (
