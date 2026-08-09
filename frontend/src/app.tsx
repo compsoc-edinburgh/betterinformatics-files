@@ -42,6 +42,7 @@ import {
 import { useScrollToHash } from "./hooks/useScrollToHash";
 import ExternalNavElement from "./components/Navbar/ExternalNav";
 import { IconSparkles2Filled } from "@tabler/icons-react";
+import GuidePage from "./pages/guide-page";
 
 export function calculateShades(color: string): MantineColorsTuple {
   const LIGHTNESS_MAP = [
@@ -262,6 +263,7 @@ const App: React.FC = () => {
   const bottomHeaderNav = [
     { title: "Courses", href: "/" },
     { title: "Dissertations", href: "/dissertations" },
+    { title: "Guides", href: "/guide" },
     {
       title: "More",
       childItems: [
@@ -356,6 +358,7 @@ const App: React.FC = () => {
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                      <Route path="/guide/*" element={<GuidePage />} />
                       <Route element={<AuthenticatedRoutes />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/uploadpdf" element={<UploadPdfPage />} />

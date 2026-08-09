@@ -1,0 +1,15 @@
+.page-article {
+  border-left: "1px solid var(--paper-border-color)";
+  animation: fadeInUp 0.4s ease-in-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
