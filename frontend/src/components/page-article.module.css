@@ -14,3 +14,10 @@
     transform: translateY(0);
   }
 }
+
+.editing-title {
+  font-weight: var(--mantine-h1-font-weight);
+  line-height: var(--mantine-h1-line-height);
+  font-size: var(--mantine-h1-font-size);
+  margin-bottom: var(--mantine-spacing-sm);
+}
