@@ -1,6 +1,6 @@
 import React from "react";
 import { PageResponse } from "../api/model";
-import { Group, Title } from "@mantine/core";
+import { Group, Paper, Title } from "@mantine/core";
 import MarkdownText from "./markdown-text";
 import { IconMenu3 } from "@tabler/icons-react";
 import style from "./page-article.module.css";
@@ -11,7 +11,15 @@ export const PageArticle: React.FC<{
   setEditing: (editing: boolean) => void;
 }> = ({ page, editing, setEditing }) => {
   return (
-    <div className={style.pageArticle}>
+    <Paper
+      p={0}
+      pl="lg"
+      radius={0}
+      shadow="none"
+      className={
+        style.pageArticle /* Component must be Paper to use var(--paper-border-color) */
+      }
+    >
       <Title order={1} mb="md">
         {page.title}
       </Title>
@@ -31,6 +39,6 @@ export const PageArticle: React.FC<{
         </>
       )}
       <MarkdownText value={page.content} />
-    </div>
+    </Paper>
   );
 };
