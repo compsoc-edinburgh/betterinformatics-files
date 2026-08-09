@@ -15,6 +15,7 @@ import { PageAuthorResponse, PageListResponseItem } from "../api/model";
 import { TableOfContentsEntry } from "../hooks/useTableOfContents";
 import { formatISO, formatRelative } from "date-fns";
 import { useUser } from "../auth";
+import style from "./guide-sidebar-right.module.css";
 
 export const GuideSidebarRight: React.FC<{
   toc: TableOfContentsEntry[];
@@ -110,57 +111,59 @@ export const GuideSidebarRight: React.FC<{
         </>
       )}
       <Divider my="md" w="100%" />
-      {updatedAt && (
-        <dl>
-          <dt>
-            <Text size="xs" c="gray.5">
-              Last Updated
-            </Text>
-          </dt>
-          <dd>
-            <Tooltip label={formatISO(updatedAt)} withArrow>
+      <dl>
+        {updatedAt && (
+          <>
+            <dt className={style.dlHeading}>
               <Text size="xs" c="gray.5">
-                {formatRelative(updatedAt, new Date())}
+                Last Updated
               </Text>
-            </Tooltip>
-          </dd>
-        </dl>
-      )}
-      {createdAt && (
-        <dl>
-          <dt>
-            <Text size="xs" c="gray.5">
-              Created
-            </Text>
-          </dt>
-          <dd>
-            <Tooltip label={formatISO(createdAt)} withArrow>
+            </dt>
+            <dd className={style.dlData}>
+              <Tooltip label={formatISO(updatedAt)} withArrow>
+                <Text size="xs" c="gray.5">
+                  {formatRelative(updatedAt, new Date())}
+                </Text>
+              </Tooltip>
+            </dd>
+          </>
+        )}
+        {createdAt && (
+          <>
+            <dt className={style.dlHeading}>
               <Text size="xs" c="gray.5">
-                {formatRelative(createdAt, new Date())}
+                Created
               </Text>
-            </Tooltip>
-          </dd>
-        </dl>
-      )}
-      {author && user?.loggedin && (
-        <dl>
-          <dt>
-            <Text size="xs" c="gray.5">
-              Created by
-            </Text>
-          </dt>
-          <dd>
-            <Tooltip
-              label={!author.anonymised && `@${author.username}`}
-              withArrow
-            >
+            </dt>
+            <dd className={style.dlData}>
+              <Tooltip label={formatISO(createdAt)} withArrow>
+                <Text size="xs" c="gray.5">
+                  {formatRelative(createdAt, new Date())}
+                </Text>
+              </Tooltip>
+            </dd>
+          </>
+        )}
+        {author && user?.loggedin && (
+          <>
+            <dt className={style.dlHeading}>
               <Text size="xs" c="gray.5">
-                {author.anonymised ? "Anonymous" : author.display_name}
+                Created by
               </Text>
-            </Tooltip>
-          </dd>
-        </dl>
-      )}
+            </dt>
+            <dd className={style.dlData}>
+              <Tooltip
+                label={!author.anonymised && `@${author.username}`}
+                withArrow
+              >
+                <Text size="xs" c="gray.5">
+                  {author.anonymised ? "Anonymous" : author.display_name}
+                </Text>
+              </Tooltip>
+            </dd>
+          </>
+        )}
+      </dl>
     </Stack>
   );
 };
