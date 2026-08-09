@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Container,
   Text,
-  Paper,
   Flex,
   Stack,
   Anchor,
@@ -23,6 +22,7 @@ const GuidePage: React.FC = () => {
   const toc = useTableOfContents(page?.content ?? "");
   const parentPages =
     pages?.pages.filter(p => page?.parents.includes(p.slug)) ?? [];
+  const [editing, setEditing] = useState(false);
 
   if (isError) {
     return (
@@ -42,31 +42,43 @@ const GuidePage: React.FC = () => {
           gap="xs"
         >
           <Stack gap="xs" style={{ minWidth: "200px" }}>
-            <Paper shadow="none" p="md">
-              {pages?.pages.map(p => (
-                <Anchor
-                  display="block"
-                  key={p.slug}
-                  to={`/guide/${p.slug}`}
-                  component={Link}
-                >
-                  {p.title}
-                </Anchor>
-              ))}
-              <Divider my="md" />
-              <Button
+            {pages?.pages.map(p => (
+              <Anchor
+                display="block"
+                key={p.slug}
+                to={`/guide/${p.slug}`}
                 component={Link}
-                to={`/guide/new`}
-                size="compact-sm"
-                variant="subtle"
-                leftSection={<IconSquarePlus size={16} />}
               >
-                Create New Page
-              </Button>
-            </Paper>
+                {p.title}
+              </Anchor>
+            ))}
+            <Divider my="md" />
+            <Button
+              component={Link}
+              to={`/guide/new`}
+              size="compact-sm"
+              variant="subtle"
+              leftSection={<IconSquarePlus size={16} />}
+              justify="flex-start"
+            >
+              Create New Page
+            </Button>
           </Stack>
-          {page ? <PageArticle page={page} /> : <div />}
-          <GuideSidebarRight toc={toc} parentPages={parentPages} />
+          {page ? (
+            <PageArticle
+              page={page}
+              editing={editing}
+              setEditing={setEditing}
+            />
+          ) : (
+            <div />
+          )}
+          <GuideSidebarRight
+            toc={toc}
+            parentPages={parentPages}
+            editing={editing}
+            setEditing={setEditing}
+          />
         </Flex>
       </Container>
     </>

@@ -1,19 +1,17 @@
 import React from "react";
 import { PageResponse } from "../api/model";
-import { Group, Paper, Title } from "@mantine/core";
+import { Group, Title } from "@mantine/core";
 import MarkdownText from "./markdown-text";
 import { IconMenu3 } from "@tabler/icons-react";
 import style from "./page-article.module.css";
 
-export const PageArticle: React.FC<{ page: PageResponse }> = ({ page }) => {
+export const PageArticle: React.FC<{
+  page: PageResponse;
+  editing: boolean;
+  setEditing: (editing: boolean) => void;
+}> = ({ page, editing, setEditing }) => {
   return (
-    <Paper
-      shadow="none"
-      p="md"
-      radius={0}
-      flex={1}
-      className={style.pageArticle}
-    >
+    <div className={style.pageArticle}>
       <Title order={1} mb="md">
         {page.title}
       </Title>
@@ -33,6 +31,6 @@ export const PageArticle: React.FC<{ page: PageResponse }> = ({ page }) => {
         </>
       )}
       <MarkdownText value={page.content} />
-    </Paper>
+    </div>
   );
 };

@@ -1,6 +1,7 @@
 .page-article {
   border-left: "1px solid var(--paper-border-color)";
   animation: fadeInUp 0.4s ease-in-out;
+  flex: 1;
 }
 
 @keyframes fadeInUp {
