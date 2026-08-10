@@ -6,6 +6,7 @@ import {
   Text,
   Stack,
   ActionIcon,
+  Anchor,
 } from "@mantine/core";
 import { useUser } from "../auth";
 import { PageResponse } from "../api/model";
@@ -14,6 +15,7 @@ import { useState } from "react";
 import CodeBlock from "./code-block";
 import { IconChevronRight } from "@tabler/icons-react";
 import { formatISO } from "date-fns";
+import { Link } from "react-router-dom";
 
 export const PageArticleHistory: React.FC<{
   page: PageResponse;
@@ -51,18 +53,19 @@ export const PageArticleHistory: React.FC<{
     <Paper flex={1} style={{ overflow: "auto" }}>
       {revisions?.revisions.map(revision => (
         <Stack key={revision.id} gap={0} w="100%">
-          <Group
-            onClick={() => {
-              const newExpandedRevisions = new Set(expandedRevisions);
-              if (!expandedRevisions.has(revision.id)) {
-                newExpandedRevisions.add(revision.id);
-              } else {
-                newExpandedRevisions.delete(revision.id);
-              }
-              setExpandedRevisions(newExpandedRevisions);
-            }}
-          >
-            <ActionIcon variant="transparent">
+          <Group>
+            <ActionIcon
+              variant="transparent"
+              onClick={() => {
+                const newExpandedRevisions = new Set(expandedRevisions);
+                if (!expandedRevisions.has(revision.id)) {
+                  newExpandedRevisions.add(revision.id);
+                } else {
+                  newExpandedRevisions.delete(revision.id);
+                }
+                setExpandedRevisions(newExpandedRevisions);
+              }}
+            >
               <IconChevronRight
                 size={16}
                 style={{
@@ -74,7 +77,17 @@ export const PageArticleHistory: React.FC<{
             </ActionIcon>
             <Text td={revision.redacted ? "line-through" : "none"}>
               {formatISO(new Date(revision.created_at))} -{" "}
-              {revision.author.username} <i>({revision.message})</i>
+              {revision.author.username ? (
+                <Anchor
+                  component={Link}
+                  to={`/user/${revision.author.username}`}
+                >
+                  {revision.author.display_name} ({revision.author.username})
+                </Anchor>
+              ) : (
+                revision.author.display_name
+              )}
+              <i>({revision.message})</i>
             </Text>
           </Group>
           {!revision.redacted && (
