@@ -43,6 +43,7 @@ import { useScrollToHash } from "./hooks/useScrollToHash";
 import ExternalNavElement from "./components/Navbar/ExternalNav";
 import { IconSparkles2Filled } from "@tabler/icons-react";
 import GuidePage from "./pages/guide-page";
+import GuideHistoryPage from "./pages/guide-history-page";
 
 export function calculateShades(color: string): MantineColorsTuple {
   const LIGHTNESS_MAP = [
@@ -358,7 +359,11 @@ const App: React.FC = () => {
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                      <Route path="/guide/:slug?/*" element={<GuidePage />} />
+                      <Route path="/guide/:slug?" element={<GuidePage />} />
+                      <Route
+                        path="/guide/:slug/history"
+                        element={<GuideHistoryPage />}
+                      />
                       <Route element={<AuthenticatedRoutes />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/uploadpdf" element={<UploadPdfPage />} />

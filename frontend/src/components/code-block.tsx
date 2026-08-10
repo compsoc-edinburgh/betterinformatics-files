@@ -1,5 +1,8 @@
 import { useComputedColorScheme } from "@mantine/core";
-import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
+import {
+  LightAsync as SyntaxHighlighter,
+  SyntaxHighlighterProps,
+} from "react-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import atomOneLight from "react-syntax-highlighter/dist/esm/styles/hljs/atom-one-light";
 
@@ -37,7 +40,11 @@ interface Props {
   language?: string;
 }
 
-const CodeBlock = ({ value, language }: Props) => {
+const CodeBlock = ({
+  value,
+  language,
+  ...props
+}: Props & Partial<SyntaxHighlighterProps>) => {
   const computedColorScheme = useComputedColorScheme();
   return (
     <SyntaxHighlighter
@@ -45,7 +52,7 @@ const CodeBlock = ({ value, language }: Props) => {
       // of the code block. Often times this behavior is confusing, thus we skip highlighting for these
       // cases. Users can annotate their code blocks with the respective language if they wish their code
       // to be highlighted.
-      language={language ? aliases[language] ?? language : "text"}
+      language={language ? (aliases[language] ?? language) : "text"}
       style={computedColorScheme === "light" ? atomOneLight : atomOneDark}
       customStyle={{
         padding: "0.8em",
@@ -53,7 +60,9 @@ const CodeBlock = ({ value, language }: Props) => {
         border: "0.05rem solid rgba(0,0,0, 0.1)",
         wordWrap: "normal",
         overflowX: "auto",
+        ...props.customStyle,
       }}
+      {...props}
     >
       {value ?? ""}
     </SyntaxHighlighter>
