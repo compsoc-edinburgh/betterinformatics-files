@@ -27,7 +27,7 @@ export const GuideSidebarRight: React.FC<{
   editing: boolean;
   hasUnsavedChanges: boolean;
   setEditing: (editing: boolean) => void;
-  onSave: React.MouseEventHandler<HTMLButtonElement>;
+  onSave: React.SubmitEventHandler<HTMLFormElement>;
   isMutating: boolean;
 }> = ({
   toc,
@@ -57,13 +57,14 @@ export const GuideSidebarRight: React.FC<{
         </Title>
       </Group>
       {editing ? (
-        <div
+        <form
           className={clsx(
             style.editingActions,
             hasUnsavedChanges && style.unsaved,
           )}
+          onSubmit={onSave}
         >
-          <TextInput label="Describe your changes" w="100%" />
+          <TextInput label="Describe your changes" w="100%" required />
           <Group gap="xs" justify="space-between">
             <Button
               size="compact-sm"
@@ -75,13 +76,13 @@ export const GuideSidebarRight: React.FC<{
             <Button
               size="compact-sm"
               variant="filled"
-              onClick={onSave}
               loading={isMutating}
+              type="submit"
             >
               Save
             </Button>
           </Group>
-        </div>
+        </form>
       ) : (
         <Button
           size="compact-sm"

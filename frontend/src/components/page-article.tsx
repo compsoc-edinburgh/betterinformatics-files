@@ -19,7 +19,8 @@ import { parseISO } from "date-fns";
 export const PageArticle: React.FC<{
   page: PageResponse;
   parentPages: PageListResponseItem[];
-}> = ({ page, parentPages }) => {
+  refetch: () => void;
+}> = ({ page, parentPages, refetch }) => {
   const toc = useTableOfContents(page.content);
   const [editing, setEditing] = useState(false);
 
@@ -27,6 +28,7 @@ export const PageArticle: React.FC<{
     mutation: {
       onSuccess: () => {
         setEditing(false);
+        refetch();
       },
     },
   });

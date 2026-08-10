@@ -15,7 +15,7 @@ import { PageArticle } from "../components/page-article";
 
 const GuidePage: React.FC = () => {
   const { slug } = useParams() as { slug?: string };
-  const { data: page, isError } = useGetPage(slug ?? "year1");
+  const { data: page, isError, refetch } = useGetPage(slug ?? "year1");
   const { data: pages } = useListPages({ child_of: "", category: "" });
   const parentPages =
     pages?.pages.filter(p => page?.parents.includes(p.slug)) ?? [];
@@ -61,7 +61,11 @@ const GuidePage: React.FC = () => {
             </Button>
           </Stack>
           {page ? (
-            <PageArticle page={page} parentPages={parentPages} />
+            <PageArticle
+              page={page}
+              parentPages={parentPages}
+              refetch={refetch}
+            />
           ) : (
             <div />
           )}
