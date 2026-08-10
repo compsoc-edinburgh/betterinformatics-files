@@ -15,15 +15,20 @@ import {
 } from "@mantine/core";
 import { IconPlus, IconSquarePlus } from "@tabler/icons-react";
 import { useCreatePage, useGetPage, useListPages } from "../api/hooks/pages";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { PageArticle } from "../components/page-article";
 
 const GuidePage: React.FC = () => {
   const { slug } = useParams() as { slug?: string };
   const { data: page, isError, refetch } = useGetPage(slug ?? "year1");
-  const { data: pages } = useListPages({ child_of: "", category: "" });
+  const { data: pages, refetch: refetchPages } = useListPages({
+    child_of: "",
+    category: "",
+  });
   const parentPages =
     pages?.pages.filter(p => page?.parents.includes(p.slug)) ?? [];
+
+  const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [newPageName, setNewPageName] = useState("");
@@ -35,10 +40,13 @@ const GuidePage: React.FC = () => {
     isError: createIsError,
   } = useCreatePage({
     mutation: {
-      onSuccess() {
+      onSuccess(data) {
         setIsOpen(false);
         setNewPageName("");
-        void refetch();
+        setNewPageParents([]);
+        setNewPageAnonymous(false);
+        void refetchPages();
+        void navigate(`/guide/${data.slug}`);
       },
     },
   });

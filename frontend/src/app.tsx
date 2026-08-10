@@ -358,7 +358,7 @@ const App: React.FC = () => {
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                      <Route path="/guide/*" element={<GuidePage />} />
+                      <Route path="/guide/:slug/*" element={<GuidePage />} />
                       <Route element={<AuthenticatedRoutes />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/uploadpdf" element={<UploadPdfPage />} />
