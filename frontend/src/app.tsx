@@ -360,10 +360,6 @@ const App: React.FC = () => {
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/privacy" element={<PrivacyPolicyPage />} />
                       <Route path="/guide/:slug?" element={<GuidePage />} />
-                      <Route
-                        path="/guide/:slug/history"
-                        element={<GuideHistoryPage />}
-                      />
                       <Route element={<AuthenticatedRoutes />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/uploadpdf" element={<UploadPdfPage />} />
@@ -393,6 +389,10 @@ const App: React.FC = () => {
                         <Route
                           path="/exams/:filename/*"
                           element={<ExamPage />}
+                        />
+                        <Route
+                          path="/guide/:slug/history"
+                          element={<GuideHistoryPage />}
                         />
                         <Route path="/user/:username" element={<UserPage />} />
                         <Route path="/user/" element={<UserPage />} />
