@@ -10,6 +10,7 @@ from backend import settings
 from categories.models import Category
 from ediauth import auth_check
 from pages.models import Page, PageAuthor, PageRevision
+from util.response import ErrorSchema, not_allowed, not_possible
 
 router = Router(tags=["Pages"])
 
@@ -101,7 +102,9 @@ def get_page_author(request) -> PageAuthor:
     return author
 
 
-@router.get("/", response=PageListResponse, operation_id="list_pages")
+@router.get(
+    "/", response={200: PageListResponse, 404: ErrorSchema}, operation_id="list_pages"
+)
 def list_pages(
     request,
     child_of: str | None = None,
@@ -146,7 +149,9 @@ def list_pages(
     return {"pages": page_list}
 
 
-@router.get("/{slug}", operation_id="get_page", response=PageResponse)
+@router.get(
+    "/{slug}", operation_id="get_page", response={200: PageResponse, 404: ErrorSchema}
+)
 def get_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
 
@@ -207,7 +212,15 @@ def calculate_patch(old_content: str, new_content: str) -> str:
     return dmp.patch_toText(patch)
 
 
-@router.post("/", response=PageCreateResponse, operation_id="create_page")
+@router.post(
+    "/",
+    response={
+        201: PageCreateResponse,
+        400: ErrorSchema,
+        403: ErrorSchema,
+    },
+    operation_id="create_page",
+)
 @decorate_view(auth_check.supports_temp_user)
 def create_page(request, data: PageCreateRequest):
     slug = create_page_slug(data.title)
@@ -215,7 +228,7 @@ def create_page(request, data: PageCreateRequest):
 
     # Only admins can assign it a category - since they are category pages
     if data.category and not auth_check.has_admin_rights(request):
-        return 403, "Only admins can assign a category to a page"
+        return not_allowed()
 
     # Double check category exists
     category = None
@@ -223,7 +236,7 @@ def create_page(request, data: PageCreateRequest):
         try:
             category = Category.objects.get(slug=data.category)
         except Category.DoesNotExist:
-            return 400, f"Category {data.category} does not exist"
+            return not_possible(f"Category {data.category} does not exist")
 
     # Double check parents exists
     parents = []
@@ -232,7 +245,7 @@ def create_page(request, data: PageCreateRequest):
             try:
                 parent = Page.objects.get(slug=parent_slug)
             except Page.DoesNotExist:
-                return 400, f"Parent page {parent_slug} does not exist"
+                return not_possible(f"Parent page {parent_slug} does not exist")
             parents.append(parent)
 
     page = Page(
@@ -272,7 +285,16 @@ class PageUpdateRequest(Schema):
     is_anonymous: bool
 
 
-@router.put("/{slug}", response=PageUpdateResponse, operation_id="update_page")
+@router.put(
+    "/{slug}",
+    response={
+        200: PageUpdateResponse,
+        403: ErrorSchema,
+        400: ErrorSchema,
+        404: ErrorSchema,
+    },
+    operation_id="update_page",
+)
 @decorate_view(auth_check.supports_temp_user)
 def update_page(request, slug: str, data: PageUpdateRequest):
     page = get_object_or_404(Page, slug=slug)
@@ -280,14 +302,14 @@ def update_page(request, slug: str, data: PageUpdateRequest):
 
     # Only admins can assign it a category - since they are category pages
     if data.category and not auth_check.has_admin_rights(request):
-        return 403, "Only admins can assign a category to a page"
+        return not_allowed()
 
     if data.category:
         try:
             category = Category.objects.get(slug=data.category)
             page.category = category
         except Category.DoesNotExist:
-            return 400, f"Category {data.category} does not exist"
+            return not_possible(f"Category {data.category} does not exist")
 
     title_patch = calculate_patch(page.title, data.title)
     content_patch = calculate_patch(page.content, data.content)
@@ -302,7 +324,7 @@ def update_page(request, slug: str, data: PageUpdateRequest):
             parent = Page.objects.get(slug=parent_slug)
             parents.append(parent)
         except Page.DoesNotExist:
-            return 400, f"Parent page {parent_slug} does not exist"
+            return not_possible(f"Parent page {parent_slug} does not exist")
 
     page.parents.set(parents)
     page.edited_at = datetime.datetime.now()
@@ -323,7 +345,7 @@ def update_page(request, slug: str, data: PageUpdateRequest):
 
 @router.get(
     "/{slug}/revisions/",
-    response=PageRevisionListResponse,
+    response={200: PageRevisionListResponse, 404: ErrorSchema},
     operation_id="list_revisions",
 )
 @auth_check.require_login
@@ -345,14 +367,18 @@ def list_revisions(request, slug: str):
     return {"revisions": revision_list}
 
 
-@router.delete("/{slug}", response={204: None, 403: str}, operation_id="delete_page")
+@router.delete(
+    "/{slug}",
+    response={204: None, 403: ErrorSchema, 404: ErrorSchema},
+    operation_id="delete_page",
+)
 def delete_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
 
     if not auth_check.has_admin_rights(request) and page.author != get_page_author(
         request
     ):
-        return 403, "Only admins or the page author can delete a page"
+        return not_allowed()
 
     page.delete()
     return 204, None
