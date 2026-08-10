@@ -20,7 +20,8 @@ export const PageArticle: React.FC<{
   page: PageResponse;
   parentPages: PageListResponseItem[];
   refetch: () => void;
-}> = ({ page, parentPages, refetch }) => {
+  onDelete: () => void;
+}> = ({ page, parentPages, refetch, onDelete }) => {
   const toc = useTableOfContents(page.content);
   const [editing, setEditing] = useState(false);
 
@@ -129,6 +130,7 @@ export const PageArticle: React.FC<{
         setEditing={setEditing}
         isMutating={isMutating}
         onSave={onSubmit}
+        onDelete={onDelete}
       />
     </>
   );

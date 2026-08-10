@@ -19,6 +19,7 @@ import { useUser } from "../auth";
 import style from "./guide-sidebar-right.module.css";
 import { clsx } from "clsx";
 import useForm from "../hooks/useForm";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 
 export const GuideSidebarRight: React.FC<{
   toc: TableOfContentsEntry[];
@@ -32,6 +33,7 @@ export const GuideSidebarRight: React.FC<{
   hasUnsavedChanges: boolean;
   setEditing: (editing: boolean) => void;
   onSave: React.SubmitEventHandler<HTMLFormElement>;
+  onDelete: () => void;
   isMutating: boolean;
 }> = ({
   toc,
@@ -45,9 +47,15 @@ export const GuideSidebarRight: React.FC<{
   hasUnsavedChanges,
   setEditing,
   onSave,
+  onDelete,
   isMutating,
 }) => {
   const user = useUser();
+
+  // Admin or owner
+  const canDelete =
+    user?.loggedin && (user.isAdmin || user.username === author?.username);
+  const [removeConfirm, modals] = useRemoveConfirm();
 
   return (
     <Stack gap={0} style={{ minWidth: "200px" }} align="flex-start">
@@ -96,13 +104,30 @@ export const GuideSidebarRight: React.FC<{
           </Group>
         </form>
       ) : (
-        <Button
-          size="compact-sm"
-          variant="outline"
-          onClick={() => setEditing(true)}
-        >
-          Edit
-        </Button>
+        <Group gap="xs">
+          <Button
+            size="compact-sm"
+            variant="outline"
+            onClick={() => setEditing(true)}
+          >
+            Edit
+          </Button>
+          {canDelete && (
+            <Button
+              size="compact-sm"
+              variant="transparent"
+              color="red"
+              onClick={() =>
+                removeConfirm(
+                  "Are you sure you want to delete this page?",
+                  onDelete,
+                )
+              }
+            >
+              Delete
+            </Button>
+          )}
+        </Group>
       )}
       <Group gap="xs" my="md">
         <IconMenu3 size={16} />
@@ -199,6 +224,7 @@ export const GuideSidebarRight: React.FC<{
           </>
         )}
       </dl>
+      {modals}
     </Stack>
   );
 };

@@ -14,7 +14,12 @@ import {
   Switch,
 } from "@mantine/core";
 import { IconPlus, IconSquarePlus } from "@tabler/icons-react";
-import { useCreatePage, useGetPage, useListPages } from "../api/hooks/pages";
+import {
+  useCreatePage,
+  useDeletePage,
+  useGetPage,
+  useListPages,
+} from "../api/hooks/pages";
 import { Link, useNavigate, useParams } from "react-router";
 import { PageArticle } from "../components/page-article";
 
@@ -47,6 +52,15 @@ const GuidePage: React.FC = () => {
         setNewPageAnonymous(false);
         void refetchPages();
         void navigate(`/guide/${data.slug}`);
+      },
+    },
+  });
+
+  const { mutate: deletePage } = useDeletePage({
+    mutation: {
+      onSuccess: () => {
+        // Redirect to top guide
+        void navigate("/guide");
       },
     },
   });
@@ -142,6 +156,7 @@ const GuidePage: React.FC = () => {
               page={page}
               parentPages={parentPages}
               refetch={() => void refetch()}
+              onDelete={() => deletePage({ slug: page.slug })}
             />
           ) : (
             <div />
