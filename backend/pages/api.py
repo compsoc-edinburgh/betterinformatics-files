@@ -62,6 +62,7 @@ class PageRevisionResponseItem(Schema):
     message: str
     content_delta: str
     title_delta: str
+    redacted: bool
 
 
 class PageRevisionListResponse(Schema):
@@ -380,6 +381,8 @@ def list_revisions(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
     revisions = page.revisions.select_related("author").all().order_by("-created_at")
 
+    can_see_redacted = auth_check.has_admin_rights(request)
+
     revision_list = []
     for rev in revisions:
         revision_list.append(
@@ -387,9 +390,16 @@ def list_revisions(request, slug: str):
                 "id": rev.id,
                 "created_at": rev.created_at.isoformat(),
                 "author": get_page_author_response(rev.author, rev.anonymised, request),
-                "message": rev.message,
-                "content_delta": patch_to_standard_diff(rev.content_delta),
-                "title_delta": patch_to_standard_diff(rev.title_delta),
+                "message": "Redacted Revision"
+                if rev.redacted and not can_see_redacted
+                else rev.message,
+                "content_delta": ""
+                if rev.redacted and not can_see_redacted
+                else patch_to_standard_diff(rev.content_delta),
+                "title_delta": ""
+                if rev.redacted and not can_see_redacted
+                else patch_to_standard_diff(rev.title_delta),
+                "redacted": rev.redacted,
             }
         )
 

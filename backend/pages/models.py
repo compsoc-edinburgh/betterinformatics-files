@@ -1,7 +1,5 @@
-from typing import Optional
-
-from django.utils import timezone
 from django.db import models
+from django.utils import timezone
 
 from categories.models import Category
 
@@ -14,7 +12,7 @@ class Page(models.Model):
     title = models.CharField(max_length=256)
     slug = models.CharField(max_length=256, unique=True)
     kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.GUIDE)
-    category: models.ForeignKey[Optional[Category]] = models.OneToOneField(
+    category: models.ForeignKey[Category | None] = models.OneToOneField(
         "categories.Category",
         on_delete=models.SET_NULL,
         null=True,
@@ -47,9 +45,10 @@ class PageRevision(models.Model):
         "pages.PageAuthor", on_delete=models.CASCADE, related_name="authored_revisions"
     )
     message = models.TextField(default="")
-    anonymised = models.BooleanField(
+    anonymised = models.BooleanField(default=False)
+    redacted = models.BooleanField(
         default=False
-    )  # To users not logged in, author will be hidden regardless of this choice
+    )  # If true, content is not visible to anyone
 
 
 class PageAuthor(models.Model):

@@ -72,14 +72,16 @@ export const PageArticleHistory: React.FC<{
                 }}
               />
             </ActionIcon>
-            <Text>
+            <Text td={revision.redacted ? "line-through" : "none"}>
               {formatISO(new Date(revision.created_at))} -{" "}
               {revision.author.username} <i>({revision.message})</i>
             </Text>
           </Group>
-          <Collapse expanded={expandedRevisions.has(revision.id)}>
-            <CodeBlock value={revision.content_delta} language="diff" />
-          </Collapse>
+          {!revision.redacted && (
+            <Collapse expanded={expandedRevisions.has(revision.id)}>
+              <CodeBlock value={revision.content_delta} language="diff" />
+            </Collapse>
+          )}
         </Stack>
       ))}
     </Paper>
