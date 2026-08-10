@@ -156,7 +156,7 @@ export const GuideSidebarRight: React.FC<{
       )}
       {parentPages.length > 0 && (
         <>
-          <Group gap="xs" mb="md">
+          <Group gap="xs" my="md">
             <IconMenu3 size={16} />
             <Title
               order={2}
