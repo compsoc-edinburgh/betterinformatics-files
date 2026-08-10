@@ -27,6 +27,8 @@ export const GuideSidebarRight: React.FC<{
   editing: boolean;
   hasUnsavedChanges: boolean;
   setEditing: (editing: boolean) => void;
+  onSave: React.MouseEventHandler<HTMLButtonElement>;
+  isMutating: boolean;
 }> = ({
   toc,
   parentPages,
@@ -36,6 +38,8 @@ export const GuideSidebarRight: React.FC<{
   editing,
   hasUnsavedChanges,
   setEditing,
+  onSave,
+  isMutating,
 }) => {
   const user = useUser();
 
@@ -71,7 +75,8 @@ export const GuideSidebarRight: React.FC<{
             <Button
               size="compact-sm"
               variant="filled"
-              onClick={() => setEditing(false)}
+              onClick={onSave}
+              loading={isMutating}
             >
               Save
             </Button>

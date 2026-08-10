@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Container,
   Text,
@@ -12,19 +12,13 @@ import { IconSquarePlus } from "@tabler/icons-react";
 import { useGetPage, useListPages } from "../api/hooks/pages";
 import { Link, useParams } from "react-router";
 import { PageArticle } from "../components/page-article";
-import { GuideSidebarRight } from "../components/guide-sidebar-right";
-import { useTableOfContents } from "../hooks/useTableOfContents";
-import { parseISO } from "date-fns";
 
 const GuidePage: React.FC = () => {
   const { slug } = useParams() as { slug?: string };
   const { data: page, isError } = useGetPage(slug ?? "year1");
   const { data: pages } = useListPages({ child_of: "", category: "" });
-  const toc = useTableOfContents(page?.content ?? "");
   const parentPages =
     pages?.pages.filter(p => page?.parents.includes(p.slug)) ?? [];
-  const [editing, setEditing] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   if (isError) {
     return (
@@ -67,26 +61,10 @@ const GuidePage: React.FC = () => {
             </Button>
           </Stack>
           {page ? (
-            <PageArticle
-              page={page}
-              editing={editing}
-              setEditing={setEditing}
-              hasUnsavedChanges={hasUnsavedChanges}
-              setHasUnsavedChanges={setHasUnsavedChanges}
-            />
+            <PageArticle page={page} parentPages={parentPages} />
           ) : (
             <div />
           )}
-          <GuideSidebarRight
-            toc={toc}
-            parentPages={parentPages}
-            updatedAt={page ? parseISO(page.edited_at) : undefined}
-            createdAt={page ? parseISO(page.created_at) : undefined}
-            author={page?.author}
-            editing={editing}
-            hasUnsavedChanges={hasUnsavedChanges}
-            setEditing={setEditing}
-          />
         </Flex>
       </Container>
     </>
