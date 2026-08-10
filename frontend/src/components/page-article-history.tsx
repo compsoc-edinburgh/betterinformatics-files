@@ -7,6 +7,7 @@ import {
   Stack,
   ActionIcon,
   Anchor,
+  Title,
 } from "@mantine/core";
 import { useUser } from "../auth";
 import { PageResponse } from "../api/model";
@@ -16,6 +17,7 @@ import CodeBlock from "./code-block";
 import { IconChevronRight } from "@tabler/icons-react";
 import { formatISO } from "date-fns";
 import { Link } from "react-router-dom";
+import style from "./page-article.module.css";
 
 export const PageArticleHistory: React.FC<{
   page: PageResponse;
@@ -60,7 +62,21 @@ export const PageArticleHistory: React.FC<{
   }
 
   return (
-    <Paper flex={1} style={{ overflow: "auto" }}>
+    <Paper
+      flex={1}
+      style={{ overflow: "auto" }}
+      p={0}
+      pl="lg"
+      pr="md"
+      radius={0}
+      shadow="none"
+      className={
+        style.pageArticle /* Component must be Paper to use var(--paper-border-color) */
+      }
+    >
+      <Title order={1} mb="md">
+        {page.title}: Revision History
+      </Title>
       {revisions?.revisions.map(revision => (
         <Stack key={revision.id} gap={0} w="100%">
           <Group gap="xs">
