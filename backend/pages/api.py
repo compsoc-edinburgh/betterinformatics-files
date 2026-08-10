@@ -60,6 +60,8 @@ class PageRevisionResponseItem(Schema):
     created_at: datetime.datetime
     author: PageAuthorResponse
     message: str
+    content_delta: str
+    title_delta: str
 
 
 class PageRevisionListResponse(Schema):
@@ -364,6 +366,8 @@ def list_revisions(request, slug: str):
                 "created_at": rev.created_at.isoformat(),
                 "author": get_page_author_response(rev.author, rev.anonymised, request),
                 "message": rev.message,
+                "content_delta": rev.content_delta,
+                "title_delta": rev.title_delta,
             }
         )
 
