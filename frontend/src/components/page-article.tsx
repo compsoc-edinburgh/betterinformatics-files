@@ -61,7 +61,7 @@ export const PageArticle: React.FC<{
       category: page.category,
       parents: page.parents,
       is_anonymous: false,
-      revision_message: "Updated via frontend",
+      revision_message: "",
     } as PageUpdateRequest,
     data => {
       updatePage({
