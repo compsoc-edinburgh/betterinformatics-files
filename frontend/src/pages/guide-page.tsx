@@ -64,7 +64,7 @@ const GuidePage: React.FC = () => {
             <PageArticle
               page={page}
               parentPages={parentPages}
-              refetch={refetch}
+              refetch={() => void refetch()}
             />
           ) : (
             <div />
