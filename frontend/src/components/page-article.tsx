@@ -114,7 +114,7 @@ export const PageArticle: React.FC<{
             }}
           />
         ) : (
-          <MarkdownText value={page.content} />
+          <MarkdownText value={page.content} addAnchors={true} />
         )}
       </Paper>
       <GuideSidebarRight

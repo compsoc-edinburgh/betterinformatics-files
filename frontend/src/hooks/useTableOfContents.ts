@@ -1,4 +1,5 @@
 import React from "react";
+import { slugifyHeading } from "../components/markdown-text";
 
 export interface TableOfContentsEntry {
   level: number;
@@ -16,10 +17,7 @@ export const useTableOfContents = (
       const text = match[2];
 
       // Same algorithm as in MarkdownText.tsx to generate slugs for headings
-      const slug = text
-        .toLowerCase()
-        .replace(/[^\w]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+      const slug = slugifyHeading(text);
       return { level, text, slug };
     });
   }, [markdown]);
