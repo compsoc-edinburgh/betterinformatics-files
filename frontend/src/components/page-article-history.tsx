@@ -28,6 +28,16 @@ export const PageArticleHistory: React.FC<{
     new Set(),
   );
 
+  const toggleRevision = (revisionId: number) => {
+    const newExpandedRevisions = new Set(expandedRevisions);
+    if (!expandedRevisions.has(revisionId)) {
+      newExpandedRevisions.add(revisionId);
+    } else {
+      newExpandedRevisions.delete(revisionId);
+    }
+    setExpandedRevisions(newExpandedRevisions);
+  };
+
   // Revisions only visible if logged in
   if (!user?.loggedin) {
     return (
@@ -53,18 +63,10 @@ export const PageArticleHistory: React.FC<{
     <Paper flex={1} style={{ overflow: "auto" }}>
       {revisions?.revisions.map(revision => (
         <Stack key={revision.id} gap={0} w="100%">
-          <Group>
+          <Group gap="xs">
             <ActionIcon
               variant="transparent"
-              onClick={() => {
-                const newExpandedRevisions = new Set(expandedRevisions);
-                if (!expandedRevisions.has(revision.id)) {
-                  newExpandedRevisions.add(revision.id);
-                } else {
-                  newExpandedRevisions.delete(revision.id);
-                }
-                setExpandedRevisions(newExpandedRevisions);
-              }}
+              onClick={() => toggleRevision(revision.id)}
             >
               <IconChevronRight
                 size={16}
@@ -75,8 +77,13 @@ export const PageArticleHistory: React.FC<{
                 }}
               />
             </ActionIcon>
+            <Anchor
+              td={revision.redacted ? "line-through" : "none"}
+              onClick={() => toggleRevision(revision.id)}
+            >
+              {formatISO(new Date(revision.created_at))}
+            </Anchor>
             <Text td={revision.redacted ? "line-through" : "none"}>
-              {formatISO(new Date(revision.created_at))} -{" "}
               {revision.author.username ? (
                 <Anchor
                   component={Link}
