@@ -214,6 +214,28 @@ def calculate_patch(old_content: str, new_content: str) -> str:
     return dmp.patch_toText(patch)
 
 
+def patch_to_standard_diff(patch_text: str) -> str:
+    dmp = dmp_module.diff_match_patch()
+    patches = dmp.patch_fromText(patch_text)
+    diffs = []
+    for patch in patches:
+        diffs.extend(patch.diffs)
+
+    formatted_lines = []
+    for op, text in diffs:
+        if op == dmp.DIFF_INSERT:
+            for text_line in text.splitlines():
+                formatted_lines.append(f"+ {text_line}")
+        elif op == dmp.DIFF_DELETE:
+            for text_line in text.splitlines():
+                formatted_lines.append(f"- {text_line}")
+        else:
+            for text_line in text.splitlines():
+                formatted_lines.append(f"  {text_line}")
+
+    return "\n".join(formatted_lines)
+
+
 @router.post(
     "/",
     response={
@@ -366,8 +388,8 @@ def list_revisions(request, slug: str):
                 "created_at": rev.created_at.isoformat(),
                 "author": get_page_author_response(rev.author, rev.anonymised, request),
                 "message": rev.message,
-                "content_delta": rev.content_delta,
-                "title_delta": rev.title_delta,
+                "content_delta": patch_to_standard_diff(rev.content_delta),
+                "title_delta": patch_to_standard_diff(rev.title_delta),
             }
         )
 
