@@ -129,27 +129,31 @@ export const GuideSidebarRight: React.FC<{
           )}
         </Group>
       )}
-      <Group gap="xs" my="md">
-        <IconMenu3 size={16} />
-        <Title
-          order={2}
-          fz="h6"
-          style={{ textTransform: "uppercase" }}
-          opacity={0.8}
-        >
-          On This Page
-        </Title>
-      </Group>
-      {toc.map(({ level, text, slug }) => (
-        <Anchor
-          display="block"
-          key={slug}
-          href={`#${slug}`}
-          style={{ marginLeft: `${(level - 1) * 10}px` }}
-        >
-          {text}
-        </Anchor>
-      ))}
+      {toc.length > 0 && (
+        <>
+          <Group gap="xs" my="md">
+            <IconMenu3 size={16} />
+            <Title
+              order={2}
+              fz="h6"
+              style={{ textTransform: "uppercase" }}
+              opacity={0.8}
+            >
+              On This Page
+            </Title>
+          </Group>
+          {toc.map(({ level, text, slug }) => (
+            <Anchor
+              display="block"
+              key={slug}
+              href={`#${slug}`}
+              style={{ marginLeft: `${(level - 1) * 10}px` }}
+            >
+              {text}
+            </Anchor>
+          ))}
+        </>
+      )}
       {parentPages.length > 0 && (
         <>
           <Group gap="xs" mb="md">
