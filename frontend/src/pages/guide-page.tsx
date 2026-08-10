@@ -153,6 +153,7 @@ const GuidePage: React.FC = () => {
           </Stack>
           {page ? (
             <PageArticle
+              key={page.slug}
               page={page}
               parentPages={parentPages}
               refetch={() => void refetch()}
