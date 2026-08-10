@@ -33,7 +33,7 @@ export const PageArticle: React.FC<{
     },
   });
 
-  const { registerInput, reset, formState, setFormValue, onSubmit } = useForm(
+  const { registerInput, formState, setFormValue, onSubmit } = useForm(
     {
       // Initial values
       content: page.content,
@@ -123,6 +123,8 @@ export const PageArticle: React.FC<{
         createdAt={parseISO(page.created_at)}
         author={page.author}
         editing={editing}
+        editAnonymously={registerInput("is_anonymous")}
+        revisionMessage={registerInput("revision_message")}
         hasUnsavedChanges={hasUnsavedChanges}
         setEditing={setEditing}
         isMutating={isMutating}

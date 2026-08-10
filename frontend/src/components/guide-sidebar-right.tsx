@@ -9,6 +9,7 @@ import {
   Title,
   Text,
   Tooltip,
+  Switch,
 } from "@mantine/core";
 import { IconMenu3, IconPencil } from "@tabler/icons-react";
 import { PageAuthorResponse, PageListResponseItem } from "../api/model";
@@ -17,6 +18,7 @@ import { formatISO, formatRelative } from "date-fns";
 import { useUser } from "../auth";
 import style from "./guide-sidebar-right.module.css";
 import { clsx } from "clsx";
+import useForm from "../hooks/useForm";
 
 export const GuideSidebarRight: React.FC<{
   toc: TableOfContentsEntry[];
@@ -25,6 +27,8 @@ export const GuideSidebarRight: React.FC<{
   createdAt?: Date;
   author?: PageAuthorResponse;
   editing: boolean;
+  editAnonymously: ReturnType<ReturnType<typeof useForm>["registerInput"]>;
+  revisionMessage: ReturnType<ReturnType<typeof useForm>["registerInput"]>;
   hasUnsavedChanges: boolean;
   setEditing: (editing: boolean) => void;
   onSave: React.SubmitEventHandler<HTMLFormElement>;
@@ -36,6 +40,8 @@ export const GuideSidebarRight: React.FC<{
   createdAt,
   author,
   editing,
+  editAnonymously,
+  revisionMessage,
   hasUnsavedChanges,
   setEditing,
   onSave,
@@ -64,7 +70,13 @@ export const GuideSidebarRight: React.FC<{
           )}
           onSubmit={onSave}
         >
-          <TextInput label="Describe your changes" w="100%" required />
+          <TextInput
+            label="Describe your changes"
+            w="100%"
+            required
+            {...revisionMessage}
+          />
+          <Switch label={"Edit Anonymously"} {...editAnonymously} />
           <Group gap="xs" justify="space-between">
             <Button
               size="compact-sm"
