@@ -314,6 +314,9 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     title_patch = calculate_patch(page.title, data.title)
     content_patch = calculate_patch(page.content, data.content)
 
+    if title_patch == "" and content_patch == "":
+        return not_possible("No changes detected")
+
     page.title = data.title
     page.content = data.content
 

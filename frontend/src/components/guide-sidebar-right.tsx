@@ -98,6 +98,7 @@ export const GuideSidebarRight: React.FC<{
               variant="filled"
               loading={isMutating}
               type="submit"
+              disabled={!hasUnsavedChanges || isMutating}
             >
               Save
             </Button>
