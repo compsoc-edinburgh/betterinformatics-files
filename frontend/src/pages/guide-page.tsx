@@ -151,10 +151,11 @@ const GuidePage: React.FC = () => {
               Create New Page
             </Button>
           </Stack>
-          {page ? (
+          {page && pages ? (
             <PageArticle
               key={page.slug}
               page={page}
+              pages={pages}
               parentPages={parentPages}
               refetch={() => void refetch()}
               onDelete={() => deletePage({ slug: page.slug })}

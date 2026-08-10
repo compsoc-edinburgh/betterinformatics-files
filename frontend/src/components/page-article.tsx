@@ -1,10 +1,19 @@
 import React, { useState } from "react";
 import {
+  PageListResponse,
   PageListResponseItem,
   PageResponse,
   PageUpdateRequest,
 } from "../api/model";
-import { Group, Paper, TextInput, Title } from "@mantine/core";
+import {
+  Fieldset,
+  Group,
+  MultiSelect,
+  Paper,
+  Select,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import MarkdownText from "./markdown-text";
 import { IconMenu3 } from "@tabler/icons-react";
 import style from "./page-article.module.css";
@@ -15,13 +24,23 @@ import { useTableOfContents } from "../hooks/useTableOfContents";
 import { useUpdatePage } from "../api/hooks/pages";
 import useForm from "../hooks/useForm";
 import { parseISO } from "date-fns";
+import { useUser } from "../auth";
+import { loadCategories } from "../api/hooks";
+import { useRequest } from "ahooks";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
+  pages: PageListResponse;
   parentPages: PageListResponseItem[];
   refetch: () => void;
   onDelete: () => void;
-}> = ({ page, parentPages, refetch, onDelete }) => {
+}> = ({ page, pages, parentPages, refetch, onDelete }) => {
+  const user = useUser();
+  // Admin or owner
+  const isPrivileged =
+    user?.loggedin && (user.isAdmin || user.username === page.author.username);
+  const isAdmin = user?.loggedin && user.isAdmin;
+
   const toc = useTableOfContents(page.content);
   const [editing, setEditing] = useState(false);
 
@@ -51,6 +70,14 @@ export const PageArticle: React.FC<{
       });
     },
   );
+
+  const {
+    error: categoriesError,
+    loading: categoriesLoading,
+    data: categories,
+  } = useRequest(loadCategories, {
+    ready: editing && isPrivileged,
+  });
 
   const hasUnsavedChanges =
     formState.content !== page.content || formState.title !== page.title;
@@ -115,6 +142,34 @@ export const PageArticle: React.FC<{
           />
         ) : (
           <MarkdownText value={page.content} addAnchors={true} />
+        )}
+        {editing && isPrivileged && (
+          <Fieldset legend="Privileged Actions">
+            <MultiSelect
+              label="Parent Pages"
+              data={pages.pages.map(p => ({ value: p.slug, label: p.title }))}
+              value={formState.parents}
+              onChange={value => setFormValue("parents", value)}
+            />
+            {isAdmin && (
+              <Select
+                label="Associated Category"
+                data={
+                  categories?.map(c => ({
+                    value: c.slug,
+                    label: c.displayname,
+                  })) ?? []
+                }
+                value={formState.category}
+                onChange={value => setFormValue("category", value)}
+                disabled={!!categoriesError}
+                loading={categoriesLoading}
+                error={
+                  categoriesError ? "Failed to load categories" : undefined
+                }
+              />
+            )}
+          </Fieldset>
         )}
       </Paper>
       <GuideSidebarRight
