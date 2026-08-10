@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Container,
   Text,
@@ -7,9 +7,14 @@ import {
   Anchor,
   Button,
   Divider,
+  Modal,
+  TextInput,
+  MultiSelect,
+  Group,
+  Switch,
 } from "@mantine/core";
-import { IconSquarePlus } from "@tabler/icons-react";
-import { useGetPage, useListPages } from "../api/hooks/pages";
+import { IconPlus, IconSquarePlus } from "@tabler/icons-react";
+import { useCreatePage, useGetPage, useListPages } from "../api/hooks/pages";
 import { Link, useParams } from "react-router";
 import { PageArticle } from "../components/page-article";
 
@@ -19,6 +24,24 @@ const GuidePage: React.FC = () => {
   const { data: pages } = useListPages({ child_of: "", category: "" });
   const parentPages =
     pages?.pages.filter(p => page?.parents.includes(p.slug)) ?? [];
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [newPageName, setNewPageName] = useState("");
+  const [newPageParents, setNewPageParents] = useState<string[]>([]);
+  const [newPageAnonymous, setNewPageAnonymous] = useState(false);
+  const {
+    mutate: createPage,
+    isPending: createIsPending,
+    isError: createIsError,
+  } = useCreatePage({
+    mutation: {
+      onSuccess() {
+        setIsOpen(false);
+        setNewPageName("");
+        void refetch();
+      },
+    },
+  });
 
   if (isError) {
     return (
@@ -30,6 +53,53 @@ const GuidePage: React.FC = () => {
 
   return (
     <>
+      <Modal
+        opened={isOpen}
+        title="Create New Page"
+        onClose={() => setIsOpen(false)}
+      >
+        <Stack>
+          {createIsError && <Text c="red">Page could not be created.</Text>}
+          <TextInput
+            label="Page Name"
+            placeholder="Guide to Edinburgh"
+            value={newPageName}
+            onChange={e => setNewPageName(e.currentTarget.value)}
+          />
+          <MultiSelect
+            label="Parents"
+            placeholder="Select (optional) parent pages"
+            data={pages?.pages.map(p => ({ value: p.slug, label: p.title }))}
+            value={newPageParents}
+            onChange={setNewPageParents}
+            searchable
+          />
+          <Group justify="space-between">
+            <Switch
+              label="Create Anonymously"
+              checked={newPageAnonymous}
+              onChange={() => setNewPageAnonymous(!newPageAnonymous)}
+            />
+            <Button
+              disabled={createIsPending || newPageName.trim() === ""}
+              onClick={() =>
+                createPage({
+                  data: {
+                    title: newPageName,
+                    parents: newPageParents,
+                    category: null,
+                    is_anonymous: newPageAnonymous,
+                  },
+                })
+              }
+              leftSection={<IconPlus />}
+              loading={createIsPending}
+            >
+              Add
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
       <Container size="xl" flex={1}>
         <Flex
           direction={{ base: "column", sm: "row" }}
@@ -50,8 +120,7 @@ const GuidePage: React.FC = () => {
             ))}
             <Divider my="md" />
             <Button
-              component={Link}
-              to={`/guide/new`}
+              onClick={() => setIsOpen(true)}
               size="compact-sm"
               variant="subtle"
               leftSection={<IconSquarePlus size={16} />}
