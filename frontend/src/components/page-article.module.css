@@ -2,6 +2,25 @@
   border-left: 1px solid var(--paper-border-color);
   animation: fadeInUp 0.4s ease-in-out;
   flex: 1;
+
+  & a {
+    color: var(--mantine-color-blue-9);
+    /* text-underline-offset: 3.5px; */
+    text-decoration: none;
+
+    &:hover {
+      color: var(--mantine-color-blue-4);
+    }
+
+    &:active {
+      text-decoration: underline;
+      text-underline-offset: 3.5px;
+    }
+
+    &:visited {
+      color: var(--mantine-color-grape-7);
+    }
+  }
 }
 
 @keyframes fadeInUp {
