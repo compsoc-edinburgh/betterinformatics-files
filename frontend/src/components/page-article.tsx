@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   PageListResponseItem,
   PageResponse,
@@ -22,12 +22,10 @@ export const PageArticle: React.FC<{
 }> = ({ page, parentPages }) => {
   const toc = useTableOfContents(page.content);
   const [editing, setEditing] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const { mutate: updatePage, isPending: isMutating } = useUpdatePage({
     mutation: {
       onSuccess: () => {
-        setHasUnsavedChanges(false);
         setEditing(false);
       },
     },
@@ -50,6 +48,9 @@ export const PageArticle: React.FC<{
       });
     },
   );
+
+  const hasUnsavedChanges =
+    formState.content !== page.content || formState.title !== page.title;
 
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
 
