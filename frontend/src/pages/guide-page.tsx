@@ -29,6 +29,7 @@ const GuidePage: React.FC = () => {
       onSuccess: () => {
         // Redirect to top guide
         void navigate("/guide");
+        void refetchPages();
       },
     },
   });
@@ -62,7 +63,6 @@ const GuidePage: React.FC = () => {
             }}
             onDelete={() => {
               deletePage({ slug: page.slug });
-              void refetchPages();
             }}
           />
         ) : (
