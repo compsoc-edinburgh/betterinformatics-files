@@ -9,7 +9,7 @@ from ninja.decorators import decorate_view
 from backend import settings
 from categories.models import Category
 from ediauth import auth_check
-from pages.models import Page, PageAuthor, PageRevision
+from pages.models import Page, PageAuthor, PageParent, PageRevision
 from util.response import ErrorSchema, not_allowed, not_possible
 
 router = Router(tags=["Pages"])
@@ -284,7 +284,15 @@ def create_page(request, data: PageCreateRequest):
     )
     page.save()
 
-    page.parents.set(parents)
+    if not parents:
+        # Create a PageParent with null parent for top-level pages
+        PageParent.objects.create(parent=None, child=page, order=0)
+    else:
+        for parent in parents:
+            # order is based on number of other childs
+            PageParent.objects.create(
+                parent=parent, child=page, order=parent.children.count()
+            )
 
     content_patch = calculate_patch("", page.content)
     title_patch = calculate_patch("", page.title)
@@ -325,22 +333,32 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     page = get_object_or_404(Page, slug=slug)
     author = get_page_author(request)
 
-    # Only admins can assign it a category - since they are category pages
-    if data.category and not auth_check.has_admin_rights(request):
-        return not_allowed()
+    title_patch = calculate_patch(page.title, data.title)
+    content_patch = calculate_patch(page.content, data.content)
+
+    if (
+        title_patch == ""
+        and content_patch == ""
+        and set(data.parents) == set(parent.slug for parent in page.parents.all())
+        and data.category == (page.category.slug if page.category else None)
+    ):
+        return not_possible("No changes detected")
 
     if data.category:
+        # Only admins can change or assign a category - since they are category pages
+        if (
+            page.category
+            and page.category.slug != data.category
+            and not auth_check.has_admin_rights(request)
+        ):
+            return not_allowed()
         try:
             category = Category.objects.get(slug=data.category)
             page.category = category
         except Category.DoesNotExist:
             return not_possible(f"Category {data.category} does not exist")
-
-    title_patch = calculate_patch(page.title, data.title)
-    content_patch = calculate_patch(page.content, data.content)
-
-    if title_patch == "" and content_patch == "":
-        return not_possible("No changes detected")
+    else:
+        page.category = None
 
     page.title = data.title
     page.content = data.content
@@ -354,7 +372,25 @@ def update_page(request, slug: str, data: PageUpdateRequest):
         except Page.DoesNotExist:
             return not_possible(f"Parent page {parent_slug} does not exist")
 
-    page.parents.set(parents)
+    # If changing from a child to top-level, add a PageParent with null parent
+    if (
+        not parents
+        and PageParent.objects.filter(child=page, parent__isnull=False).exists()
+    ):
+        # Create a PageParent with null parent for top-level pages
+        PageParent.objects.create(parent=None, child=page, order=0)
+        # Remove all existing PageParent entries for this page
+        PageParent.objects.filter(child=page).exclude(parent=None).delete()
+    else:
+        # Otherwise, remove all existing PageParent entries for this page and
+        # add new ones
+        PageParent.objects.filter(child=page).delete()
+        for parent in parents:
+            # order is based on number of other childs
+            PageParent.objects.create(
+                parent=parent, child=page, order=parent.children.count()
+            )
+
     page.edited_at = datetime.datetime.now()
     page.save()
 

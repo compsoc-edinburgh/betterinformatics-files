@@ -7,10 +7,18 @@ import { GuideSideBarLeft } from "../components/guide-sidebar-left";
 
 const GuidePage: React.FC = () => {
   const { slug } = useParams() as { slug?: string };
-  const { data: page, isError, refetch } = useGetPage(slug ?? "year1");
   const { data: pages } = useListPages({
     child_of: "",
     category: "",
+  });
+  const {
+    data: page,
+    isError,
+    refetch,
+  } = useGetPage(slug ?? pages?.pages[0]?.slug ?? "", {
+    query: {
+      enabled: !!slug || !!pages?.pages.length,
+    },
   });
   const parentPages =
     pages?.pages.filter(p => page?.parents.includes(p.slug)) ?? [];

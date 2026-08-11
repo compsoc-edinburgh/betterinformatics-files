@@ -80,7 +80,10 @@ export const PageArticle: React.FC<{
   });
 
   const hasUnsavedChanges =
-    formState.content !== page.content || formState.title !== page.title;
+    formState.content !== page.content ||
+    formState.title !== page.title ||
+    formState.category !== page.category ||
+    formState.parents !== page.parents;
 
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
 

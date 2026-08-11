@@ -18,7 +18,9 @@ class Page(models.Model):
         null=True,
         related_name="page",
     )
-    parents = models.ManyToManyField("self", symmetrical=False, related_name="children")
+    parents = models.ManyToManyField(
+        "self", symmetrical=False, related_name="children", through="PageParent"
+    )
     created_at = models.DateTimeField(default=timezone.now)  # creation time
     edited_at = models.DateTimeField(default=timezone.now)  # last modified time
     content = models.TextField(default="")
@@ -33,6 +35,22 @@ class Page(models.Model):
     revisions: models.QuerySet["PageRevision"]
     resources: models.QuerySet["Resource"]
     children: models.QuerySet["Page"]
+
+
+class PageParent(models.Model):
+    # First foreign key is assumed to be source in a self-referential "Through"
+    # model in Django
+    child = models.ForeignKey(
+        "Page", on_delete=models.CASCADE, related_name="child_links"
+    )
+    parent = models.ForeignKey(
+        "Page",
+        on_delete=models.CASCADE,
+        related_name="parent_links",
+        # Null to allow representation of top-level pages
+        null=True,
+    )
+    order = models.IntegerField(default=0)
 
 
 class PageRevision(models.Model):
