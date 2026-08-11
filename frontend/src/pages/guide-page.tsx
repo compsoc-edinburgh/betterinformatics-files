@@ -60,7 +60,10 @@ const GuidePage: React.FC = () => {
               void refetch();
               void refetchPages();
             }}
-            onDelete={() => deletePage({ slug: page.slug })}
+            onDelete={() => {
+              deletePage({ slug: page.slug });
+              void refetchPages();
+            }}
           />
         ) : (
           <div />
