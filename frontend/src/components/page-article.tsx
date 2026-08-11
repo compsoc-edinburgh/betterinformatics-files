@@ -82,11 +82,9 @@ export const PageArticle: React.FC<{
       revision_message: "",
     } as PageUpdateRequest,
     data => {
-      executeInstance().then(_ => {
-        updatePage({
-          slug: page.slug,
-          data,
-        });
+      updatePage({
+        slug: page.slug,
+        data,
       });
     },
   );
@@ -224,11 +222,13 @@ export const PageArticle: React.FC<{
         editing={editing}
         editAnonymously={registerInput("is_anonymous")}
         revisionMessage={registerInput("revision_message")}
-        hasUnsavedChanges={hasUnsavedChanges && ready}
+        hasUnsavedChanges={hasUnsavedChanges}
         setEditing={setEditing}
         isMutating={isMutating}
         onSave={onSubmit}
         onDelete={onDelete}
+        captchaReady={ready}
+        captchaExecute={executeInstance}
       />
     </>
   );

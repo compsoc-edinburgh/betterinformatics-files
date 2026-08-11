@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Anchor,
   Button,
@@ -36,6 +36,8 @@ export const GuideSidebarRight: React.FC<{
   onSave: React.SubmitEventHandler<HTMLFormElement>;
   onDelete: () => void;
   isMutating: boolean;
+  captchaReady: boolean;
+  captchaExecute: () => Promise<string | undefined>;
 }> = ({
   toc,
   parentPages,
@@ -50,6 +52,8 @@ export const GuideSidebarRight: React.FC<{
   onSave,
   onDelete,
   isMutating,
+  captchaReady,
+  captchaExecute,
 }) => {
   const user = useUser();
 
@@ -57,6 +61,17 @@ export const GuideSidebarRight: React.FC<{
   const canDelete =
     user?.loggedin && (user.isAdmin || user.username === author?.username);
   const [removeConfirm, modals] = useRemoveConfirm();
+
+  // Start verifying immediately when editing starts
+  const [verifying, setVerifying] = React.useState(true);
+  useEffect(() => {
+    if (!editing) return;
+    if (!captchaReady) return;
+    void captchaExecute().then(token => {
+      if (!token) return;
+      setVerifying(false);
+    });
+  }, [editing, captchaReady, captchaExecute]);
 
   return (
     <Stack gap={0} style={{ minWidth: "200px" }} align="flex-start">
@@ -97,7 +112,7 @@ export const GuideSidebarRight: React.FC<{
             <Button
               size="compact-sm"
               variant="filled"
-              loading={isMutating}
+              loading={isMutating || verifying}
               type="submit"
               disabled={!hasUnsavedChanges || isMutating}
             >
