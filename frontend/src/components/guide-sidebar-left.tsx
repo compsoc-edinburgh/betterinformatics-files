@@ -30,6 +30,7 @@ const LeafNode: React.FC<RenderTreeNodePayload> = ({
   expanded,
   hasChildren,
   elementProps,
+  tree,
 }) => {
   const match = useMatch(`/guide/${node.value}`);
 
@@ -39,6 +40,13 @@ const LeafNode: React.FC<RenderTreeNodePayload> = ({
       component={NavLink}
       to={`/guide/${node.value}`}
       {...elementProps}
+      /* Override onCLick from default Tree prop list to only close expansion
+         if we are already on the page -- otherwise it is annoying */
+      onClick={_ => {
+        if (hasChildren && (match || !expanded)) {
+          tree.toggleExpanded(node.value);
+        }
+      }}
       className={clsx(
         style.treeNodeLink,
         match && style.active,
@@ -187,7 +195,6 @@ export const GuideSideBarLeft: React.FC = () => {
       <Stack gap="xs" style={{ minWidth: "200px" }}>
         <Tree
           data={treeData}
-          expandOnClick={true}
           renderNode={payload => <LeafNode {...payload} />}
           classNames={{
             root: style.treeRoot,
