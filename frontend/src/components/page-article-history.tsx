@@ -14,7 +14,7 @@ import { PageResponse } from "../api/model";
 import { useListRevisions, useRedactRevision } from "../api/hooks/pages";
 import { useState } from "react";
 import CodeBlock from "./code-block";
-import { IconChevronRight } from "@tabler/icons-react";
+import { IconArrowLeft, IconChevronRight } from "@tabler/icons-react";
 import { formatISO } from "date-fns";
 import { Link } from "react-router-dom";
 import style from "./page-article.module.css";
@@ -104,6 +104,12 @@ export const PageArticleHistory: React.FC<{
       <Title order={1} mb="md">
         {page.title}: Revision History
       </Title>
+      <Anchor component={Link} to={`/guide/${page.slug}`}>
+        <Group mb="md" gap="xs">
+          <IconArrowLeft size={16} />
+          View current revision of "{page.title}"
+        </Group>
+      </Anchor>
       {revisions?.revisions.map(revision => (
         <Stack key={revision.id} gap={0} w="100%">
           <Group gap="xs">
