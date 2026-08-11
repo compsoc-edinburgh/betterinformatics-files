@@ -42,8 +42,6 @@ import {
 import { useScrollToHash } from "./hooks/useScrollToHash";
 import ExternalNavElement from "./components/Navbar/ExternalNav";
 import { IconSparkles2Filled } from "@tabler/icons-react";
-import GuidePage from "./pages/guide-page";
-import GuideHistoryPage from "./pages/guide-history-page";
 
 export function calculateShades(color: string): MantineColorsTuple {
   const LIGHTNESS_MAP = [
@@ -98,6 +96,8 @@ const DissertationDetailPage = lazy(
 const LoginPage = lazy(() => import("./pages/login-page"));
 const NotFoundPage = lazy(() => import("./pages/not-found-page"));
 const PrivacyPolicyPage = lazy(() => import("./pages/privacypolicy-page"));
+const GuidePage = lazy(() => import("./pages/guide-page"));
+const GuideHistoryPage = lazy(() => import("./pages/guide-history-page"));
 
 /**
  * To be used as a wrapper for <Route>s at the top level, and adds Faro
