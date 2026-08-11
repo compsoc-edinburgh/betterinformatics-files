@@ -456,6 +456,83 @@ def list_revisions(request, slug: str):
     return {"revisions": revision_list}
 
 
+class UpdateRevisionRequest(Schema):
+    redacted: bool
+
+
+@router.patch(
+    "/{slug}/revisions/{revision_id}",
+    response={200: None, 403: ErrorSchema, 404: ErrorSchema},
+    operation_id="redact_revision",
+)
+@auth_check.require_admin
+def redact_revision(request, slug: str, revision_id: int, data: UpdateRevisionRequest):
+    page = get_object_or_404(Page, slug=slug)
+    revision = get_object_or_404(PageRevision, id=revision_id, page=page)
+
+    revision.redacted = data.redacted
+    revision.save()
+
+    return 200, None
+
+
+class PageRevisionResponse(Schema):
+    id: int
+    created_at: datetime.datetime
+    author: PageAuthorResponse
+    message: str
+    content_delta: str
+    title_delta: str
+    content: str
+    title: str
+    redacted: bool
+
+
+@router.get(
+    "/{slug}/revisions/{revision_id}",
+    response={200: PageRevisionResponse, 403: ErrorSchema, 404: ErrorSchema},
+    operation_id="get_revision",
+)
+def get_revision(request, slug: str, revision_id: int):
+    page = get_object_or_404(Page, slug=slug)
+    revision = get_object_or_404(PageRevision, id=revision_id, page=page)
+
+    can_see_redacted = auth_check.has_admin_rights(request)
+
+    recreated_content = ""
+    recreated_title = ""
+    all_previous_revisions = PageRevision.objects.filter(page=page, id__lte=revision.id)
+
+    dmp = dmp_module.diff_match_patch()
+    for rev in all_previous_revisions:
+        recreated_content = dmp.patch_apply(
+            dmp.patch_fromText(rev.content_delta), recreated_content
+        )[0]
+        recreated_title = dmp.patch_apply(
+            dmp.patch_fromText(rev.title_delta), recreated_title
+        )[0]
+
+    return {
+        "id": revision.id,
+        "created_at": revision.created_at.isoformat(),
+        "author": get_page_author_response(
+            revision.author, revision.anonymised, request
+        ),
+        "message": revision.message,
+        "content_delta": ""
+        if revision.redacted and not can_see_redacted
+        else patch_to_standard_diff(revision.content_delta),
+        "title_delta": ""
+        if revision.redacted and not can_see_redacted
+        else patch_to_standard_diff(revision.title_delta),
+        "content": ""
+        if revision.redacted and not can_see_redacted
+        else recreated_content,
+        "title": "" if revision.redacted and not can_see_redacted else recreated_title,
+        "redacted": revision.redacted,
+    }
+
+
 @router.delete(
     "/{slug}",
     response={204: None, 403: ErrorSchema, 404: ErrorSchema},
