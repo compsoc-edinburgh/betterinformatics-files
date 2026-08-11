@@ -145,7 +145,7 @@ export const PageArticleHistory: React.FC<{
               </Anchor>
             )}
           </Group>
-          {!revision.redacted && (
+          {(!revision.redacted || user.isAdmin) && (
             <Collapse expanded={expandedRevisions.has(revision.id)}>
               {revision.title_delta && (
                 <CodeBlock value={revision.title_delta} language="diff" />
