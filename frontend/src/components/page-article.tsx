@@ -6,11 +6,13 @@ import {
   PageUpdateRequest,
 } from "../api/model";
 import {
+  Anchor,
   Fieldset,
   Group,
   MultiSelect,
   Paper,
   Select,
+  Text,
   TextInput,
   Title,
 } from "@mantine/core";
@@ -27,6 +29,7 @@ import { parseISO } from "date-fns";
 import { useUser } from "../auth";
 import { loadCategories } from "../api/hooks";
 import { useRequest } from "ahooks";
+import { Link } from "react-router-dom";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
@@ -109,9 +112,20 @@ export const PageArticle: React.FC<{
             {...registerInput("title")}
           />
         ) : (
-          <Title order={1} mb="md">
-            {page.title}
-          </Title>
+          <Group justify="space-between">
+            <Title order={1} mb="md">
+              {page.title}
+            </Title>
+            <Anchor
+              component={Link}
+              to={`/guide/${page.slug}/history`}
+              size="sm"
+            >
+              <Text c="dimmed" size="sm">
+                {page.revision_count} revisions
+              </Text>
+            </Anchor>
+          </Group>
         )}
         {page.category && (
           <>

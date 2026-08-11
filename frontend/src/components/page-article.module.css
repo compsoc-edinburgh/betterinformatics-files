@@ -10,6 +10,7 @@
 
     &:hover {
       color: var(--mantine-color-blue-4);
+      text-decoration: none;
     }
 
     &:active {

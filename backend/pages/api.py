@@ -31,6 +31,7 @@ class PageResponse(Schema):
     edited_at: datetime.datetime
     content: str
     author: PageAuthorResponse
+    revision_count: int
 
 
 class PageListResponseItem(Schema):
@@ -168,6 +169,7 @@ def get_page(request, slug: str):
         edited_at=page.edited_at,
         content=page.content,
         author=get_page_author_response(page.author, page.anonymised, request),
+        revision_count=page.revisions.count(),
     )
 
 
