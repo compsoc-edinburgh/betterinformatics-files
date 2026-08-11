@@ -197,7 +197,7 @@ export const GuideSidebarRight: React.FC<{
         </>
       )}
       <Divider my="md" w="100%" />
-      <dl>
+      <dl className={style.dl}>
         {updatedAt && (
           <>
             <dt className={style.dlHeading}>

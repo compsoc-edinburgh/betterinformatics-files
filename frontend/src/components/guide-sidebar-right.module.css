@@ -1,5 +1,12 @@
+.dl {
+  width: 100%;
+}
+
 .dl-data {
   margin-inline-start: 0;
+  min-width: 100%;
+  width: 0;
+  word-break: break-all;
 }
 
 .dl-heading:not(:first-child) {
