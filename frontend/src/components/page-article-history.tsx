@@ -106,7 +106,9 @@ export const PageArticleHistory: React.FC<{
       </Title>
       <Anchor component={Link} to={`/guide/${page.slug}`}>
         <Group mb="md" gap="xs">
-          <IconArrowLeft size={16} />
+          <ActionIcon variant="transparent">
+            <IconArrowLeft size={16} />
+          </ActionIcon>
           View current revision of "{page.title}"
         </Group>
       </Anchor>
