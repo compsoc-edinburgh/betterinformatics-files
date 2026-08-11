@@ -308,7 +308,7 @@ def create_page(request, data: PageCreateRequest):
         message="Created empty page",
     )
 
-    return {"slug": page.slug}
+    return 201, {"slug": page.slug}
 
 
 class PageUpdateRequest(Schema):
