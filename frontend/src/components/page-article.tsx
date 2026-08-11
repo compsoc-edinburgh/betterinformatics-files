@@ -89,6 +89,7 @@ export const PageArticle: React.FC<{
   });
 
   const hasUnsavedChanges =
+    formState.slug !== page.slug ||
     formState.content !== page.content ||
     formState.title !== page.title ||
     formState.category !== page.category ||
@@ -115,7 +116,8 @@ export const PageArticle: React.FC<{
               input: style.editingTitle,
             }}
             size="lg"
-            {...registerInput("title")}
+            value={formState.title}
+            onChange={e => setFormValue("title", e.target.value)}
           />
         ) : (
           <Group justify="space-between">
@@ -168,7 +170,11 @@ export const PageArticle: React.FC<{
         )}
         {editing && isPrivileged && (
           <Fieldset legend="Privileged Actions">
-            <TextInput label="Slug" {...registerInput("slug")} />
+            <TextInput
+              label="Slug"
+              value={formState.slug}
+              onChange={e => setFormValue("slug", e.target.value)}
+            />
             <MultiSelect
               label="Parent Pages"
               data={pages.pages
