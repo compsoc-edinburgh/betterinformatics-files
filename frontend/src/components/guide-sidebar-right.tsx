@@ -20,6 +20,7 @@ import style from "./guide-sidebar-right.module.css";
 import { clsx } from "clsx";
 import useForm from "../hooks/useForm";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
+import { Link } from "react-router-dom";
 
 export const GuideSidebarRight: React.FC<{
   toc: TableOfContentsEntry[];
@@ -169,7 +170,12 @@ export const GuideSidebarRight: React.FC<{
             </Title>
           </Group>
           {parentPages.map(page => (
-            <Anchor display="block" key={page.slug} href={`#${page.slug}`}>
+            <Anchor
+              display="block"
+              key={page.slug}
+              component={Link}
+              to={`/guide/${page.slug}`}
+            >
               {page.title}
             </Anchor>
           ))}
