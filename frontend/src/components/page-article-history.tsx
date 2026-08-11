@@ -156,10 +156,18 @@ export const PageArticleHistory: React.FC<{
           {(!revision.redacted || user.isAdmin) && (
             <Collapse expanded={expandedRevisions.has(revision.id)}>
               {revision.title_delta && (
-                <CodeBlock value={revision.title_delta} language="diff" />
+                <CodeBlock
+                  value={revision.title_delta}
+                  language="diff"
+                  customStyle={{ lineHeight: 1 }}
+                />
               )}
               {revision.content_delta && (
-                <CodeBlock value={revision.content_delta} language="diff" />
+                <CodeBlock
+                  value={revision.content_delta}
+                  language="diff"
+                  customStyle={{ lineHeight: 1 }}
+                />
               )}
               {!revision.title_delta && !revision.content_delta && (
                 <Text c="dimmed" size="sm" p="sm">
