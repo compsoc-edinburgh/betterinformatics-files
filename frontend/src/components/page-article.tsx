@@ -70,24 +70,25 @@ export const PageArticle: React.FC<{
     },
   });
 
-  const { registerInput, formState, setFormValue, onSubmit } = useForm(
-    {
-      // Initial values
-      content: page.content,
-      title: page.title,
-      category: page.category,
-      slug: page.slug,
-      parents: page.parents,
-      is_anonymous: false,
-      revision_message: "",
-    } as PageUpdateRequest,
-    data => {
-      updatePage({
+  const { registerInput, registerCheckbox, formState, setFormValue, onSubmit } =
+    useForm(
+      {
+        // Initial values
+        content: page.content,
+        title: page.title,
+        category: page.category,
         slug: page.slug,
-        data,
-      });
-    },
-  );
+        parents: page.parents,
+        is_anonymous: false,
+        revision_message: "",
+      } as PageUpdateRequest,
+      data => {
+        updatePage({
+          slug: page.slug,
+          data,
+        });
+      },
+    );
 
   const {
     error: categoriesError,
@@ -220,7 +221,7 @@ export const PageArticle: React.FC<{
         createdAt={parseISO(page.created_at)}
         author={page.author}
         editing={editing}
-        editAnonymously={registerInput("is_anonymous")}
+        editAnonymously={registerCheckbox("is_anonymous")}
         revisionMessage={registerInput("revision_message")}
         hasUnsavedChanges={hasUnsavedChanges}
         setEditing={setEditing}
