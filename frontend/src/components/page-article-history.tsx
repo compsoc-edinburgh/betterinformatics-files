@@ -115,7 +115,17 @@ export const PageArticleHistory: React.FC<{
           </Group>
           {!revision.redacted && (
             <Collapse expanded={expandedRevisions.has(revision.id)}>
-              <CodeBlock value={revision.content_delta} language="diff" />
+              {revision.title_delta && (
+                <CodeBlock value={revision.title_delta} language="diff" />
+              )}
+              {revision.content_delta && (
+                <CodeBlock value={revision.content_delta} language="diff" />
+              )}
+              {!revision.title_delta && !revision.content_delta && (
+                <Text c="dimmed" size="sm" p="sm">
+                  Changes were in metadata only.
+                </Text>
+              )}
             </Collapse>
           )}
         </Stack>
