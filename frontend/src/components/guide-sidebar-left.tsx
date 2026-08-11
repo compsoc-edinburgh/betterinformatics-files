@@ -7,21 +7,94 @@ import {
   Switch,
   TextInput,
   Text,
+  Tree,
   Anchor,
   Divider,
+  TreeNodeData,
+  RenderTreeNodePayload,
 } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useCreatePage, useListPages } from "../api/hooks/pages";
-import { Link, useNavigate } from "react-router-dom";
-import { IconPlus, IconSquarePlus } from "@tabler/icons-react";
+import { NavLink, useMatch, useNavigate } from "react-router-dom";
+import {
+  IconChevronRight,
+  IconPlus,
+  IconSquarePlus,
+} from "@tabler/icons-react";
+import style from "./guide-sidebar-left.module.css";
+import { clsx } from "clsx";
+
+const LeafNode: React.FC<RenderTreeNodePayload> = ({
+  node,
+  expanded,
+  hasChildren,
+  elementProps,
+}) => {
+  const match = useMatch(`/guide/${node.value}`);
+
+  return (
+    <Anchor
+      display="block"
+      component={NavLink}
+      to={`/guide/${node.value}`}
+      {...elementProps}
+      className={clsx(
+        style.treeNodeLink,
+        match && style.active,
+        elementProps.className,
+      )}
+    >
+      <Group gap="xs" justify="space-between">
+        {node.label}
+        {hasChildren && (
+          <IconChevronRight
+            size={16}
+            style={{
+              transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+              transition: "transform 0.2s",
+            }}
+          />
+        )}
+      </Group>
+    </Anchor>
+  );
+};
 
 export const GuideSideBarLeft: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: pages, refetch: refetchPages } = useListPages({
-    child_of: "",
     category: "",
   });
+
+  const treeData = useMemo(() => {
+    // Build a tree structure from the flat list of pages and parents
+    if (!pages) return [];
+    const pageMap: Record<string, { parents: string[] } & TreeNodeData> = {};
+    pages.pages.forEach(page => {
+      pageMap[page.slug] = {
+        value: page.slug,
+        label: page.title,
+        children: undefined,
+        parents: page.parents,
+      };
+    });
+    pages.pages.forEach(page => {
+      if (page.parents.length > 0) {
+        for (const parentSlug of page.parents) {
+          pageMap[parentSlug].children ??= [];
+          pageMap[parentSlug].children.push(pageMap[page.slug]);
+        }
+      }
+    });
+    return Object.values(pageMap)
+      .filter(node => !node.parents.length)
+      .map(node => {
+        const { parents, ...rest } = node;
+        return rest;
+      });
+  }, [pages]);
+
   const [isOpen, setIsOpen] = useState(false);
   const [newPageName, setNewPageName] = useState("");
   const [newPageParents, setNewPageParents] = useState<string[]>([]);
@@ -92,16 +165,16 @@ export const GuideSideBarLeft: React.FC = () => {
         </Stack>
       </Modal>
       <Stack gap="xs" style={{ minWidth: "200px" }}>
-        {pages?.pages.map(p => (
-          <Anchor
-            display="block"
-            key={p.slug}
-            to={`/guide/${p.slug}`}
-            component={Link}
-          >
-            {p.title}
-          </Anchor>
-        ))}
+        <Tree
+          data={treeData}
+          expandOnClick={true}
+          renderNode={payload => <LeafNode {...payload} />}
+          classNames={{
+            root: style.treeRoot,
+            label: style.treeNodeLabel,
+            subtree: style.treeSubtree,
+          }}
+        />
         <Divider my="md" />
         <Button
           onClick={() => setIsOpen(true)}

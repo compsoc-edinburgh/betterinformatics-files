@@ -1,0 +1,41 @@
+.treeRoot {
+  display: flex;
+  flex-direction: column;
+}
+
+.treeSubtree {
+  display: flex;
+  flex-direction: column;
+  padding-left: 0;
+  margin-left: 0;
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 1px;
+    height: 100%;
+    background-color: var(--mantine-primary-color-filled);
+    margin-left: var(--mantine-spacing-md);
+  }
+
+  & a {
+    padding-inline-start: var(--mantine-spacing-xl);
+  }
+}
+
+.treeNodeLabel {
+  padding: calc(var(--mantine-spacing-xs) / 8) var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-sm);
+
+  &:hover {
+    text-decoration: none;
+    background-color: var(--mantine-color-gray-light-hover);
+  }
+
+  &.active {
+    background-color: var(--mantine-primary-color-light-hover);
+    color: var(--mantine-primary-color-light-color);
+  }
+}
