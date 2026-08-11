@@ -462,7 +462,7 @@ class UpdateRevisionRequest(Schema):
 
 @router.patch(
     "/{slug}/revisions/{revision_id}",
-    response={200: None, 403: ErrorSchema, 404: ErrorSchema},
+    response={204: None, 403: ErrorSchema, 404: ErrorSchema},
     operation_id="redactRevision",
 )
 @auth_check.require_admin
@@ -473,7 +473,7 @@ def redact_revision(request, slug: str, revision_id: int, data: UpdateRevisionRe
     revision.redacted = data.redacted
     revision.save()
 
-    return 200, None
+    return 204, None
 
 
 class PageRevisionResponse(Schema):

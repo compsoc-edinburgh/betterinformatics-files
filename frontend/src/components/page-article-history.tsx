@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useUser } from "../auth";
 import { PageResponse } from "../api/model";
-import { useListRevisions } from "../api/hooks/pages";
+import { useListRevisions, useRedactRevision } from "../api/hooks/pages";
 import { useState } from "react";
 import CodeBlock from "./code-block";
 import { IconChevronRight } from "@tabler/icons-react";
@@ -24,7 +24,12 @@ export const PageArticleHistory: React.FC<{
 }> = ({ page }) => {
   const user = useUser();
 
-  const { data: revisions, isLoading, isError } = useListRevisions(page.slug);
+  const {
+    data: revisions,
+    isLoading,
+    isError,
+    refetch,
+  } = useListRevisions(page.slug);
 
   const [expandedRevisions, setExpandedRevisions] = useState<Set<number>>(
     new Set(),
@@ -38,6 +43,28 @@ export const PageArticleHistory: React.FC<{
       newExpandedRevisions.delete(revisionId);
     }
     setExpandedRevisions(newExpandedRevisions);
+  };
+
+  const { mutate: setRedaction } = useRedactRevision({
+    mutation: {
+      onSuccess: () => {
+        void refetch();
+      },
+    },
+  });
+
+  const toggleRedaction = (revisionId: number) => {
+    const revision = revisions?.revisions.find(r => r.id === revisionId);
+    if (!revision) {
+      return;
+    }
+    setRedaction({
+      slug: page.slug,
+      revisionId,
+      data: {
+        redacted: !revision.redacted,
+      },
+    });
   };
 
   // Revisions only visible if logged in
@@ -112,6 +139,11 @@ export const PageArticleHistory: React.FC<{
               )}
               <i>({revision.message})</i>
             </Text>
+            {user.isAdmin && (
+              <Anchor onClick={() => toggleRedaction(revision.id)}>
+                (Redact)
+              </Anchor>
+            )}
           </Group>
           {!revision.redacted && (
             <Collapse expanded={expandedRevisions.has(revision.id)}>
