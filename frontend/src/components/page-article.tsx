@@ -30,6 +30,7 @@ import { useUser } from "../auth";
 import { loadCategories } from "../api/hooks";
 import { useRequest } from "ahooks";
 import { Link, useNavigate } from "react-router-dom";
+import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
@@ -47,6 +48,8 @@ export const PageArticle: React.FC<{
   const toc = useTableOfContents(page.content);
   const [editing, setEditing] = useState(false);
 
+  const { ready, token, executeInstance } = useHCaptcha();
+
   const navigate = useNavigate();
   const { mutate: updatePage, isPending: isMutating } = useUpdatePage({
     mutation: {
@@ -57,6 +60,12 @@ export const PageArticle: React.FC<{
         }
         // Regardless, refetch to refresh sidebar
         refetch();
+      },
+    },
+    request: {
+      method: "PUT", // will be overridden anyway by orval definition
+      headers: {
+        "X-HCaptcha-Token": token ?? "",
       },
     },
   });
@@ -73,9 +82,11 @@ export const PageArticle: React.FC<{
       revision_message: "",
     } as PageUpdateRequest,
     data => {
-      updatePage({
-        slug: page.slug,
-        data,
+      executeInstance().then(_ => {
+        updatePage({
+          slug: page.slug,
+          data,
+        });
       });
     },
   );
@@ -213,7 +224,7 @@ export const PageArticle: React.FC<{
         editing={editing}
         editAnonymously={registerInput("is_anonymous")}
         revisionMessage={registerInput("revision_message")}
-        hasUnsavedChanges={hasUnsavedChanges}
+        hasUnsavedChanges={hasUnsavedChanges && ready}
         setEditing={setEditing}
         isMutating={isMutating}
         onSave={onSubmit}

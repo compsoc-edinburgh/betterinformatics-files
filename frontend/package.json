@@ -6,6 +6,7 @@
   "dependencies": {
     "@grafana/faro-react": "^2.4.0",
     "@grafana/faro-web-tracing": "^2.8.2",
+    "@hcaptcha/react-hcaptcha": "^2.1.0",
     "@mantine/colors-generator": "^9.1.0",
     "@mantine/core": "^9.1.0",
     "@mantine/form": "^9.1.0",

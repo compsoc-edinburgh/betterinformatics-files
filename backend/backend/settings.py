@@ -157,6 +157,9 @@ document_download_safe_extensions = (
     else document_download_safe_extensions.split(",")
 )
 
+HCAPTCHA_SITEKEY = os.environ.get("HCAPTCHA_SITEKEY", "")
+HCAPTCHA_SECRET = os.environ.get("HCAPTCHA_SECRET", "")
+
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
@@ -165,6 +168,7 @@ FRONTEND_SERVER_DATA = {
     "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", ""),
     "announcements": announcements,
     "document_download_safe_extensions": document_download_safe_extensions,
+    "hcaptcha_sitekey": os.environ.get("HCAPTCHA_SITEKEY", ""),
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")

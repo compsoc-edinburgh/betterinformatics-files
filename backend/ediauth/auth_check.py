@@ -1,10 +1,12 @@
 from functools import wraps
 
+import requests as req
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 from ediauth.models import TemporaryUser
 from util import func_cache, response
+from util.response import not_allowed
 
 
 def check_api_key(request):
@@ -24,6 +26,23 @@ def supports_temp_user(f):
             response = f(request, *args, **kwargs)
             response.delete_cookie("temp_session_id")
             return response
+
+        # Before doing anything, check the required hcaptcha token
+        hcaptcha_token = request.headers.get("X-HCaptcha-Token")
+        if not hcaptcha_token:
+            print("No hcaptcha token provided")
+            return not_allowed()
+
+        r = req.post(
+            "https://hcaptcha.com/siteverify",
+            data={
+                "secret": settings.HCAPTCHA_SECRET,
+                "response": hcaptcha_token,
+            },
+        )
+        if not r.json().get("success"):
+            print("Hcaptcha verification failed", r.json())
+            return not_allowed()
 
         try:
             if temp_session_id:

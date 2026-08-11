@@ -729,6 +729,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hcaptcha/react-hcaptcha@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@hcaptcha/react-hcaptcha@npm:2.1.0"
+  checksum: 10c0/301ded131f1a8c0e6be77ebb0f0a58aecda84caef22bb0b5b29ec92c105e8f7f612873a8335b6c79c4dd24da9e23c405c945103822da994b56a81180705a83c4
+  languageName: node
+  linkType: hard
+
 "@humanfs/core@npm:^0.19.1":
   version: 0.19.1
   resolution: "@humanfs/core@npm:0.19.1"
@@ -4544,6 +4551,7 @@ __metadata:
     "@eslint/js": "npm:^9.38.0"
     "@grafana/faro-react": "npm:^2.4.0"
     "@grafana/faro-web-tracing": "npm:^2.8.2"
+    "@hcaptcha/react-hcaptcha": "npm:^2.1.0"
     "@mantine/colors-generator": "npm:^9.1.0"
     "@mantine/core": "npm:^9.1.0"
     "@mantine/form": "npm:^9.1.0"
