@@ -17,7 +17,6 @@ import chroma from "chroma-js";
 import "@mantine/core/styles.css";
 import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Navigate, Route, Routes, useSearchParams } from "react-router-dom";
-import { HCaptchaProvider } from "@hcaptcha/react-hcaptcha/hooks";
 import { authenticated, fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import { AuthenticatedRoutes } from "./auth/AuthenticatedRoutes";
@@ -98,6 +97,7 @@ const LoginPage = lazy(() => import("./pages/login-page"));
 const NotFoundPage = lazy(() => import("./pages/not-found-page"));
 const PrivacyPolicyPage = lazy(() => import("./pages/privacypolicy-page"));
 const GuidePage = lazy(() => import("./pages/guide-page"));
+const GuideArticlePage = lazy(() => import("./pages/guide-article-page"));
 const GuideHistoryPage = lazy(() => import("./pages/guide-history-page"));
 
 /**
@@ -360,7 +360,10 @@ const App: React.FC = () => {
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                      <Route path="/guide/:slug?" element={<GuidePage />} />
+                      <Route path="/guide/:slug?" element={<GuidePage />}>
+                        <Route path="" element={<GuideArticlePage />} />
+                        <Route path="history" element={<GuideHistoryPage />} />
+                      </Route>
                       <Route element={<AuthenticatedRoutes />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/uploadpdf" element={<UploadPdfPage />} />
