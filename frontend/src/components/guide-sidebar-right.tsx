@@ -224,7 +224,8 @@ export const GuideSidebarRight: React.FC<{
             </dt>
             <dd className={style.dlData}>
               <Tooltip
-                label={!author.anonymised && `@${author.username}`}
+                label={`@${author.username}`}
+                disabled={author.anonymised || !author.username}
                 withArrow
               >
                 <Text size="xs" c="gray.5">
