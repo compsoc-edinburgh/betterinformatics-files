@@ -13,7 +13,13 @@ import { HCaptchaProvider } from "@hcaptcha/react-hcaptcha/hooks";
 const container = document.getElementById("root")!;
 const root = createRoot(container);
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const content = (
   <BrowserRouter>
