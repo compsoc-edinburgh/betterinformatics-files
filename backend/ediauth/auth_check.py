@@ -44,12 +44,14 @@ def supports_temp_user(f):
             print("Hcaptcha verification failed", r.json())
             return not_allowed()
 
-        try:
-            if temp_session_id:
-                temp_user = TemporaryUser.objects.get(session_id=temp_session_id)
-                request.temp_user = temp_user
-                return f(request, *args, **kwargs)
-        except TemporaryUser.DoesNotExist:
+        if (
+            temp_session_id
+            and TemporaryUser.objects.filter(session_id=temp_session_id).exists()
+        ):
+            temp_user = TemporaryUser.objects.get(session_id=temp_session_id)
+            request.temp_user = temp_user
+            return f(request, *args, **kwargs)
+        else:
             # If temporary session couldn't be found or wasn't given, create new
             temp_user = TemporaryUser.objects.create()
             request.temp_user = temp_user
