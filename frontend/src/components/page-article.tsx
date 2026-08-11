@@ -150,7 +150,9 @@ export const PageArticle: React.FC<{
           <Fieldset legend="Privileged Actions">
             <MultiSelect
               label="Parent Pages"
-              data={pages.pages.map(p => ({ value: p.slug, label: p.title }))}
+              data={pages.pages
+                .filter(p => p.slug !== page.slug)
+                .map(p => ({ value: p.slug, label: p.title }))}
               value={formState.parents}
               onChange={value => setFormValue("parents", value)}
             />

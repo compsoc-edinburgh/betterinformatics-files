@@ -8,7 +8,6 @@ import { GuideSideBarLeft } from "../components/guide-sidebar-left";
 const GuidePage: React.FC = () => {
   const { slug } = useParams() as { slug?: string };
   const { data: pages, refetch: refetchPages } = useListPages({
-    child_of: "",
     category: "",
   });
   const {
