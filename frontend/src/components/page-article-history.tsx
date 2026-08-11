@@ -10,7 +10,7 @@ import {
   Title,
 } from "@mantine/core";
 import { useUser } from "../auth";
-import { PageAuthorResponse, PageResponse } from "../api/model";
+import { PageResponse } from "../api/model";
 import { useListRevisions, useRedactRevision } from "../api/hooks/pages";
 import { useState } from "react";
 import CodeBlock from "./code-block";
@@ -18,64 +18,7 @@ import { IconArrowLeft, IconChevronRight } from "@tabler/icons-react";
 import { formatISO } from "date-fns";
 import { Link } from "react-router-dom";
 import style from "./page-article.module.css";
-import displayNameClasses from "../utils/display-name.module.css";
-
-interface UserRenderProps {
-  user: PageAuthorResponse;
-  can_see_anonymised?: boolean;
-}
-
-const UserRender: React.FC<UserRenderProps> = ({
-  user,
-  can_see_anonymised,
-}) => {
-  return (
-    <Text>
-      {!user.anonymised && user.username && (
-        <Anchor
-          component={Link}
-          to={`/user/${user.username}`}
-          underline="never"
-          className={displayNameClasses.shrinkableDisplayName}
-        >
-          {user.display_name !== user.username && (
-            <>
-              <Text component="span">{user.display_name}</Text>
-              <Text ml="0.3em" c="dimmed" component="span">
-                @{user.username}
-              </Text>
-            </>
-          )}
-          {user.display_name === user.username && (
-            <Text component="span">@{user.username}</Text>
-          )}
-        </Anchor>
-      )}
-      {!user.anonymised && !user.username && (
-        <Text component="span">{user.display_name}</Text>
-      )}
-      {user.anonymised && <Text component="span">Anonymous</Text>}
-      {user.anonymised && user.username && can_see_anonymised && (
-        <Anchor
-          component={Link}
-          to={`/user/${user.username}`}
-          underline="never"
-          className={displayNameClasses.shrinkableDisplayName}
-        >
-          <Text ml="0.3em" c="dimmed" component="span">
-            ({user.display_name !== user.username && `${user.display_name} `}@
-            {user.username})
-          </Text>
-        </Anchor>
-      )}
-      {user.anonymised && !user.username && can_see_anonymised && (
-        <Text ml="0.3em" c="dimmed" component="span">
-          ({user.display_name})
-        </Text>
-      )}
-    </Text>
-  );
-};
+import { PageUserRender } from "./page-user-render";
 
 export const PageArticleHistory: React.FC<{
   page: PageResponse;
@@ -190,7 +133,7 @@ export const PageArticleHistory: React.FC<{
               <Anchor onClick={() => toggleRevision(revision.id)}>
                 {formatISO(new Date(revision.created_at))}
               </Anchor>
-              <UserRender
+              <PageUserRender
                 user={revision.author}
                 can_see_anonymised={
                   user.isAdmin || user.username === revision.author.username

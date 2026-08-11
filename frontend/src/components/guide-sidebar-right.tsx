@@ -21,6 +21,7 @@ import { clsx } from "clsx";
 import useForm from "../hooks/useForm";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { Link } from "react-router-dom";
+import { PageUserRender } from "./page-user-render";
 
 export const GuideSidebarRight: React.FC<{
   toc: TableOfContentsEntry[];
@@ -238,15 +239,14 @@ export const GuideSidebarRight: React.FC<{
               </Text>
             </dt>
             <dd className={style.dlData}>
-              <Tooltip
-                label={`@${author.username}`}
-                disabled={author.anonymised || !author.username}
-                withArrow
-              >
-                <Text size="xs" c="gray.5">
-                  {author.anonymised ? "Anonymous" : author.display_name}
-                </Text>
-              </Tooltip>
+              <PageUserRender
+                user={author}
+                can_see_anonymised={
+                  user.isAdmin || user.username === author.username
+                }
+                size="xs"
+                c="gray.5"
+              />
             </dd>
           </>
         )}
