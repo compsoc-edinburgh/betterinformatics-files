@@ -29,7 +29,7 @@ import { parseISO } from "date-fns";
 import { useUser } from "../auth";
 import { loadCategories } from "../api/hooks";
 import { useRequest } from "ahooks";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
@@ -47,10 +47,15 @@ export const PageArticle: React.FC<{
   const toc = useTableOfContents(page.content);
   const [editing, setEditing] = useState(false);
 
+  const navigate = useNavigate();
   const { mutate: updatePage, isPending: isMutating } = useUpdatePage({
     mutation: {
-      onSuccess: () => {
+      onSuccess: ({ slug }) => {
         setEditing(false);
+        if (slug !== page.slug) {
+          void navigate(`/guide/${slug}`);
+        }
+        // Regardless, refetch to refresh sidebar
         refetch();
       },
     },
@@ -62,6 +67,7 @@ export const PageArticle: React.FC<{
       content: page.content,
       title: page.title,
       category: page.category,
+      slug: page.slug,
       parents: page.parents,
       is_anonymous: false,
       revision_message: "",
@@ -162,6 +168,7 @@ export const PageArticle: React.FC<{
         )}
         {editing && isPrivileged && (
           <Fieldset legend="Privileged Actions">
+            <TextInput label="Slug" {...registerInput("slug")} />
             <MultiSelect
               label="Parent Pages"
               data={pages.pages

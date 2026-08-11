@@ -312,6 +312,7 @@ def create_page(request, data: PageCreateRequest):
 
 
 class PageUpdateRequest(Schema):
+    slug: str
     title: str
     category: str | None
     parents: list[str]
@@ -339,12 +340,23 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     content_patch = calculate_patch(page.content, data.content)
 
     if (
-        title_patch == ""
+        slug == data.slug
+        and title_patch == ""
         and content_patch == ""
         and set(data.parents) == set(parent.slug for parent in page.parents.all())
         and data.category == (page.category.slug if page.category else None)
     ):
         return not_possible("No changes detected")
+
+    # Only admins and owners can change the slug
+    if (
+        slug != data.slug
+        and not auth_check.has_admin_rights(request)
+        and page.author != author
+    ):
+        return not_allowed()
+
+    page.slug = data.slug
 
     if data.category:
         # Only admins can change or assign a category - since they are category pages
