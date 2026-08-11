@@ -66,6 +66,18 @@ class PageRevisionResponseItem(Schema):
     redacted: bool
 
 
+class PageRevisionResponse(Schema):
+    id: int
+    created_at: datetime.datetime
+    author: PageAuthorResponse
+    message: str
+    content_delta: str
+    title_delta: str
+    content: str
+    title: str
+    redacted: bool
+
+
 class PageRevisionListResponse(Schema):
     revisions: list[PageRevisionResponseItem]
 
@@ -80,7 +92,13 @@ def get_page_author_response(
             username=None,
         )
 
-    if anonymised and not auth_check.has_admin_rights(request):
+    anonymise_to_requester = (
+        anonymised
+        and not auth_check.has_admin_rights(request)
+        and author.user != request.user
+    )
+
+    if anonymise_to_requester:
         display_name = "Anonymous"
     elif author.user:
         display_name = author.user.profile.display_username
@@ -92,7 +110,11 @@ def get_page_author_response(
     return PageAuthorResponse(
         display_name=display_name,
         anonymised=anonymised,
-        username=author.user.username if author.user else None,
+        username="anonymous"
+        if anonymise_to_requester
+        else author.user.username
+        if author.user
+        else None,
     )
 
 
@@ -474,18 +496,6 @@ def redact_revision(request, slug: str, revision_id: int, data: UpdateRevisionRe
     revision.save()
 
     return 204, None
-
-
-class PageRevisionResponse(Schema):
-    id: int
-    created_at: datetime.datetime
-    author: PageAuthorResponse
-    message: str
-    content_delta: str
-    title_delta: str
-    content: str
-    title: str
-    redacted: bool
 
 
 @router.get(
