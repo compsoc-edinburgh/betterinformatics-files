@@ -7,7 +7,7 @@ import { GuideSideBarLeft } from "../components/guide-sidebar-left";
 
 const GuidePage: React.FC = () => {
   const { slug } = useParams() as { slug?: string };
-  const { data: pages } = useListPages({
+  const { data: pages, refetch: refetchPages } = useListPages({
     child_of: "",
     category: "",
   });
@@ -57,7 +57,10 @@ const GuidePage: React.FC = () => {
             page={page}
             pages={pages}
             parentPages={parentPages}
-            refetch={() => void refetch()}
+            refetch={() => {
+              void refetch();
+              void refetchPages();
+            }}
             onDelete={() => deletePage({ slug: page.slug })}
           />
         ) : (
