@@ -107,7 +107,7 @@ def get_page_author(request) -> PageAuthor:
 
 
 @router.get(
-    "/", response={200: PageListResponse, 404: ErrorSchema}, operation_id="list_pages"
+    "/", response={200: PageListResponse, 404: ErrorSchema}, operation_id="listPages"
 )
 def list_pages(
     request,
@@ -154,7 +154,7 @@ def list_pages(
 
 
 @router.get(
-    "/{slug}", operation_id="get_page", response={200: PageResponse, 404: ErrorSchema}
+    "/{slug}", operation_id="getPage", response={200: PageResponse, 404: ErrorSchema}
 )
 def get_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
@@ -246,7 +246,7 @@ def patch_to_standard_diff(patch_text: str) -> str:
         400: ErrorSchema,
         403: ErrorSchema,
     },
-    operation_id="create_page",
+    operation_id="createPage",
 )
 @decorate_view(auth_check.supports_temp_user)
 def create_page(request, data: PageCreateRequest):
@@ -329,7 +329,7 @@ class PageUpdateRequest(Schema):
         400: ErrorSchema,
         404: ErrorSchema,
     },
-    operation_id="update_page",
+    operation_id="updatePage",
 )
 @decorate_view(auth_check.supports_temp_user)
 def update_page(request, slug: str, data: PageUpdateRequest):
@@ -424,7 +424,7 @@ def update_page(request, slug: str, data: PageUpdateRequest):
 @router.get(
     "/{slug}/revisions/",
     response={200: PageRevisionListResponse, 404: ErrorSchema},
-    operation_id="list_revisions",
+    operation_id="listRevisions",
 )
 @auth_check.require_login
 def list_revisions(request, slug: str):
@@ -463,7 +463,7 @@ class UpdateRevisionRequest(Schema):
 @router.patch(
     "/{slug}/revisions/{revision_id}",
     response={200: None, 403: ErrorSchema, 404: ErrorSchema},
-    operation_id="redact_revision",
+    operation_id="redactRevision",
 )
 @auth_check.require_admin
 def redact_revision(request, slug: str, revision_id: int, data: UpdateRevisionRequest):
@@ -491,7 +491,7 @@ class PageRevisionResponse(Schema):
 @router.get(
     "/{slug}/revisions/{revision_id}",
     response={200: PageRevisionResponse, 403: ErrorSchema, 404: ErrorSchema},
-    operation_id="get_revision",
+    operation_id="getRevision",
 )
 def get_revision(request, slug: str, revision_id: int):
     page = get_object_or_404(Page, slug=slug)
@@ -536,7 +536,7 @@ def get_revision(request, slug: str, revision_id: int):
 @router.delete(
     "/{slug}",
     response={204: None, 403: ErrorSchema, 404: ErrorSchema},
-    operation_id="delete_page",
+    operation_id="deletePage",
 )
 def delete_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
