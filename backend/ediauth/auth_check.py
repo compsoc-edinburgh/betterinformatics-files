@@ -3,9 +3,8 @@ from functools import wraps
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from util import func_cache, response
-
 from ediauth.models import TemporaryUser
+from util import func_cache, response
 
 
 def check_api_key(request):
@@ -31,7 +30,7 @@ def supports_temp_user(f):
                 temp_user = TemporaryUser.objects.get(session_id=temp_session_id)
                 request.temp_user = temp_user
                 return f(request, *args, **kwargs)
-        finally:
+        except TemporaryUser.DoesNotExist:
             # If temporary session couldn't be found or wasn't given, create new
             temp_user = TemporaryUser.objects.create()
             request.temp_user = temp_user
