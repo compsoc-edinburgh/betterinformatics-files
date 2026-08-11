@@ -13,7 +13,7 @@ import {
   TreeNodeData,
   RenderTreeNodePayload,
 } from "@mantine/core";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useCreatePage, useListPages } from "../api/hooks/pages";
 import { NavLink, useMatch, useNavigate } from "react-router-dom";
 import {
@@ -23,6 +23,7 @@ import {
 } from "@tabler/icons-react";
 import style from "./guide-sidebar-left.module.css";
 import { clsx } from "clsx";
+import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
 
 const LeafNode: React.FC<RenderTreeNodePayload> = ({
   node,
@@ -99,6 +100,19 @@ export const GuideSideBarLeft: React.FC = () => {
   const [newPageName, setNewPageName] = useState("");
   const [newPageParents, setNewPageParents] = useState<string[]>([]);
   const [newPageAnonymous, setNewPageAnonymous] = useState(false);
+
+  // Immediately solve hcaptcha when modal opens
+  const { ready: captchaReady, token, executeInstance } = useHCaptcha();
+  const [verifying, setVerifying] = useState(true);
+  useEffect(() => {
+    if (!captchaReady) return;
+    if (!isOpen) return;
+    void executeInstance().then(token => {
+      if (!token) return;
+      setVerifying(false);
+    });
+  }, [isOpen, captchaReady, executeInstance]);
+
   const {
     mutate: createPage,
     isPending: createIsPending,
@@ -112,6 +126,12 @@ export const GuideSideBarLeft: React.FC = () => {
         setNewPageAnonymous(false);
         void refetchPages();
         void navigate(`/guide/${data.slug}`);
+      },
+    },
+    request: {
+      method: "POST",
+      headers: {
+        "X-HCaptcha-Token": token ?? "",
       },
     },
   });
@@ -157,7 +177,7 @@ export const GuideSideBarLeft: React.FC = () => {
                 })
               }
               leftSection={<IconPlus />}
-              loading={createIsPending}
+              loading={createIsPending || verifying}
             >
               Add
             </Button>
