@@ -68,27 +68,6 @@ export const PageArticleHistory: React.FC<{
     });
   };
 
-  // Revisions only visible if logged in
-  if (!user?.loggedin) {
-    return (
-      <Alert title="Login Required">
-        You must be logged in to view the revision history of this page.
-      </Alert>
-    );
-  }
-
-  if (isLoading) {
-    return "Loading...";
-  }
-
-  if (isError) {
-    return (
-      <Alert title="Error" color="red">
-        There was an error loading the revision history.
-      </Alert>
-    );
-  }
-
   return (
     <Paper
       flex={1}
@@ -113,6 +92,15 @@ export const PageArticleHistory: React.FC<{
           View current revision of "{page.title}"
         </Group>
       </Anchor>
+      {!user?.loggedin ? (
+        <Alert flex={1} title="Login Required">
+          You must be logged in to view the revision history of this page.
+        </Alert>
+      ) : isLoading ? (
+        "Loading..."
+      ) : (
+        isError && "There was an error loading the revision history."
+      )}
       {revisions?.revisions.map(revision => (
         <Stack key={revision.id} gap={0} w="100%">
           <Group gap="xs">
@@ -136,18 +124,19 @@ export const PageArticleHistory: React.FC<{
               <PageUserRender
                 user={revision.author}
                 can_see_anonymised={
-                  user.isAdmin || user.username === revision.author.username
+                  user &&
+                  (user.isAdmin || user.username === revision.author.username)
                 }
               />
               <i>({revision.message})</i>
             </Group>
-            {user.isAdmin && (
+            {user?.isAdmin && (
               <Anchor onClick={() => toggleRedaction(revision.id)}>
                 (Redact)
               </Anchor>
             )}
           </Group>
-          {(!revision.redacted || user.isAdmin) && (
+          {(!revision.redacted || user?.isAdmin) && (
             <Collapse expanded={expandedRevisions.has(revision.id)}>
               {revision.title_delta && (
                 <CodeBlock
