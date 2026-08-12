@@ -24,6 +24,8 @@ import {
 import style from "./guide-sidebar-left.module.css";
 import { clsx } from "clsx";
 import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
+import { useUser } from "../auth";
+import { Kind } from "../api/model";
 
 const LeafNode: React.FC<RenderTreeNodePayload> = ({
   node,
@@ -70,6 +72,7 @@ const LeafNode: React.FC<RenderTreeNodePayload> = ({
 };
 
 export const GuideSideBarLeft: React.FC = () => {
+  const user = useUser();
   const navigate = useNavigate();
 
   const { data: pages, refetch: refetchPages } = useListPages({
@@ -107,6 +110,7 @@ export const GuideSideBarLeft: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [newPageName, setNewPageName] = useState("");
   const [newPageParents, setNewPageParents] = useState<string[]>([]);
+  const [newPageKind, setNewPageKind] = useState<Kind>("guide");
   const [newPageAnonymous, setNewPageAnonymous] = useState(false);
 
   // Immediately solve hcaptcha when modal opens
@@ -172,11 +176,23 @@ export const GuideSideBarLeft: React.FC = () => {
               checked={newPageAnonymous}
               onChange={() => setNewPageAnonymous(!newPageAnonymous)}
             />
+            {user?.isAdmin && (
+              <Switch
+                label="Create Static HTML Page"
+                checked={newPageKind === "static_html"}
+                onChange={() =>
+                  setNewPageKind(
+                    newPageKind === "static_html" ? "guide" : "static_html",
+                  )
+                }
+              />
+            )}
             <Button
               disabled={createIsPending || newPageName.trim() === ""}
               onClick={() =>
                 createPage({
                   data: {
+                    kind: newPageKind,
                     title: newPageName,
                     parents: newPageParents,
                     category: null,

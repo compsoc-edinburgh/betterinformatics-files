@@ -205,6 +205,7 @@ def get_page(request, slug: str):
 
 
 class PageCreateRequest(Schema):
+    kind: Page.Kind
     title: str
     category: str | None
     parents: list[str]
@@ -288,6 +289,10 @@ def create_page(request, data: PageCreateRequest):
     if data.category and not auth_check.has_admin_rights(request):
         return not_allowed()
 
+    # Only admins can create static_html pages since they can contain JS
+    if data.kind == Page.Kind.STATIC_HTML and not auth_check.has_admin_rights(request):
+        return not_allowed()
+
     # Double check category exists
     category = None
     if data.category:
@@ -309,7 +314,7 @@ def create_page(request, data: PageCreateRequest):
     page = Page(
         title=data.title,
         slug=slug,
-        kind=Page.Kind.GUIDE,
+        kind=data.kind,
         category=category,
         author=author,
         anonymised=data.is_anonymous,
