@@ -12,7 +12,7 @@ import {
   Switch,
   Alert,
 } from "@mantine/core";
-import { IconMenu3, IconPencil } from "@tabler/icons-react";
+import { IconMenu3, IconPencil, IconSitemap } from "@tabler/icons-react";
 import { ErrorSchema, PageListResponseItem, PageResponse } from "../api/model";
 import { TableOfContentsEntry } from "../hooks/useTableOfContents";
 import { formatRelative, parseISO } from "date-fns";
@@ -186,7 +186,7 @@ export const GuideSidebarRight: React.FC<{
       {parentPages.length > 0 && (
         <>
           <Group gap="xs" my="md">
-            <IconMenu3 size={16} />
+            <IconSitemap size={16} />
             <Title
               order={2}
               fz="h6"
