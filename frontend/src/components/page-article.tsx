@@ -50,7 +50,7 @@ export const PageArticle: React.FC<{
   const match = useMatch(`/guide/${page.slug}/edit`);
   const [searchParams, _] = useSearchParams();
 
-  const toc = useTableOfContents(page.content);
+  const toc = useTableOfContents(`# ${page.title}\n\n${page.content}`);
 
   const editing = match !== null;
 
