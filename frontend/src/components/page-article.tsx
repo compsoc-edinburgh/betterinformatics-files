@@ -136,7 +136,7 @@ export const PageArticle: React.FC<{
             onChange={e => setFormValue("title", e.target.value)}
           />
         ) : (
-          <Group justify="space-between">
+          <Group justify="space-between" wrap="nowrap" align="flex-start">
             <Title order={1} mb="md">
               {page.title}
             </Title>
@@ -145,7 +145,12 @@ export const PageArticle: React.FC<{
               to={`/guide/${page.slug}/history`}
               size="sm"
             >
-              <Text c="dimmed" size="sm">
+              <Text
+                c="dimmed"
+                size="sm"
+                style={{ whiteSpace: "nowrap" }}
+                mt="md"
+              >
                 {page.revision_count} revisions
               </Text>
             </Anchor>
