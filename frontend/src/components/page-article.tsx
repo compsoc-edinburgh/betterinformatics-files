@@ -82,7 +82,7 @@ export const PageArticle: React.FC<{
         // Initial values
         content: page.content,
         title: page.title,
-        category: page.category?.slug,
+        category: page.category?.slug ?? "",
         slug: page.slug,
         parents: page.parents,
         is_anonymous: false,
@@ -108,7 +108,7 @@ export const PageArticle: React.FC<{
     formState.slug !== page.slug ||
     formState.content !== page.content ||
     formState.title !== page.title ||
-    formState.category !== page.category?.slug ||
+    formState.category !== (page.category?.slug ?? "") ||
     formState.parents !== page.parents;
 
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
