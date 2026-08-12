@@ -24,7 +24,7 @@ const runScriptTypes = [
 ];
 
 // Run a script, and upon evaluation (or error), call the callback.
-const runScript = (script: HTMLScriptElement, cb: () => void) => {
+const runScript = (script: HTMLScriptElement, cb: () => void): Node => {
   const newScript = document.createElement("script");
   newScript.type = script.type || "text/javascript";
   // If the script is external, set handlers for load and error events
@@ -49,6 +49,8 @@ const runScript = (script: HTMLScriptElement, cb: () => void) => {
   if (!script.src) {
     cb();
   }
+
+  return newScript;
 };
 
 /**
@@ -59,21 +61,26 @@ const runScript = (script: HTMLScriptElement, cb: () => void) => {
  * @param index Leave undefined, used internally
  */
 const sequence = (
-  fns: ((cb: () => void) => void)[],
+  fns: ((cb: () => void) => Node)[],
   cb: () => void,
   index?: number,
-) => {
+  nodes?: Node[],
+): Node[] => {
   index ??= 0;
+  nodes ??= [];
 
-  fns[index](() => {
-    index ??= 0;
-    index++;
-    if (index < fns.length) {
-      sequence(fns, cb, index);
-    } else {
-      cb();
-    }
-  });
+  nodes.push(
+    fns[index](() => {
+      index ??= 0;
+      index++;
+      if (index < fns.length) {
+        sequence(fns, cb, index, nodes);
+      } else {
+        cb();
+      }
+    }),
+  );
+  return nodes;
 };
 
 /**
@@ -97,7 +104,7 @@ export const ExtremelyTrustedHTML: React.FC<{
 
     // Collect all scripts that have no type attribute, or have a whitelisted
     // type attribute
-    const scripts: ((cb: () => void) => void)[] = [];
+    const scripts: ((cb: () => void) => Node)[] = [];
     ref.current.querySelectorAll("script").forEach(script => {
       if (
         script.getAttribute("type") !== null &&
@@ -105,21 +112,25 @@ export const ExtremelyTrustedHTML: React.FC<{
       )
         return;
 
-      scripts.push(cb => {
-        runScript(script, cb);
-      });
+      scripts.push(cb => runScript(script, cb));
     });
 
     // Call scripts in sequence, then dispatch a DOMContentLoaded event for
     // any scripts that listen for it. Will result in the event firing twice for
     // any pre-existing scripts on the page (pray that it's idempotent).
-    sequence(scripts, () => {
+    const nodes = sequence(scripts, () => {
       const event = new Event("DOMContentLoaded", {
         bubbles: true,
         cancelable: true,
       });
       document.dispatchEvent(event);
     });
+
+    return () => {
+      nodes.forEach(node => {
+        node.parentNode?.removeChild(node);
+      });
+    };
   }, [ref, html]);
 
   return <div ref={ref} />;
