@@ -423,6 +423,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           page?.content ||
                           "*There is no content here. Perhaps you want to add some? Click 'edit'!*"
                         }
+                        localLinkBase="https://betterinformatics.com"
+                        ignoreHtml={true}
                       />
                     </Paper>
                   ) : null}

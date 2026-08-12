@@ -182,7 +182,12 @@ export const PageArticle: React.FC<{
             }}
           />
         ) : (
-          <MarkdownText value={page.content} addAnchors={true} />
+          <MarkdownText
+            value={page.content}
+            addAnchors={true}
+            localLinkBase="https://betterinformatics.com"
+            ignoreHtml={true}
+          />
         )}
         {editing && isPrivileged && (
           <Fieldset legend="Privileged Actions">
