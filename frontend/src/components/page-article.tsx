@@ -18,7 +18,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import MarkdownText from "./markdown-text";
+import MarkdownText, { slugifyHeading } from "./markdown-text";
 import { IconBook } from "@tabler/icons-react";
 import style from "./page-article.module.css";
 import Editor from "./Editor";
@@ -142,7 +142,7 @@ export const PageArticle: React.FC<{
           />
         ) : (
           <Group justify="space-between" wrap="nowrap" align="flex-start">
-            <Title order={1} mb="md">
+            <Title order={1} mb="md" id={slugifyHeading(page.title)}>
               {page.title}
             </Title>
             <Anchor
