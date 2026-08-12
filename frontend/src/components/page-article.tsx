@@ -14,6 +14,7 @@ import {
   Paper,
   Select,
   Text,
+  Textarea,
   TextInput,
   Title,
 } from "@mantine/core";
@@ -168,20 +169,37 @@ export const PageArticle: React.FC<{
           </Anchor>
         )}
         {editing ? (
-          <Editor
-            allowOfficialAnswer={false}
-            imageHandler={file => {
-              throw new Error("Function not implemented");
-            }}
-            undoStack={undoStack}
-            setUndoStack={setUndoStack}
-            preview={value => <MarkdownText value={value} />}
-            /* Manually unpack registerInput since Editor takes a different type for onChange */
-            value={formState.content}
-            onChange={value => {
-              setFormValue("content", value);
-            }}
-          />
+          page.kind === "static_html" ? (
+            <Textarea
+              value={formState.content}
+              onChange={e => setFormValue("content", e.target.value)}
+              minRows={10}
+              autosize
+              styles={{
+                input: {
+                  fontFamily: "monospace",
+                  fontSize: "0.75rem",
+                },
+              }}
+              spellCheck={false}
+              my="sm"
+            />
+          ) : (
+            <Editor
+              allowOfficialAnswer={false}
+              imageHandler={file => {
+                throw new Error("Function not implemented");
+              }}
+              undoStack={undoStack}
+              setUndoStack={setUndoStack}
+              preview={value => <MarkdownText value={value} />}
+              /* Manually unpack registerInput since Editor takes a different type for onChange */
+              value={formState.content}
+              onChange={value => {
+                setFormValue("content", value);
+              }}
+            />
+          )
         ) : page.kind === "static_html" ? (
           <ExtremelyTrustedHTML html={page.content} />
         ) : (
