@@ -30,7 +30,7 @@ import { parseISO } from "date-fns";
 import { useUser } from "../auth";
 import { loadCategories } from "../api/hooks";
 import { useRequest } from "ahooks";
-import { Link, useMatch, useNavigate } from "react-router-dom";
+import { Link, useMatch, useNavigate, useSearchParams } from "react-router-dom";
 import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
 
 export const PageArticle: React.FC<{
@@ -47,6 +47,7 @@ export const PageArticle: React.FC<{
   const isAdmin = user?.loggedin && user.isAdmin;
 
   const match = useMatch(`/guide/${page.slug}/edit`);
+  const [searchParams, _] = useSearchParams();
 
   const toc = useTableOfContents(page.content);
 
@@ -58,9 +59,13 @@ export const PageArticle: React.FC<{
   const { mutate: updatePage, isPending: isMutating } = useUpdatePage({
     mutation: {
       onSuccess: ({ slug }) => {
-        void navigate(`/guide/${slug}`);
         // refetch to refresh sidebar
         refetch();
+        if (searchParams.get("from") === "category") {
+          void navigate(`/category/${page.category?.slug}`);
+        } else {
+          void navigate(`/guide/${slug}`);
+        }
       },
     },
     request: {

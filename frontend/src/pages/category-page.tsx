@@ -411,7 +411,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           </Anchor>
                           <Anchor
                             component={Link}
-                            to={`/guide/${page.slug}/edit`}
+                            to={`/guide/${page.slug}/edit?from=category`}
                             size="sm"
                           >
                             Edit
