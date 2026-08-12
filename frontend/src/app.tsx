@@ -361,7 +361,7 @@ const App: React.FC = () => {
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/privacy" element={<PrivacyPolicyPage />} />
                       <Route path="/guide/:slug?" element={<GuidePage />}>
-                        <Route path="" element={<GuideArticlePage />} />
+                        <Route path="edit?" element={<GuideArticlePage />} />
                         <Route path="history" element={<GuideHistoryPage />} />
                       </Route>
                       <Route element={<AuthenticatedRoutes />}>

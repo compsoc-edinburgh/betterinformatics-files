@@ -24,6 +24,7 @@ import { Link } from "react-router-dom";
 import { PageUserRender } from "./page-user-render";
 
 export const GuideSidebarRight: React.FC<{
+  slug: string;
   toc: TableOfContentsEntry[];
   parentPages: PageListResponseItem[];
   updatedAt?: Date;
@@ -33,13 +34,13 @@ export const GuideSidebarRight: React.FC<{
   editAnonymously: ReturnType<ReturnType<typeof useForm>["registerInput"]>;
   revisionMessage: ReturnType<ReturnType<typeof useForm>["registerInput"]>;
   hasUnsavedChanges: boolean;
-  setEditing: (editing: boolean) => void;
   onSave: React.SubmitEventHandler<HTMLFormElement>;
   onDelete: () => void;
   isMutating: boolean;
   captchaReady: boolean;
   captchaExecute: () => Promise<string | undefined>;
 }> = ({
+  slug,
   toc,
   parentPages,
   updatedAt,
@@ -49,7 +50,6 @@ export const GuideSidebarRight: React.FC<{
   editAnonymously,
   revisionMessage,
   hasUnsavedChanges,
-  setEditing,
   onSave,
   onDelete,
   isMutating,
@@ -106,7 +106,8 @@ export const GuideSidebarRight: React.FC<{
             <Button
               size="compact-sm"
               variant="outline"
-              onClick={() => setEditing(false)}
+              component={Link}
+              to={`/guide/${slug}`}
             >
               Cancel
             </Button>
@@ -126,7 +127,8 @@ export const GuideSidebarRight: React.FC<{
           <Button
             size="compact-sm"
             variant="outline"
-            onClick={() => setEditing(true)}
+            component={Link}
+            to={`/guide/${slug}/edit`}
           >
             Edit
           </Button>

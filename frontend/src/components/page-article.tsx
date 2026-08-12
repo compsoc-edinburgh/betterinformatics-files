@@ -30,7 +30,7 @@ import { parseISO } from "date-fns";
 import { useUser } from "../auth";
 import { loadCategories } from "../api/hooks";
 import { useRequest } from "ahooks";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useMatch, useNavigate } from "react-router-dom";
 import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
 
 export const PageArticle: React.FC<{
@@ -46,8 +46,11 @@ export const PageArticle: React.FC<{
     user?.loggedin && (user.isAdmin || user.username === page.author.username);
   const isAdmin = user?.loggedin && user.isAdmin;
 
+  const match = useMatch(`/guide/${page.slug}/edit`);
+
   const toc = useTableOfContents(page.content);
-  const [editing, setEditing] = useState(false);
+
+  const editing = match !== null;
 
   const { ready, token, executeInstance } = useHCaptcha();
 
@@ -55,11 +58,8 @@ export const PageArticle: React.FC<{
   const { mutate: updatePage, isPending: isMutating } = useUpdatePage({
     mutation: {
       onSuccess: ({ slug }) => {
-        setEditing(false);
-        if (slug !== page.slug) {
-          void navigate(`/guide/${slug}`);
-        }
-        // Regardless, refetch to refresh sidebar
+        void navigate(`/guide/${slug}`);
+        // refetch to refresh sidebar
         refetch();
       },
     },
@@ -211,6 +211,7 @@ export const PageArticle: React.FC<{
         )}
       </Paper>
       <GuideSidebarRight
+        slug={page.slug}
         toc={toc}
         parentPages={parentPages}
         updatedAt={parseISO(page.edited_at)}
@@ -220,7 +221,6 @@ export const PageArticle: React.FC<{
         editAnonymously={registerCheckbox("is_anonymous")}
         revisionMessage={registerInput("revision_message")}
         hasUnsavedChanges={hasUnsavedChanges}
-        setEditing={setEditing}
         isMutating={isMutating}
         onSave={onSubmit}
         onDelete={onDelete}
