@@ -1,5 +1,8 @@
 import React, { useEffect, useRef } from "react";
 
+// This file takes many ideas from https://www.ghinda.net/article/script-tags/
+// Thank you to Ionuț Colceriu for the original article and code!
+
 // https://html.spec.whatwg.org/multipage/scripting.html
 const runScriptTypes = [
   "application/javascript",
@@ -20,9 +23,11 @@ const runScriptTypes = [
   "text/x-javascript",
 ];
 
+// Run a script, and upon evaluation (or error), call the callback.
 const runScript = (script: HTMLScriptElement, cb: () => void) => {
   const newScript = document.createElement("script");
   newScript.type = script.type || "text/javascript";
+  // If the script is external, set handlers for load and error events
   if (script.src) {
     newScript.onload = e => {
       cb();
@@ -39,11 +44,20 @@ const runScript = (script: HTMLScriptElement, cb: () => void) => {
   document.head.appendChild(newScript);
   script.parentNode?.removeChild(script);
 
+  // If the script is inline, immediately call the callback after adding it to
+  // the DOM
   if (!script.src) {
     cb();
   }
 };
 
+/**
+ * Run a sequence of functions taking a callback, one after the other, then
+ * call the final callback.
+ * @param fns Functions to run in sequence
+ * @param cb Callback to call after all functions have been run
+ * @param index Leave undefined, used internally
+ */
 const sequence = (
   fns: ((cb: () => void) => void)[],
   cb: () => void,
@@ -77,9 +91,13 @@ export const ExtremelyTrustedHTML: React.FC<{
 
   useEffect(() => {
     if (!ref.current) return;
-    ref.current.innerHTML = html;
-    const scripts: ((cb: () => void) => void)[] = [];
 
+    // Add to DOM. This won't evaluate any scripts
+    ref.current.innerHTML = html;
+
+    // Collect all scripts that have no type attribute, or have a whitelisted
+    // type attribute
+    const scripts: ((cb: () => void) => void)[] = [];
     ref.current.querySelectorAll("script").forEach(script => {
       if (
         script.getAttribute("type") !== null &&
@@ -92,6 +110,9 @@ export const ExtremelyTrustedHTML: React.FC<{
       });
     });
 
+    // Call scripts in sequence, then dispatch a DOMContentLoaded event for
+    // any scripts that listen for it. Will result in the event firing twice for
+    // any pre-existing scripts on the page (pray that it's idempotent).
     sequence(scripts, () => {
       const event = new Event("DOMContentLoaded", {
         bubbles: true,
