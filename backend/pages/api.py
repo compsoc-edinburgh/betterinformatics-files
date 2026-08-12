@@ -372,6 +372,27 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     page = get_object_or_404(Page, slug=slug)
     author = get_page_author(request)
 
+    # Only admins and owners can change the slug
+    if (
+        slug != data.slug
+        and not auth_check.has_admin_rights(request)
+        and page.author != author
+    ):
+        return not_allowed()
+
+    # Only admins can edit static_html pages since they can contain JS
+    if page.kind == Page.Kind.STATIC_HTML and not auth_check.has_admin_rights(request):
+        return not_allowed()
+
+    # Only admins can change or assign a category - since they are category pages
+    if (
+        data.category
+        and page.category
+        and page.category.slug != data.category
+        and not auth_check.has_admin_rights(request)
+    ):
+        return not_allowed()
+
     title_patch = calculate_patch(page.title, data.title)
     content_patch = calculate_patch(page.content, data.content)
 
@@ -384,24 +405,9 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     ):
         return not_possible("No changes detected")
 
-    # Only admins and owners can change the slug
-    if (
-        slug != data.slug
-        and not auth_check.has_admin_rights(request)
-        and page.author != author
-    ):
-        return not_allowed()
-
     page.slug = data.slug
 
     if data.category:
-        # Only admins can change or assign a category - since they are category pages
-        if (
-            page.category
-            and page.category.slug != data.category
-            and not auth_check.has_admin_rights(request)
-        ):
-            return not_allowed()
         try:
             category = Category.objects.get(slug=data.category)
             page.category = category
