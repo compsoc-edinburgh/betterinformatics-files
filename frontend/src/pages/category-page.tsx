@@ -63,6 +63,7 @@ import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSear
 import { loadTestimonialsByCourse } from "../api/testimonials";
 import { TestimonialCard } from "../components/testimonial-card";
 import { CourseworkExamRatioChart } from "../components/Charts/CourseworkExamRatioChart";
+import { useGetPage, useListPages } from "../api/hooks/pages";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -169,7 +170,15 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       .flat();
   }, [metaData, bi_courses_data]);
 
-  
+  const { data: pages } = useListPages({
+    category: metaData.slug,
+  });
+  const { data: page } = useGetPage(pages?.pages[0]?.slug ?? "", {
+    query: {
+      enabled: !!pages?.pages.length,
+    },
+  });
+
   const sessionString = bi_courses_data
   ? bi_courses_data.session.replace("-", "/")
   : "this year's";
@@ -179,6 +188,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     );
 
     const tabs = useCategoryTabs([
+      { name: "Guide", id: "guide" },
       { name: "Resources", id: "resources" },
       { name: "Testimonials", id: "testimonials", count: testimonials? testimonials.length : 0},
       { name: "Grade Stats", id: "statistics" },
@@ -365,12 +375,53 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                         </Anchor>
                       </Flex>
                     </Paper>
+<<<<<<< HEAD
                   ) : tabs.currentTabId === "testimonials" ? testimonials && (
                         <>
                           {testimonials.map((testimonial: Testimonial, index: number) => <TestimonialCard key={index} author_id={testimonial.author_id} author_display_name={testimonial.author_display_name} slug={testimonial.slug} testimonial={testimonial.testimonial} year_taken={testimonial.year_taken} approval_status={testimonial.approval_status}/>)}
                         </>
                        )
                   : null}
+||||||| parent of f941aa42 (Show category-guide as primary tab in category page with link to revisions)
+                  ) : null}
+=======
+                  ) : tabs.currentTabId === "guide" ? (
+                    <Paper
+                      withBorder
+                      p={{ base: "sm", sm: "md" }}
+                      pos="relative"
+                    >
+                      {page && (
+                        <Group
+                          justify="flex-end"
+                          pos="absolute"
+                          right={0}
+                          top={0}
+                          mr="md"
+                          mt="md"
+                        >
+                          <Anchor
+                            component={Link}
+                            to={`/guide/${page.slug}/history`}
+                            size="sm"
+                          >
+                            <Text c="dimmed" size="sm">
+                              {page.revision_count} revisions
+                            </Text>
+                          </Anchor>
+                          <Anchor
+                            component={Link}
+                            to={`/guide/${page.slug}`}
+                            size="sm"
+                          >
+                            Edit
+                          </Anchor>
+                        </Group>
+                      )}
+                      <MarkdownText value={page?.content ?? ""} />
+                    </Paper>
+                  ) : null}
+>>>>>>> f941aa42 (Show category-guide as primary tab in category page with link to revisions)
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   {metaData.experts.includes(user.username) && (
