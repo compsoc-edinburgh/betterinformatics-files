@@ -10,9 +10,14 @@ import {
   Text,
   Tooltip,
   Switch,
+  Alert,
 } from "@mantine/core";
 import { IconMenu3, IconPencil } from "@tabler/icons-react";
-import { PageAuthorResponse, PageListResponseItem } from "../api/model";
+import {
+  ErrorSchema,
+  PageAuthorResponse,
+  PageListResponseItem,
+} from "../api/model";
 import { TableOfContentsEntry } from "../hooks/useTableOfContents";
 import { formatISO, formatRelative } from "date-fns";
 import { useUser } from "../auth";
@@ -37,6 +42,7 @@ export const GuideSidebarRight: React.FC<{
   onSave: React.SubmitEventHandler<HTMLFormElement>;
   onDelete: () => void;
   isMutating: boolean;
+  error: ErrorSchema | null;
   captchaReady: boolean;
   captchaExecute: () => Promise<string | undefined>;
 }> = ({
@@ -53,6 +59,7 @@ export const GuideSidebarRight: React.FC<{
   onSave,
   onDelete,
   isMutating,
+  error,
   captchaReady,
   captchaExecute,
 }) => {
@@ -95,6 +102,11 @@ export const GuideSidebarRight: React.FC<{
           )}
           onSubmit={onSave}
         >
+          {error && (
+            <Alert color="red" p="xs">
+              <span>{String(error)}</span>
+            </Alert>
+          )}
           <TextInput
             label="Describe your changes"
             w="100%"

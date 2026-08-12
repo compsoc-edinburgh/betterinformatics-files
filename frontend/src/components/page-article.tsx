@@ -58,7 +58,11 @@ export const PageArticle: React.FC<{
   const { ready, token, executeInstance } = useHCaptcha();
 
   const navigate = useNavigate();
-  const { mutate: updatePage, isPending: isMutating } = useUpdatePage({
+  const {
+    mutate: updatePage,
+    isPending: isMutating,
+    error: updatePageError,
+  } = useUpdatePage({
     mutation: {
       onSuccess: ({ slug }) => {
         // refetch to refresh sidebar
@@ -259,6 +263,7 @@ export const PageArticle: React.FC<{
         hasUnsavedChanges={hasUnsavedChanges}
         isMutating={isMutating}
         onSave={onSubmit}
+        error={updatePageError}
         onDelete={onDelete}
         captchaReady={ready}
         captchaExecute={executeInstance}
