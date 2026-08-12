@@ -8,6 +8,7 @@ from ninja.decorators import decorate_view
 
 from backend import settings
 from categories.models import Category
+from dissertations.api import SlugDisplayNameSchema
 from ediauth import auth_check
 from pages.models import Page, PageAuthor, PageParent, PageRevision
 from util.response import ErrorSchema, not_allowed, not_possible
@@ -25,7 +26,7 @@ class PageResponse(Schema):
     title: str
     slug: str
     kind: Page.Kind
-    category: str | None
+    category: SlugDisplayNameSchema | None
     parents: list[str]
     created_at: datetime.datetime
     edited_at: datetime.datetime
@@ -38,7 +39,7 @@ class PageListResponseItem(Schema):
     title: str
     slug: str
     kind: Page.Kind
-    category: str | None
+    category: SlugDisplayNameSchema | None
     parents: list[str]
     created_at: datetime.datetime
     edited_at: datetime.datetime
@@ -163,7 +164,11 @@ def list_pages(
                 "title": page.title,
                 "slug": page.slug,
                 "kind": page.kind,
-                "category": page.category.slug if page.category else None,
+                "category": SlugDisplayNameSchema(
+                    slug=page.category.slug, displayname=page.category.displayname
+                )
+                if page.category
+                else None,
                 "parents": [parent.slug for parent in page.parents.all()],
                 "created_at": page.created_at.isoformat(),
                 "edited_at": page.edited_at.isoformat(),
@@ -185,7 +190,11 @@ def get_page(request, slug: str):
         title=page.title,
         slug=page.slug,
         kind=Page.Kind(page.kind),
-        category=page.category.slug if page.category else None,
+        category=SlugDisplayNameSchema(
+            slug=page.category.slug, displayname=page.category.displayname
+        )
+        if page.category
+        else None,
         parents=[parent.slug for parent in page.parents.all()],
         created_at=page.created_at,
         edited_at=page.edited_at,

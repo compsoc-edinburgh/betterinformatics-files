@@ -6,6 +6,7 @@ import {
   PageUpdateRequest,
 } from "../api/model";
 import {
+  ActionIcon,
   Anchor,
   Fieldset,
   Group,
@@ -17,7 +18,7 @@ import {
   Title,
 } from "@mantine/core";
 import MarkdownText from "./markdown-text";
-import { IconMenu3 } from "@tabler/icons-react";
+import { IconBook } from "@tabler/icons-react";
 import style from "./page-article.module.css";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
@@ -76,7 +77,7 @@ export const PageArticle: React.FC<{
         // Initial values
         content: page.content,
         title: page.title,
-        category: page.category,
+        category: page.category?.slug,
         slug: page.slug,
         parents: page.parents,
         is_anonymous: false,
@@ -146,19 +147,14 @@ export const PageArticle: React.FC<{
           </Group>
         )}
         {page.category && (
-          <>
+          <Anchor component={Link} to={`/category/${page.category.slug}`}>
             <Group gap="xs" mb="md">
-              <IconMenu3 size={16} />
-              <Title
-                order={2}
-                fz="h6"
-                style={{ textTransform: "uppercase" }}
-                opacity={0.8}
-              >
-                Go back to {page.category}
-              </Title>
+              <ActionIcon variant="transparent">
+                <IconBook size={16} />
+              </ActionIcon>
+              View Course "{page.category.displayname}"
             </Group>
-          </>
+          </Anchor>
         )}
         {editing ? (
           <Editor
