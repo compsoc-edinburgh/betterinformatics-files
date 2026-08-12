@@ -1,6 +1,8 @@
 .treeRoot {
   display: flex;
   flex-direction: column;
+  width: 0;
+  min-width: 100%;
 }
 
 .treeSubtree {
@@ -27,4 +29,10 @@
     background-color: var(--mantine-primary-color-light-hover);
     color: var(--mantine-primary-color-light-color);
   }
+}
+
+.ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }

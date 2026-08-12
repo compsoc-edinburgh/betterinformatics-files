@@ -54,7 +54,7 @@ const LeafNode: React.FC<RenderTreeNodePayload> = ({
       )}
     >
       <Group gap="xs" justify="space-between">
-        {node.label}
+        <span className={style.ellipsis}>{node.label}</span>
         {hasChildren && (
           <IconChevronRight
             size={16}
