@@ -72,7 +72,9 @@ const LeafNode: React.FC<RenderTreeNodePayload> = ({
 export const GuideSideBarLeft: React.FC = () => {
   const navigate = useNavigate();
 
-  const { data: pages, refetch: refetchPages } = useListPages();
+  const { data: pages, refetch: refetchPages } = useListPages({
+    category: "",
+  });
 
   const treeData = useMemo(() => {
     // Build a tree structure from the flat list of pages and parents
