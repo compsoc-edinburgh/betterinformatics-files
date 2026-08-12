@@ -61,8 +61,8 @@ export const PageArticle: React.FC<{
       onSuccess: ({ slug }) => {
         // refetch to refresh sidebar
         refetch();
-        if (searchParams.get("from") === "category") {
-          void navigate(`/category/${page.category?.slug}`);
+        if (searchParams.get("from") === "category" && page.category) {
+          void navigate(`/category/${page.category.slug}`);
         } else {
           void navigate(`/guide/${slug}`);
         }
