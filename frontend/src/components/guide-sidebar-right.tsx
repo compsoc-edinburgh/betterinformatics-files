@@ -13,13 +13,9 @@ import {
   Alert,
 } from "@mantine/core";
 import { IconMenu3, IconPencil } from "@tabler/icons-react";
-import {
-  ErrorSchema,
-  PageAuthorResponse,
-  PageListResponseItem,
-} from "../api/model";
+import { ErrorSchema, PageListResponseItem, PageResponse } from "../api/model";
 import { TableOfContentsEntry } from "../hooks/useTableOfContents";
-import { formatISO, formatRelative } from "date-fns";
+import { formatRelative, parseISO } from "date-fns";
 import { useUser } from "../auth";
 import style from "./guide-sidebar-right.module.css";
 import { clsx } from "clsx";
@@ -29,12 +25,9 @@ import { Link } from "react-router-dom";
 import { PageUserRender } from "./page-user-render";
 
 export const GuideSidebarRight: React.FC<{
-  slug: string;
+  page: PageResponse;
   toc: TableOfContentsEntry[];
   parentPages: PageListResponseItem[];
-  updatedAt?: Date;
-  createdAt?: Date;
-  author?: PageAuthorResponse;
   editing: boolean;
   editAnonymously: ReturnType<ReturnType<typeof useForm>["registerInput"]>;
   revisionMessage: ReturnType<ReturnType<typeof useForm>["registerInput"]>;
@@ -46,12 +39,9 @@ export const GuideSidebarRight: React.FC<{
   captchaReady: boolean;
   captchaExecute: () => Promise<string | undefined>;
 }> = ({
-  slug,
+  page,
   toc,
   parentPages,
-  updatedAt,
-  createdAt,
-  author,
   editing,
   editAnonymously,
   revisionMessage,
@@ -67,7 +57,7 @@ export const GuideSidebarRight: React.FC<{
 
   // Admin or owner
   const canDelete =
-    user?.loggedin && (user.isAdmin || user.username === author?.username);
+    user?.loggedin && (user.isAdmin || user.username === page.author.username);
   const [removeConfirm, modals] = useRemoveConfirm();
 
   // Start verifying immediately when editing starts
@@ -119,7 +109,7 @@ export const GuideSidebarRight: React.FC<{
               size="compact-sm"
               variant="outline"
               component={Link}
-              to={`/guide/${slug}`}
+              to={`/guide/${page.slug}`}
             >
               Cancel
             </Button>
@@ -140,7 +130,7 @@ export const GuideSidebarRight: React.FC<{
             size="compact-sm"
             variant="outline"
             component={Link}
-            to={`/guide/${slug}/edit`}
+            to={`/guide/${page.slug}/edit`}
           >
             Edit
           </Button>
@@ -213,7 +203,7 @@ export const GuideSidebarRight: React.FC<{
       )}
       <Divider my="md" w="100%" />
       <dl className={style.dl}>
-        {updatedAt && (
+        {page.edited_at && (
           <>
             <dt className={style.dlHeading}>
               <Text size="xs" c="gray.5">
@@ -221,15 +211,15 @@ export const GuideSidebarRight: React.FC<{
               </Text>
             </dt>
             <dd className={style.dlData}>
-              <Tooltip label={formatISO(updatedAt)} withArrow>
+              <Tooltip label={page.edited_at} withArrow>
                 <Text size="xs" c="gray.5">
-                  {formatRelative(updatedAt, new Date())}
+                  {formatRelative(parseISO(page.edited_at), new Date())}
                 </Text>
               </Tooltip>
             </dd>
           </>
         )}
-        {createdAt && (
+        {page.created_at && (
           <>
             <dt className={style.dlHeading}>
               <Text size="xs" c="gray.5">
@@ -237,15 +227,15 @@ export const GuideSidebarRight: React.FC<{
               </Text>
             </dt>
             <dd className={style.dlData}>
-              <Tooltip label={formatISO(createdAt)} withArrow>
+              <Tooltip label={page.created_at} withArrow>
                 <Text size="xs" c="gray.5">
-                  {formatRelative(createdAt, new Date())}
+                  {formatRelative(parseISO(page.created_at), new Date())}
                 </Text>
               </Tooltip>
             </dd>
           </>
         )}
-        {author && user?.loggedin && (
+        {user?.loggedin && (
           <>
             <dt className={style.dlHeading}>
               <Text size="xs" c="gray.5">
@@ -254,9 +244,9 @@ export const GuideSidebarRight: React.FC<{
             </dt>
             <dd className={style.dlData}>
               <PageUserRender
-                user={author}
+                user={page.author}
                 can_see_anonymised={
-                  user.isAdmin || user.username === author.username
+                  user.isAdmin || user.username === page.author.username
                 }
                 size="xs"
                 c="gray.5"

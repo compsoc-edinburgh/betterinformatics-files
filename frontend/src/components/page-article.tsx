@@ -27,7 +27,6 @@ import { GuideSidebarRight } from "./guide-sidebar-right";
 import { useTableOfContents } from "../hooks/useTableOfContents";
 import { useUpdatePage } from "../api/hooks/pages";
 import useForm from "../hooks/useForm";
-import { parseISO } from "date-fns";
 import { useUser } from "../auth";
 import { loadCategories } from "../api/hooks";
 import { useRequest } from "ahooks";
@@ -251,12 +250,9 @@ export const PageArticle: React.FC<{
         )}
       </Paper>
       <GuideSidebarRight
-        slug={page.slug}
+        page={page}
         toc={toc}
         parentPages={parentPages}
-        updatedAt={parseISO(page.edited_at)}
-        createdAt={parseISO(page.created_at)}
-        author={page.author}
         editing={editing}
         editAnonymously={registerCheckbox("is_anonymous")}
         revisionMessage={registerInput("revision_message")}
