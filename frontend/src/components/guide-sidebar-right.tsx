@@ -55,9 +55,12 @@ export const GuideSidebarRight: React.FC<{
 }) => {
   const user = useUser();
 
+  const canEdit = page.kind === "guide" || !!user?.isAdmin;
   // Admin or owner
   const canDelete =
-    user?.loggedin && (user.isAdmin || user.username === page.author.username);
+    !!user?.loggedin &&
+    canEdit &&
+    (user.isAdmin || user.username === page.author.username);
   const [removeConfirm, modals] = useRemoveConfirm();
 
   // Start verifying immediately when editing starts
@@ -73,17 +76,19 @@ export const GuideSidebarRight: React.FC<{
 
   return (
     <Stack gap={0} style={{ minWidth: "200px" }} align="flex-start">
-      <Group gap="xs" mb="md">
-        <IconPencil size={16} />
-        <Title
-          order={2}
-          fz="h6"
-          style={{ textTransform: "uppercase" }}
-          opacity={0.8}
-        >
-          Actions
-        </Title>
-      </Group>
+      {(canEdit || canDelete) && (
+        <Group gap="xs" mb="md">
+          <IconPencil size={16} />
+          <Title
+            order={2}
+            fz="h6"
+            style={{ textTransform: "uppercase" }}
+            opacity={0.8}
+          >
+            Actions
+          </Title>
+        </Group>
+      )}
       {editing ? (
         <form
           className={clsx(
@@ -126,14 +131,16 @@ export const GuideSidebarRight: React.FC<{
         </form>
       ) : (
         <Group gap="xs">
-          <Button
-            size="compact-sm"
-            variant="outline"
-            component={Link}
-            to={`/guide/${page.slug}/edit`}
-          >
-            Edit
-          </Button>
+          {canEdit && (
+            <Button
+              size="compact-sm"
+              variant="outline"
+              component={Link}
+              to={`/guide/${page.slug}/edit`}
+            >
+              Edit
+            </Button>
+          )}
           {canDelete && (
             <Button
               size="compact-sm"
