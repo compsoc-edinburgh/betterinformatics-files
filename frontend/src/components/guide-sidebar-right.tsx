@@ -75,7 +75,7 @@ export const GuideSidebarRight: React.FC<{
   }, [editing, captchaReady, captchaExecute]);
 
   return (
-    <Stack gap={0} style={{ minWidth: "200px" }} align="flex-start">
+    <Stack gap={0} align="flex-start" pos="sticky" miw="200px" top="4rem">
       {(canEdit || canDelete) && (
         <Group gap="xs" mb="md">
           <IconPencil size={16} />

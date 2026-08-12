@@ -208,7 +208,7 @@ export const GuideSideBarLeft: React.FC = () => {
           </Group>
         </Stack>
       </Modal>
-      <Stack gap="xs" style={{ minWidth: "200px" }}>
+      <Stack gap="xs" pos="sticky" miw="200px" top="4rem">
         <Tree
           data={treeData}
           renderNode={payload => <LeafNode {...payload} />}
