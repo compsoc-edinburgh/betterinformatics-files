@@ -146,13 +146,13 @@ export const PageArticle: React.FC<{
             </Anchor>
           </Group>
         )}
-        {page.category && (
+        {page.category && !editing && (
           <Anchor component={Link} to={`/category/${page.category.slug}`}>
             <Group gap="xs" mb="md">
               <ActionIcon variant="transparent">
                 <IconBook size={16} />
               </ActionIcon>
-              View Course "{page.category.displayname}"
+              View in Context of "{page.category.displayname}"
             </Group>
           </Anchor>
         )}
