@@ -418,7 +418,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           </Anchor>
                         </Group>
                       )}
-                      <MarkdownText value={page?.content ?? ""} />
+                      <MarkdownText
+                        value={
+                          page?.content ||
+                          "*There is no content here. Perhaps you want to add some? Click 'edit'!*"
+                        }
+                      />
                     </Paper>
                   ) : null}
 >>>>>>> f941aa42 (Show category-guide as primary tab in category page with link to revisions)
