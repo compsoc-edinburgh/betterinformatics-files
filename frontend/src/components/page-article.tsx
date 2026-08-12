@@ -32,6 +32,7 @@ import { loadCategories } from "../api/hooks";
 import { useRequest } from "ahooks";
 import { Link, useMatch, useNavigate, useSearchParams } from "react-router-dom";
 import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
+import { ExtremelyTrustedHTML } from "./extremely-trusted-html";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
@@ -181,6 +182,8 @@ export const PageArticle: React.FC<{
               setFormValue("content", value);
             }}
           />
+        ) : page.kind === "static_html" ? (
+          <ExtremelyTrustedHTML html={page.content} />
         ) : (
           <MarkdownText
             value={page.content}
