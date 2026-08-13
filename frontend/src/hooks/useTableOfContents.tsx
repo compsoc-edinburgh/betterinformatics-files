@@ -79,7 +79,7 @@ export const ToCItem: React.FC<{
           <path
             d={`M ${l0 + 0.5} 0 C ${l0 + 0.5} 8 ${l1 + 0.5} 4 ${l1 + 0.5} 12`}
             stroke="black"
-            strokeWidth="1"
+            strokeWidth="2"
             fill="none"
             style={{
               stroke: "var(--mantine-primary-color-filled)",
@@ -91,7 +91,7 @@ export const ToCItem: React.FC<{
           y1={l0 === l1 ? "6" : "12"}
           x2={l1 + 0.5}
           y2="100%"
-          strokeWidth="1"
+          strokeWidth="2"
           style={{
             stroke: "var(--mantine-primary-color-filled)",
           }}
