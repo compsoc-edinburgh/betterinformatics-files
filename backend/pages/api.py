@@ -447,7 +447,7 @@ def update_page(request, slug: str, data: PageUpdateRequest):
                 parent=parent, child=page, order=parent.children.count()
             )
 
-    page.edited_at = datetime.datetime.now()
+    page.edited_at = datetime.datetime.now(datetime.UTC)
     page.save()
 
     # Create new revision
