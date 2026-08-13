@@ -188,8 +188,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     );
 
     const tabs = useCategoryTabs([
-      { name: "Guide", id: "guide" },
       { name: "Resources", id: "resources" },
+      { name: "Guide", id: "guide" },
       { name: "Testimonials", id: "testimonials", count: testimonials? testimonials.length : 0},
       { name: "Grade Stats", id: "statistics" },
     ]);
@@ -375,17 +375,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                         </Anchor>
                       </Flex>
                     </Paper>
-<<<<<<< HEAD
                   ) : tabs.currentTabId === "testimonials" ? testimonials && (
                         <>
                           {testimonials.map((testimonial: Testimonial, index: number) => <TestimonialCard key={index} author_id={testimonial.author_id} author_display_name={testimonial.author_display_name} slug={testimonial.slug} testimonial={testimonial.testimonial} year_taken={testimonial.year_taken} approval_status={testimonial.approval_status}/>)}
                         </>
                        )
-                  : null}
-||||||| parent of f941aa42 (Show category-guide as primary tab in category page with link to revisions)
-                  ) : null}
-=======
-                  ) : tabs.currentTabId === "guide" ? (
+                  : tabs.currentTabId === "guide" ? (
                     <Paper
                       withBorder
                       p={{ base: "sm", sm: "md" }}
@@ -428,7 +423,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       />
                     </Paper>
                   ) : null}
->>>>>>> f941aa42 (Show category-guide as primary tab in category page with link to revisions)
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   {metaData.experts.includes(user.username) && (
