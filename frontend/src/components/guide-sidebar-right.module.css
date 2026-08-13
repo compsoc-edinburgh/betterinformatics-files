@@ -9,6 +9,10 @@
   min-width: 100%;
   width: 0;
   word-break: break-all;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
 }
 
 .dl-heading:not(:first-child) {
