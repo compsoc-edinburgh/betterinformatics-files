@@ -201,7 +201,14 @@ export const PageArticle: React.FC<{
               }}
               undoStack={undoStack}
               setUndoStack={setUndoStack}
-              preview={value => <MarkdownText value={value} />}
+              preview={value => (
+                <MarkdownText
+                  value={value}
+                  addAnchors={true}
+                  localLinkBase="https://betterinformatics.com"
+                  ignoreHtml={true}
+                />
+              )}
               /* Manually unpack registerInput since Editor takes a different type for onChange */
               value={formState.content}
               onChange={value => {
