@@ -35,6 +35,9 @@ import { Link, useMatch, useNavigate, useSearchParams } from "react-router-dom";
 import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
 import { ExtremelyTrustedHTML } from "./extremely-trusted-html";
 import { usePendingImages } from "./Editor/pending-images";
+import ImageOverlay from "./image-overlay";
+import { ImageHandle } from "./Editor/utils/types";
+import { HtmlEditor } from "./html-editor";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
@@ -183,19 +186,12 @@ export const PageArticle: React.FC<{
         )}
         {editing ? (
           page.kind === "static_html" ? (
-            <Textarea
+            <HtmlEditor
               value={formState.content}
-              onChange={e => setFormValue("content", e.target.value)}
-              minRows={10}
-              autosize
-              styles={{
-                input: {
-                  fontFamily: "monospace",
-                  fontSize: "0.75rem",
-                },
-              }}
-              spellCheck={false}
-              my="sm"
+              onChange={value => setFormValue("content", value)}
+              imageHandler={deferredImageHandler}
+              undoStack={undoStack}
+              setUndoStack={setUndoStack}
             />
           ) : (
             <Editor
