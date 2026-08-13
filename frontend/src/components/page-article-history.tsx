@@ -72,7 +72,6 @@ export const PageArticleHistory: React.FC<{
     <Paper
       flex={1}
       style={{ overflow: "auto" }}
-      p={0}
       pl={{ base: 0, sm: "lg" }}
       pr={{ base: 0, sm: "md" }}
       radius={0}
