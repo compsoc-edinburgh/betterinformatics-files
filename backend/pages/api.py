@@ -567,7 +567,7 @@ def get_revision(request, slug: str, revision_id: int):
     response={204: None, 403: ErrorSchema, 404: ErrorSchema},
     operation_id="deletePage",
 )
-@auth_check.require_login
+@decorate_view(auth_check.supports_temp_user)
 def delete_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
 
