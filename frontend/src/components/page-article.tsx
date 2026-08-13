@@ -34,6 +34,7 @@ import { useRequest } from "ahooks";
 import { Link, useMatch, useNavigate, useSearchParams } from "react-router-dom";
 import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
 import { ExtremelyTrustedHTML } from "./extremely-trusted-html";
+import { usePendingImages } from "./Editor/pending-images";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
@@ -82,6 +83,8 @@ export const PageArticle: React.FC<{
     },
   });
 
+  const { deferredImageHandler, flushPendingImages, pendingObjectUrls } =
+    usePendingImages();
   const { registerInput, registerCheckbox, formState, setFormValue, onSubmit } =
     useForm(
       {
@@ -94,7 +97,8 @@ export const PageArticle: React.FC<{
         is_anonymous: false,
         revision_message: "",
       } as PageUpdateRequest,
-      data => {
+      async data => {
+        data.content = await flushPendingImages(data.content);
         updatePage({
           slug: page.slug,
           data,
@@ -196,9 +200,7 @@ export const PageArticle: React.FC<{
           ) : (
             <Editor
               allowOfficialAnswer={false}
-              imageHandler={file => {
-                throw new Error("Function not implemented");
-              }}
+              imageHandler={deferredImageHandler}
               undoStack={undoStack}
               setUndoStack={setUndoStack}
               preview={value => (
@@ -207,6 +209,7 @@ export const PageArticle: React.FC<{
                   addAnchors={true}
                   localLinkBase="https://betterinformatics.com"
                   ignoreHtml={true}
+                  pendingImages={pendingObjectUrls}
                 />
               )}
               /* Manually unpack registerInput since Editor takes a different type for onChange */
