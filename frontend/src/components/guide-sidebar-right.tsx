@@ -213,13 +213,13 @@ export const GuideSidebarRight: React.FC<{
         {page.edited_at && (
           <>
             <dt className={style.dlHeading}>
-              <Text size="xs" c="gray.5">
+              <Text size="xs" c="gray.5" component="span">
                 Last Updated
               </Text>
             </dt>
             <dd className={style.dlData}>
               <Tooltip label={page.edited_at} withArrow>
-                <Text size="xs" c="gray.5">
+                <Text size="xs" c="gray.5" component="span">
                   {formatRelative(parseISO(page.edited_at), new Date())}
                 </Text>
               </Tooltip>
@@ -229,13 +229,13 @@ export const GuideSidebarRight: React.FC<{
         {page.created_at && (
           <>
             <dt className={style.dlHeading}>
-              <Text size="xs" c="gray.5">
+              <Text size="xs" c="gray.5" component="span">
                 Created
               </Text>
             </dt>
             <dd className={style.dlData}>
               <Tooltip label={page.created_at} withArrow>
-                <Text size="xs" c="gray.5">
+                <Text size="xs" c="gray.5" component="span">
                   {formatRelative(parseISO(page.created_at), new Date())}
                 </Text>
               </Tooltip>
@@ -245,7 +245,7 @@ export const GuideSidebarRight: React.FC<{
         {user?.loggedin && (
           <>
             <dt className={style.dlHeading}>
-              <Text size="xs" c="gray.5">
+              <Text size="xs" c="gray.5" component="span">
                 Created by
               </Text>
             </dt>
