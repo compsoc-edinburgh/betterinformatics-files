@@ -18,7 +18,12 @@ export const PageUserRender: React.FC<PageUserRenderProps> = ({
   c,
 }) => {
   return (
-    <Text size={size} c={c}>
+    <Text
+      size={size}
+      c={c}
+      component="span"
+      style={{ wordBreak: "break-word" }}
+    >
       {!user.anonymised && user.username && (
         <Anchor
           component={Link}

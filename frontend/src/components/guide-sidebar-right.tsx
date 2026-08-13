@@ -75,9 +75,16 @@ export const GuideSidebarRight: React.FC<{
   }, [editing, captchaReady, captchaExecute]);
 
   return (
-    <Stack gap={0} align="flex-start" pos="sticky" miw="200px" top="4rem">
+    <Stack
+      gap={0}
+      align="flex-start"
+      pos={{ base: "relative", sm: "sticky" }}
+      miw="200px"
+      top={{ base: 0, sm: "4rem" }}
+      w={{ base: "100%", sm: "auto" }}
+    >
       {(canEdit || canDelete) && (
-        <Group gap="xs" mb="md">
+        <Group gap="xs" mb="xs">
           <IconPencil size={16} />
           <Title
             order={2}
@@ -160,7 +167,7 @@ export const GuideSidebarRight: React.FC<{
       )}
       {toc.length > 0 && (
         <>
-          <Group gap="xs" my="md">
+          <Group gap="xs" mt="md" mb="xs">
             <IconMenu3 size={16} />
             <Title
               order={2}
@@ -178,7 +185,7 @@ export const GuideSidebarRight: React.FC<{
       )}
       {parentPages.length > 0 && (
         <>
-          <Group gap="xs" my="md">
+          <Group gap="xs" mt="md" mb="xs">
             <IconSitemap size={16} />
             <Title
               order={2}

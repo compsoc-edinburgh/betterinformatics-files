@@ -1,5 +1,6 @@
 .dl {
   width: 100%;
+  margin: 0;
 }
 
 .dl-data {
@@ -19,6 +20,7 @@
   flex-direction: column;
   gap: var(--mantine-spacing-xs);
   transition: box-shadow 0.2s ease-in-out;
+  width: 100%;
 }
 
 .editing-actions.unsaved {

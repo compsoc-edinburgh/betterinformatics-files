@@ -9,6 +9,7 @@ import {
   ActionIcon,
   Anchor,
   Fieldset,
+  Flex,
   Group,
   MultiSelect,
   Paper,
@@ -119,11 +120,16 @@ export const PageArticle: React.FC<{
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
 
   return (
-    <>
+    <Flex
+      direction={{ base: "column", sm: "row" }}
+      align={{ base: "stretch", sm: "flex-start" }}
+      gap="xs"
+      flex={1}
+    >
       <Paper
-        p={0}
-        pl={editing ? "xs" : "lg"}
-        pr="md"
+        pl={{ base: 0, sm: editing ? "xs" : "lg" }}
+        pr={{ base: 0, sm: "md" }}
+        pb="md"
         radius={0}
         shadow="none"
         className={
@@ -264,6 +270,6 @@ export const PageArticle: React.FC<{
         captchaReady={ready}
         captchaExecute={executeInstance}
       />
-    </>
+    </Flex>
   );
 };

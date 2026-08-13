@@ -73,8 +73,8 @@ export const PageArticleHistory: React.FC<{
       flex={1}
       style={{ overflow: "auto" }}
       p={0}
-      pl="lg"
-      pr="md"
+      pl={{ base: 0, sm: "lg" }}
+      pr={{ base: 0, sm: "md" }}
       radius={0}
       shadow="none"
       className={
@@ -103,7 +103,7 @@ export const PageArticleHistory: React.FC<{
       )}
       {revisions?.revisions.map(revision => (
         <Stack key={revision.id} gap={0} w="100%">
-          <Group gap="xs">
+          <Group gap="xs" wrap="nowrap" align="flex-start">
             <ActionIcon
               variant="transparent"
               onClick={() => toggleRevision(revision.id)}
@@ -117,24 +117,34 @@ export const PageArticleHistory: React.FC<{
                 }}
               />
             </ActionIcon>
-            <Group td={revision.redacted ? "line-through" : "none"} gap="xs">
-              <Anchor onClick={() => toggleRevision(revision.id)}>
-                {formatISO(new Date(revision.created_at))}
-              </Anchor>
-              <PageUserRender
-                user={revision.author}
-                can_see_anonymised={
-                  user &&
-                  (user.isAdmin || user.username === revision.author.username)
-                }
-              />
-              <i>({revision.message})</i>
-            </Group>
-            {user?.isAdmin && (
-              <Anchor onClick={() => toggleRedaction(revision.id)}>
-                (Redact)
-              </Anchor>
-            )}
+            <Text>
+              <Text
+                td={revision.redacted ? "line-through" : "none"}
+                component="span"
+                mr="xs"
+              >
+                <Anchor
+                  onClick={() => toggleRevision(revision.id)}
+                  mr="xs"
+                  style={{ whiteSpace: "nowrap" }}
+                >
+                  {formatISO(new Date(revision.created_at))}
+                </Anchor>
+                <PageUserRender
+                  user={revision.author}
+                  can_see_anonymised={
+                    user &&
+                    (user.isAdmin || user.username === revision.author.username)
+                  }
+                />
+                <i>({revision.message})</i>
+              </Text>
+              {user?.isAdmin && (
+                <Anchor onClick={() => toggleRedaction(revision.id)}>
+                  (Redact)
+                </Anchor>
+              )}
+            </Text>
           </Group>
           {(!revision.redacted || user?.isAdmin) && (
             <Collapse expanded={expandedRevisions.has(revision.id)}>
