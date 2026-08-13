@@ -58,3 +58,10 @@
   font-size: var(--mantine-h1-font-size);
   margin-bottom: var(--mantine-spacing-sm);
 }
+
+.revision-count {
+  white-space: nowrap;
+  line-height: calc(
+    var(--mantine-h1-line-height) * var(--mantine-h1-font-size)
+  );
+}

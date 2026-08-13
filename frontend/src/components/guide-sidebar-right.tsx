@@ -127,7 +127,7 @@ export const GuideSidebarRight: React.FC<{
         canEdit && (
           <Button
             fullWidth
-            size="sm"
+            size="md"
             variant="outline"
             component={Link}
             to={`/guide/${page.slug}/edit`}
