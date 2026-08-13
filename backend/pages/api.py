@@ -567,11 +567,12 @@ def get_revision(request, slug: str, revision_id: int):
     response={204: None, 403: ErrorSchema, 404: ErrorSchema},
     operation_id="deletePage",
 )
+@auth_check.require_login
 def delete_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
 
-    if not auth_check.has_admin_rights(request) and page.author != get_page_author(
-        request
+    if not auth_check.has_admin_rights(request) and (
+        page.kind == "static_html" or page.author != get_page_author(request)
     ):
         return not_allowed()
 
