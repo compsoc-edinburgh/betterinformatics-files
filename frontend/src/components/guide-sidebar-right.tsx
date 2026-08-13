@@ -174,6 +174,9 @@ export const GuideSidebarRight: React.FC<{
               key={page.slug}
               component={Link}
               to={`/guide/${page.slug}`}
+              style={{
+                textDecoration: "none",
+              }}
             >
               {page.title}
             </Anchor>
