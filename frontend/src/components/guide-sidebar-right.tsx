@@ -83,19 +83,6 @@ export const GuideSidebarRight: React.FC<{
       top={{ base: 0, sm: "4rem" }}
       w={{ base: "100%", sm: "auto" }}
     >
-      {(canEdit || canDelete) && (
-        <Group gap="xs" mb="xs">
-          <IconPencil size={16} />
-          <Title
-            order={2}
-            fz="h6"
-            style={{ textTransform: "uppercase" }}
-            opacity={0.8}
-          >
-            Actions
-          </Title>
-        </Group>
-      )}
       {editing ? (
         <form
           className={clsx(
@@ -137,33 +124,18 @@ export const GuideSidebarRight: React.FC<{
           </Group>
         </form>
       ) : (
-        <Group gap="xs">
-          {canEdit && (
-            <Button
-              size="compact-sm"
-              variant="outline"
-              component={Link}
-              to={`/guide/${page.slug}/edit`}
-            >
-              Edit
-            </Button>
-          )}
-          {canDelete && (
-            <Button
-              size="compact-sm"
-              variant="transparent"
-              color="red"
-              onClick={() =>
-                removeConfirm(
-                  "Are you sure you want to delete this page?",
-                  onDelete,
-                )
-              }
-            >
-              Delete
-            </Button>
-          )}
-        </Group>
+        canEdit && (
+          <Button
+            fullWidth
+            size="sm"
+            variant="outline"
+            component={Link}
+            to={`/guide/${page.slug}/edit`}
+            rightSection={<IconPencil size={16} />}
+          >
+            Edit
+          </Button>
+        )
       )}
       {toc.length > 0 && (
         <>
@@ -259,6 +231,25 @@ export const GuideSidebarRight: React.FC<{
                 c="gray.5"
               />
             </dd>
+          </>
+        )}
+        {canDelete && (
+          <>
+            <dt className={style.dlHeading}>
+              <Anchor
+                size="xs"
+                c="gray.5"
+                component="span"
+                onClick={() =>
+                  removeConfirm(
+                    "Are you sure you want to delete this page?",
+                    onDelete,
+                  )
+                }
+              >
+                (Delete Page)
+              </Anchor>
+            </dt>
           </>
         )}
       </dl>
