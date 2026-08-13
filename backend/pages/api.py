@@ -387,8 +387,7 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     # Only admins can change or assign a category - since they are category pages
     if (
         data.category
-        and page.category
-        and page.category.slug != data.category
+        and (page.category.slug if page.category else None) != data.category
         and not auth_check.has_admin_rights(request)
     ):
         return not_allowed()
