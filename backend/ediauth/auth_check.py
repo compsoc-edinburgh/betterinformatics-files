@@ -28,21 +28,22 @@ def supports_temp_user(f):
             return response
 
         # Before doing anything, check the required hcaptcha token
-        hcaptcha_token = request.headers.get("X-HCaptcha-Token")
-        if not hcaptcha_token:
-            print("No hcaptcha token provided")
-            return not_allowed()
+        if not settings.TESTING:
+            hcaptcha_token = request.headers.get("X-HCaptcha-Token")
+            if not hcaptcha_token:
+                print("No hcaptcha token provided")
+                return not_allowed()
 
-        r = req.post(
-            "https://hcaptcha.com/siteverify",
-            data={
-                "secret": settings.HCAPTCHA_SECRET,
-                "response": hcaptcha_token,
-            },
-        )
-        if not r.json().get("success"):
-            print("Hcaptcha verification failed", r.json())
-            return not_allowed()
+            r = req.post(
+                "https://hcaptcha.com/siteverify",
+                data={
+                    "secret": settings.HCAPTCHA_SECRET,
+                    "response": hcaptcha_token,
+                },
+            )
+            if not r.json().get("success"):
+                print("Hcaptcha verification failed", r.json())
+                return not_allowed()
 
         if (
             temp_session_id
