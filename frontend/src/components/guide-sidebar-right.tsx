@@ -234,8 +234,8 @@ export const GuideSidebarRight: React.FC<{
           </>
         )}
         {canDelete && (
-          <>
-            <dt className={style.dlHeading}>
+          <dt className={style.dlHeading}>
+            <Tooltip label="As an admin or the page owner, you can delete this page.">
               <Anchor
                 size="xs"
                 c="gray.5"
@@ -249,8 +249,8 @@ export const GuideSidebarRight: React.FC<{
               >
                 (Delete Page)
               </Anchor>
-            </dt>
-          </>
+            </Tooltip>
+          </dt>
         )}
       </dl>
       {modals}
