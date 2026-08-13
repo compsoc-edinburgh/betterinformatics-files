@@ -421,7 +421,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       <MarkdownText
                         value={
                           page?.content ||
-                          "*There is no content here. Perhaps you want to add some? Click 'edit'!*"
+                          `*There is no content here.${page ? " Perhaps you want to add some? Click 'edit'!" : ""}*`
                         }
                         localLinkBase="https://betterinformatics.com"
                         ignoreHtml={true}
