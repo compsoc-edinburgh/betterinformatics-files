@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { ImageHandle, Range } from "./Editor/utils/types";
-import { Button, Textarea } from "@mantine/core";
+import { Button, Tabs, Textarea } from "@mantine/core";
 import ImageOverlay from "./image-overlay";
 import { push, redo, undo, UndoStack } from "./Editor/utils/undo-stack";
 import DropZone from "./Editor/Dropzone";
@@ -9,6 +9,7 @@ interface Props {
   value: string;
   onChange: (newValue: string) => void;
   imageHandler: (file: File) => Promise<ImageHandle>;
+  preview: (str: string) => React.ReactNode;
 
   undoStack: UndoStack;
   setUndoStack: (newStack: UndoStack) => void;
@@ -18,9 +19,12 @@ export const HtmlEditor: React.FC<Props> = ({
   value,
   onChange,
   imageHandler,
+  preview,
   undoStack,
   setUndoStack,
 }) => {
+  const [mode, setMode] = useState<string | null>("write");
+
   const textareaElRef = useRef<HTMLTextAreaElement>(null);
   const setCurrent = (newValue: string, newSelection?: Range) => {
     if (newSelection) setSelectionRange(newSelection);
@@ -135,43 +139,55 @@ export const HtmlEditor: React.FC<Props> = ({
   };
 
   return (
-    <div onDragEnter={onDragEnter}>
-      <Textarea
-        ref={textareaElRef}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        minRows={10}
-        autosize
-        styles={{
-          input: {
-            fontFamily: "monospace",
-            fontSize: "0.75rem",
-            outline: isDragHovered ? "2px dashed #aaa" : "none",
-          },
-        }}
-        spellCheck={false}
-        my="sm"
-        onKeyDown={onTextareaKeyDown}
-        onPaste={e => {
-          const fileList = e.clipboardData.files;
-          void onFiles([...fileList]);
-        }}
-      />
-      {isDragHovered && (
-        <DropZone onDragLeave={onDragLeave} onDrop={f => void onFiles(f)} />
+    <div>
+      <Tabs value={mode} onChange={setMode}>
+        <Tabs.List>
+          <Tabs.Tab value="write">Write</Tabs.Tab>
+          <Tabs.Tab value="preview">Preview</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+      {mode === "preview" && <div>{preview(value)}</div>}
+      {mode === "write" && (
+        <div onDragEnter={onDragEnter}>
+          <Textarea
+            ref={textareaElRef}
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            minRows={10}
+            autosize
+            styles={{
+              input: {
+                fontFamily: "monospace",
+                fontSize: "0.75rem",
+                outline: isDragHovered ? "2px dashed #aaa" : "none",
+              },
+            }}
+            spellCheck={false}
+            my="sm"
+            onKeyDown={onTextareaKeyDown}
+            onPaste={e => {
+              const fileList = e.clipboardData.files;
+              void onFiles([...fileList]);
+            }}
+          />
+          {isDragHovered && (
+            <DropZone onDragLeave={onDragLeave} onDrop={f => void onFiles(f)} />
+          )}
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setImageOverlayOpen(true)}
+            mb="sm"
+          >
+            Browse Images
+          </Button>
+          <ImageOverlay
+            isOpen={imageOverlayOpen}
+            onClose={() => onImageDialogClose("")}
+            closeWithImage={onImageDialogClose}
+          />
+        </div>
       )}
-      <Button
-        variant="default"
-        size="sm"
-        onClick={() => setImageOverlayOpen(true)}
-      >
-        Browse Images
-      </Button>
-      <ImageOverlay
-        isOpen={imageOverlayOpen}
-        onClose={() => onImageDialogClose("")}
-        closeWithImage={onImageDialogClose}
-      />
     </div>
   );
 };

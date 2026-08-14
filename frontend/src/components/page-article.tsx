@@ -192,6 +192,7 @@ export const PageArticle: React.FC<{
               imageHandler={deferredImageHandler}
               undoStack={undoStack}
               setUndoStack={setUndoStack}
+              preview={value => <ExtremelyTrustedHTML html={value} />}
             />
           ) : (
             <Editor
