@@ -100,6 +100,7 @@ export const GuideSidebarRight: React.FC<{
             label="Describe your changes"
             w="100%"
             required
+            size="xs"
             {...revisionMessage}
           />
           <Switch label={"Edit Anonymously"} {...editAnonymously} />
