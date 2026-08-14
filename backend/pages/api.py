@@ -3,7 +3,7 @@ import datetime
 import diff_match_patch as dmp_module
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
-from ninja import Router, Schema
+from ninja import Form, Router, Schema
 from ninja.decorators import decorate_view
 
 from backend import settings
@@ -207,8 +207,10 @@ def get_page(request, slug: str):
 class PageCreateRequest(Schema):
     kind: Page.Kind
     title: str
-    category: str | None
-    parents: list[str]
+    category: str | None = None
+    # We cannot distinguish empty array vs the field not being present, so we
+    # explicitly add the None typehint to allow the field to be empty
+    parents: list[str] | None = None
     is_anonymous: bool
 
 
@@ -281,7 +283,7 @@ def patch_to_standard_diff(patch_text: str) -> str:
     operation_id="createPage",
 )
 @decorate_view(auth_check.supports_temp_user)
-def create_page(request, data: PageCreateRequest):
+def create_page(request, data: Form[PageCreateRequest]):
     slug = create_page_slug(data.title)
     author = get_page_author(request)
 
