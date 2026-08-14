@@ -91,6 +91,31 @@ class ComsolTest(TestCase):
             return response.json()
         return response
 
+    def patch(self, path, args, status_code=200, as_json=True, json_body=False):
+        if self.user:
+            self.client.cookies = SimpleCookie({"access_token": get_token(self.user)})
+        else:
+            self.client.cookies = SimpleCookie()
+
+        if json_body:
+            body = json.dumps(args)
+            content_type = "application/json"
+        else:
+            for arg in args:
+                if isinstance(args[arg], bool):
+                    args[arg] = "true" if args[arg] else "false"
+            body = encode_multipart(BOUNDARY, args)
+            content_type = MULTIPART_CONTENT
+        response = self.client.patch(
+            path,
+            body,
+            content_type=content_type,
+        )
+        self.assertEqual(response.status_code, status_code)
+        if as_json:
+            return response.json()
+        return response
+
     def delete(self, path, status_code=200, as_json=True):
         if self.user:
             self.client.cookies = SimpleCookie({"access_token": get_token(self.user)})
