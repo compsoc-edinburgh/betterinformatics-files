@@ -11,6 +11,7 @@ class ApprovalStatus(models.IntegerChoices):
 class Testimonial(models.Model):
     id = models.AutoField(primary_key=True)
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE, default="")
+    slug = models.CharField(max_length=256, unique=True, default="")
     category = models.ForeignKey(  # Link Testimonial to a Category
         "categories.Category",
         on_delete=models.CASCADE   # Delete testimonials if category is deleted

@@ -1,14 +1,7 @@
 import { Modal, LoadingOverlay, SegmentedControl, Alert, Space, Textarea, Card, Text, Box, Tooltip, Group, Flex, Button, Stack} from "@mantine/core";
+import { ApprovalStatus, Testimonial } from "../interfaces";
 
-export interface TestimonialCardProps{
-    author_id: String, author_diplay_name: String, slug: String, testimonial:String, yearTaken: Number, approval_status:Number
-  }
-  export enum ApprovalStatus {
-    APPROVED = 0,
-    PENDING = 1,
-    REJECTED = 2,
-  }
-export const TestimonialCard: React.FC<TestimonialCardProps> = ({author_id, author_diplay_name, slug, testimonial, yearTaken, approval_status}) => {
+export const TestimonialCard: React.FC<Testimonial> = ({author_id, author_display_name, slug, testimonial, year_taken, approval_status}) => {
     return(
         <>
             <Card withBorder={true} radius="md" p={"lg"}>
@@ -39,12 +32,12 @@ export const TestimonialCard: React.FC<TestimonialCardProps> = ({author_id, auth
                     {author_id}
                     </Text>
                     <Text ml="0.3em" color="dimmed" component="span">
-                    @{author_diplay_name}
+                    @{author_display_name}
                     </Text>
                     <Text color="dimmed" mx={6} component="span">
                     ·
                     </Text>
-                    <Text color="dimmed">took the course in {String(yearTaken)}</Text>
+                    <Text color="dimmed">took the course in {String(year_taken)}</Text>
                 </Flex>
                 
                     </Flex>

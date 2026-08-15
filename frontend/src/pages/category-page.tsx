@@ -42,7 +42,7 @@ import DocumentList from "../components/document-list";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import useTitle from "../hooks/useTitle";
 import MarkdownText from "../components/markdown-text";
-import { CategoryMetaData } from "../interfaces";
+import { CategoryMetaData, Testimonial } from "../interfaces";
 import {
   getMetaCategoriesForCategory,
   removeMarkdownFrontmatter,
@@ -62,8 +62,7 @@ import { PieChart } from "@mantine/charts";
 import CategoryStatsComponent from "../components/category-stats";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { loadTestimonialsByCourse } from "../api/testimonials";
-import {TestimonialCard, TestimonialCardProps} from "../components/testimonial-card";
-import test from "node:test";
+import {TestimonialCard} from "../components/testimonial-card";
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
   metaData: CategoryMetaData;
@@ -169,19 +168,20 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       .flat();
   }, [metaData, bi_courses_data]);
 
-  const tabs = useCategoryTabs([
-    { name: "Resources", id: "resources" },
-    { name: "Testimonials", id: "testimonials", count: 0},
-    { name: "Grade Stats", id: "statistics" },
-  ]);
-
+  
   const sessionString = bi_courses_data
-    ? bi_courses_data.session.replace("-", "/")
-    : "this year's";
-
+  ? bi_courses_data.session.replace("-", "/")
+  : "this year's";
+  
   const { data : testimonials, loading: loading_testimonials, error: error_testimonials } = useRequest(
     () => loadTestimonialsByCourse(metaData.slug)
-  );
+    );
+
+    const tabs = useCategoryTabs([
+      { name: "Resources", id: "resources" },
+      { name: "Testimonials", id: "testimonials", count: testimonials? testimonials.length : 0},
+      { name: "Grade Stats", id: "statistics" },
+    ]);
   return (
     <>
       {modals}
@@ -361,9 +361,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   ) : tabs.currentTabId === "testimonials" ? (
                        <>
                        {testimonials && (
-                        <Text>
-                          {testimonials["value"].map((testimonial: TestimonialCardProps) => <TestimonialCard author_id={testimonial.author_id} author_diplay_name={testimonial.author_diplay_name} slug={testimonial.slug} testimonial={testimonial.testimonial} yearTaken={testimonial.yearTaken} approval_status={testimonial.approval_status}></TestimonialCard>)}
-                        </Text>
+                        <>
+                          {testimonials.map((testimonial: Testimonial, index: number) => <TestimonialCard key={index} author_id={testimonial.author_id} author_display_name={testimonial.author_display_name} slug={testimonial.slug} testimonial={testimonial.testimonial} year_taken={testimonial.year_taken} approval_status={testimonial.approval_status}></TestimonialCard>)}
+                        </>
                        )}
                        </>
                   )
