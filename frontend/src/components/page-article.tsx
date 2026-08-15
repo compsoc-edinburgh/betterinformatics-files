@@ -15,7 +15,6 @@ import {
   Paper,
   Select,
   Text,
-  Textarea,
   TextInput,
   Title,
 } from "@mantine/core";
@@ -35,8 +34,6 @@ import { Link, useMatch, useNavigate, useSearchParams } from "react-router-dom";
 import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
 import { ExtremelyTrustedHTML } from "./extremely-trusted-html";
 import { usePendingImages } from "./Editor/pending-images";
-import ImageOverlay from "./image-overlay";
-import { ImageHandle } from "./Editor/utils/types";
 import { HtmlEditor } from "./html-editor";
 
 export const PageArticle: React.FC<{
