@@ -167,7 +167,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           return [];
         }),
       )
-      .flat();
+      .map(c => (c.length > 0 ? c[0] : undefined));
   }, [metaData, bi_courses_data]);
 
   const { data: pages } = useListPages({
