@@ -61,7 +61,9 @@ def supports_temp_user(f):
                 "temp_session_id",
                 str(temp_user.session_id),
                 httponly=True,
-                samesite="Lax",
+                secure=True,
+                max_age=60 * 60 * 24 * 90,  # 90 days
+                samesite="Strict",
             )
             return response
 
