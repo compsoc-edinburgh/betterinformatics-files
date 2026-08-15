@@ -259,7 +259,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       <Button
                         leftSection={<IconEdit />}
                         component={Link}
-                        to="./edit"
+                        to={`../edit`}
                         color="dark"
                       >
                         Edit
