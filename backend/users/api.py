@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import CharField, Q, Value
-from django.db.models.functions import Concat
+from django.db.models import Q
 from ninja import ModelSchema, Router
 
 from ediauth import auth_check, models
@@ -29,7 +28,9 @@ class UserSchema(ModelSchema):
 
     @staticmethod
     def anonymous():
-        return UserSchema.model_construct(id=-1, username="anonymous", display_name="anonymous")
+        return UserSchema.model_construct(
+            id=-1, username="anonymous", display_name="anonymous"
+        )
 
 
 @router.get("/search", operation_id="userSearch", response=list[UserSchema])
@@ -44,4 +45,6 @@ def user_search(request, q: str, limit: int = 20):
     if not q:
         return []
 
-    return User.objects.filter(Q(username__icontains=q) | Q(profile__display_username__icontains=q))[:limit]
+    return User.objects.filter(
+        Q(username__icontains=q) | Q(profile__display_username__icontains=q)
+    )[:limit]

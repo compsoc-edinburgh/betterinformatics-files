@@ -114,7 +114,7 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             "authorId": author_id,
             "authorDisplayName": author_display_name,
             "canEdit": answer.author == request.user
-                        or (answer.kind != Answer.Kind.PERSONAL and exam_admin),
+            or (answer.kind != Answer.Kind.PERSONAL and exam_admin),
             "isAuthor": answer.author == request.user,
             "isUpvoted": answer.is_upvoted,
             "isDownvoted": answer.is_downvoted,

@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Q, UniqueConstraint
 
+
 # Create your models here.
 class ApprovalStatus(models.IntegerChoices):
     APPROVED = 0, "Approved"
@@ -14,7 +15,7 @@ class Testimonial(models.Model):
     slug = models.CharField(max_length=256, unique=True, default="")
     category = models.ForeignKey(  # Link Testimonial to a Category
         "categories.Category",
-        on_delete=models.CASCADE   # Delete testimonials if category is deleted
+        on_delete=models.CASCADE,  # Delete testimonials if category is deleted
     )
     testimonial = models.TextField()
     year_taken = models.IntegerField()
@@ -24,12 +25,17 @@ class Testimonial(models.Model):
     )
 
     class Meta:
-        #Only one row with (author, course) where approval_status is APPROVED or PENDING can exist.
-        #Multiple rejected rows can exist for (author, course) combination.
+        # Only one row with (author, course) where approval_status is APPROVED or PENDING can exist.
+        # Multiple rejected rows can exist for (author, course) combination.
         constraints = [
             UniqueConstraint(
                 fields=["author", "category"],
-                condition=Q(approval_status__in=[ApprovalStatus.APPROVED, ApprovalStatus.PENDING]),
+                condition=Q(
+                    approval_status__in=[
+                        ApprovalStatus.APPROVED,
+                        ApprovalStatus.PENDING,
+                    ]
+                ),
                 name="unique_approved_or_pending_per_author_course",
             ),
         ]
