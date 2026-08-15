@@ -18,7 +18,7 @@ def testimonial_metadata(request, slug: str):
     res = [
         {
             "author_id": testimonial.author.username,
-            "author_diplay_name": testimonial.author.profile.display_username,
+            "author_display_name": testimonial.author.profile.display_username,
             "slug": testimonial.category.slug,
             "testimonial": testimonial.testimonial,
             "year_taken": testimonial.year_taken,
