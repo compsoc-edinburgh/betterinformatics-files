@@ -49,7 +49,7 @@ export interface NavItem {
    * Title, either string or map with key: language, value: translation, please always provide english
    */
   title?: ReactNode | LangMap;
-
+  indicator?: ReactNode;
   childItems?: NavItem[];
   onClick?: () => void;
   href?: string;

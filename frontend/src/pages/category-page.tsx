@@ -58,11 +58,12 @@ import {
 } from "@tabler/icons-react";
 import { EuclidCodeBadge } from "../components/euclid-code-badge";
 import { useCategoryTabs } from "../hooks/useCategoryTabs";
-import { PieChart } from "@mantine/charts";
 import CategoryStatsComponent from "../components/category-stats";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { loadTestimonialsByCourse } from "../api/testimonials";
-import {TestimonialCard} from "../components/testimonial-card";
+import { TestimonialCard } from "../components/testimonial-card";
+import { CourseworkExamRatioChart } from "../components/Charts/CourseworkExamRatioChart";
+
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
   metaData: CategoryMetaData;
@@ -124,7 +125,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const editorOnMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
       onMetaDataChange(newMetaData);
-      run();
+      void run();
     },
     [run, onMetaDataChange],
   );
@@ -198,7 +199,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         <Anchor tt="uppercase" size="xs" component={Link} to="/">
           Home
         </Anchor>
-        <Anchor tt="uppercase" size="xs">
+        <Anchor
+          tt="uppercase"
+          size="xs"
+          component={Link}
+          to={`/category/${metaData.slug}`}
+        >
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
@@ -215,7 +221,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 <CategoryMetaDataEditor
                   onMetaDataChange={editorOnMetaDataChange}
                   close={() => {
-                    navigate("./..");
+                    void navigate("./..");
                   }}
                   currentMetaData={metaData}
                   offeredIn={offeredIn.flatMap(b =>
@@ -290,6 +296,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   style={{
                     overflowX:
                       "auto" /* Allow scrolling tabs if they overflow */,
+                    overflowY: "hidden" /* Hide vertical scrollbars */,
                   }}
                 >
                   {tabs.Component}
@@ -446,22 +453,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                               Semester {course.delivery_ordinal}
                             </Text>
                             <Group gap="xs">
-                              <PieChart
-                                size={20}
-                                startAngle={90}
-                                endAngle={-270}
-                                data={[
-                                  {
-                                    name: "Coursework",
-                                    value: course.cw_exam_ratio[0],
-                                    color: "var(--mantine-primary-color-6)",
-                                  },
-                                  {
-                                    name: "Exam",
-                                    value: course.cw_exam_ratio[1],
-                                    color: "var(--mantine-primary-color-8)",
-                                  },
-                                ]}
+                              <CourseworkExamRatioChart
+                                cw_exam_ratio={course.cw_exam_ratio}
+                                style={{ height: 20, width: 20 }}
                               />
                               <Text>
                                 {course.cw_exam_ratio[0] > 0 &&
@@ -550,7 +544,7 @@ const CategoryPage: React.FC = () => {
     (newMetaData: CategoryMetaData) => {
       mutate(newMetaData);
       if (slug !== newMetaData.slug) {
-        navigate(`/category/${newMetaData.slug}`);
+        void navigate(`/category/${newMetaData.slug}`);
       }
     },
     [mutate, navigate, slug],

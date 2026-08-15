@@ -1,10 +1,8 @@
 import {
   Alert,
-  Box,
   Button,
   Container,
   Flex,
-  Group,
   Loader,
   Modal,
   Paper,
@@ -19,7 +17,7 @@ import { useLocalStorageState, useRequest } from "ahooks";
 import React, { useCallback, useMemo, useState } from "react";
 import { authenticated, fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories } from "../api/hooks";
-import { User, useUser } from "../auth";
+import { useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import RecentlyViewedExams from "../components/recently-viewed-exams";
 import Grid from "../components/grid";
@@ -28,15 +26,16 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import { IconFilter, IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconFilter, IconPlus } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
 import { getFavourites } from "../api/favourite";
 import fadeClasses from "../utils/fade-in-order.module.css";
 import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
 import CollapseWrapper from "../components/collapse-wrapper";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import classes from "../utils/focus-outline.module.css";
+import { slugify } from "../utils/slugify";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -75,7 +74,7 @@ const mapToCategories = (
       categories: categoryNames,
     } of meta2) {
       const categories = categoryNames
-        .map(name => categoryMap.get(name)!)
+        .map(name => categoryMap.get(name))
         .filter(a => a !== undefined);
       for (const category of categories) assignedCategories.add(category);
       if (categories.length === 0) continue;
@@ -111,7 +110,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   });
   const [categoryName, setCategoryName] = useState("");
   const onSubmit = () => {
-    run(categoryName);
+    void run(categoryName);
   };
 
   return (
@@ -255,7 +254,7 @@ export const CategoryList: React.FC = () => {
   );
 
   const onChange = useCallback(() => {
-    run();
+    void run();
   }, [run]);
 
   const [panelIsOpen, { toggle: togglePanel }] = useDisclosure();
@@ -265,16 +264,8 @@ export const CategoryList: React.FC = () => {
     [categories],
   );
   const onFavouriteToggle = useCallback(() => {
-    run();
+    void run();
   }, [run]);
-
-  const slugify = (str: string): string =>
-    str
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
 
   const is_collapsed = (category: string): boolean => {
     return collapsedCategories.includes(slugify(category));
@@ -293,41 +284,44 @@ export const CategoryList: React.FC = () => {
   return (
     <>
       <Container size="xl">
-        <Flex
-          gap="md"
-          direction={{ base: "column", sm: "row" }}
-          justify="space-between"
-        >
-          <SegmentedControl
-            value={mode}
-            onChange={(value: string) => {
-              setMode(value as Mode);
-            }}
-            data={[
-              { label: "Alphabetical", value: "alphabetical" },
-              { label: "By SCQF", value: "bySCQF" },
-              ...(user?.loggedin
-                ? [
-                    {
-                      label: "Favourites",
-                      value: "favourites",
-                      disabled: !favourites,
-                    },
-                  ]
-                : []),
-            ]}
-          />
-          <TextInput
-            placeholder="Filter..."
-            value={filter}
-            onChange={e => setFilter(e.currentTarget.value)}
-            leftSection={
-              <IconFilter style={{ height: "15px", width: "15px" }} />
-            }
-          />
+        <Flex gap={0} direction="column-reverse" align="stretch">
+          {/* Flip order semantically since we want TAB from filter to go immediately to category list */}
+          <RecentlyViewedExams />
+          <Flex
+            gap="md"
+            direction={{ base: "column", sm: "row" }}
+            justify="space-between"
+          >
+            <SegmentedControl
+              value={mode}
+              onChange={(value: string) => {
+                setMode(value as Mode);
+              }}
+              data={[
+                { label: "Alphabetical", value: "alphabetical" },
+                { label: "By SCQF", value: "bySCQF" },
+                ...(user?.loggedin
+                  ? [
+                      {
+                        label: "Favourites",
+                        value: "favourites",
+                        disabled: !favourites,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+            <TextInput
+              placeholder="Filter..."
+              value={filter}
+              onChange={e => setFilter(e.currentTarget.value)}
+              leftSection={
+                <IconFilter style={{ height: "15px", width: "15px" }} />
+              }
+            />
+          </Flex>
         </Flex>
       </Container>
-      <RecentlyViewedExams />
       <ContentContainer mt="sm">
         <Container size="xl" py="md" pos="relative">
           {loading && !error && (
@@ -335,7 +329,7 @@ export const CategoryList: React.FC = () => {
           )}
           {error ? (
             <Alert color="red">{error.toString()}</Alert>
-          ) : mode === "alphabetical" || filter.length > 0 ? (
+          ) : filter.length > 0 || mode === "alphabetical" ? (
             <>
               <Grid>
                 {searchResult.map(category => (
@@ -481,14 +475,15 @@ export const CategoryList: React.FC = () => {
           )}
         </Container>
       </ContentContainer>
-      {!loading ? (
+      {!loading && (
         <CourseCategoriesPanel
           mode={mode}
           isOpen={panelIsOpen}
           toggle={togglePanel}
           metaList={metaList}
+          categories={searchResult}
         />
-      ) : null}
+      )}
     </>
   );
 };

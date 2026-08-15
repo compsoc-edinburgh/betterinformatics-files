@@ -18,7 +18,7 @@ const useTextLayer = (
   useEffect(() => {
     runningRef.current = true;
     if (shouldRender) {
-      (async () => {
+      void (async () => {
         const text = await renderer.renderText(pageNumber);
         if (!runningRef.current) return;
         setTextContent(text);

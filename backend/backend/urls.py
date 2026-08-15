@@ -14,16 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.http import Http404, JsonResponse
-
-from django.urls import path, re_path, include
 from functools import wraps
-from util import response
-from django_prometheus import exports
-from backend.settings import DEBUG, STATIC_ROOT
 
+from django.http import Http404, JsonResponse
+from django.urls import include, path, re_path
+from django_prometheus import exports
 from ninja import NinjaAPI
 from ninja.errors import ValidationError
+
+from backend.settings import DEBUG, STATIC_ROOT
+from util import response
 
 from . import views
 
@@ -44,6 +44,8 @@ api = NinjaAPI()
 api.add_router("feedback/", "feedback.api.router")
 api.add_router("image/", "images.api.router")
 api.add_router("dissertations/", "dissertations.api.router")
+api.add_router("user/", "users.api.router")
+api.add_router("document/", "documents.api.router")
 
 urlpatterns = [
     path("", include("health.urls")),
@@ -59,7 +61,6 @@ urlpatterns = [
     path("api/auth/", include("ediauth.urls")),
     path("api/notification/", include("notifications.urls")),
     path("api/scoreboard/", include("scoreboard.urls")),
-    path("api/document/", include("documents.urls")),
     path("api/stats/", include("stats.urls")),
     path("api/testimonials/", include("testimonials.urls")),
     re_path(

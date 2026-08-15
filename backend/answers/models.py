@@ -1,5 +1,4 @@
 import datetime
-from typing import Optional, Tuple
 import random
 
 from django.contrib.postgres.indexes import GinIndex
@@ -67,7 +66,7 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
             return 0
         return int(self.displayname[-end:])
 
-    def try_parse_exam_date(self) -> Optional[timezone.datetime]:
+    def try_parse_exam_date(self) -> timezone.datetime | None:
         exam_name = self.displayname
         parts_of_name = exam_name.strip().split()
         month = None
@@ -92,8 +91,8 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
         if year and not (month):
             return year
 
-    def sort_key(self) -> Tuple[int, str]:
-        val_ts: Optional[datetime.datetime] = None
+    def sort_key(self) -> tuple[int, str]:
+        val_ts: datetime.datetime | None = None
         if self.exam_type.displayname in ["Exams", "Mock Exams"]:
             try:
                 val_ts = datetime.datetime.strptime(self.displayname.strip(), "%B %Y")

@@ -3,10 +3,7 @@ import React, { useState } from "react";
 import { useNotifications } from "../api/hooks";
 import NotificationComponent from "./notification";
 
-interface UserNotificationsProps {
-  username: string;
-}
-const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
+const UserNotifications: React.FC = () => {
   const [showRead, setShowRead] = useState(false);
   const [notificationsError, notificationsLoading, notifications] =
     useNotifications(showRead ? "all" : "unread");

@@ -8,7 +8,6 @@ import {
 } from "react";
 import {
   Modal,
-  Button,
   Group,
   Text,
   TextInput,
@@ -19,6 +18,9 @@ import {
   Divider,
   Stack,
   Loader,
+  Space,
+  UnstyledButton,
+  Badge,
 } from "@mantine/core";
 import {
   getHotkeyHandler,
@@ -29,6 +31,7 @@ import {
 } from "@mantine/hooks";
 import { useDebounce, useRequest } from "ahooks";
 import { loadAllCategories, loadSearch } from "../../../api/hooks";
+import { useUser } from "../../../auth";
 import {
   AnswerSearchResult,
   CommentSearchResult,
@@ -43,7 +46,7 @@ import { QuickSearchResult } from "./QuickSearchResult";
 import { QuickSearchResults } from "./QuickSearchResults";
 import { QuickSearchFilterContext } from "./QuickSearchFilterContext";
 import { useNavigate } from "react-router-dom";
-import clsx from "clsx";
+import { clsx } from "clsx";
 
 /**
  * Return the max depth of an array.
@@ -70,6 +73,7 @@ const displayOrder = [
 ] as const;
 
 export const QuickSearchBox: React.FC = () => {
+  const loggedIn = useUser()?.loggedin ?? false;
   const [opened, { open, close }] = useDisclosure(false);
 
   // Reference to the input element so that we can select all text upon modal open
@@ -110,7 +114,7 @@ export const QuickSearchBox: React.FC = () => {
   const categoryResults = useSearch(
     // Disable category results (with an empty data list) if we're already
     // searching in a single category
-    isGlobal ? categories.data ?? [] : [],
+    isGlobal ? (categories.data ?? []) : [],
     searchQuery,
     // We only really want to show almost-perfect matches for this component.
     // So the max error score we allow is 4 -- this value was found by trial and
@@ -129,6 +133,7 @@ export const QuickSearchBox: React.FC = () => {
         true,
       ),
     {
+      ready: loggedIn,
       refreshDeps: [debouncedSearchQuery, isGlobal],
     },
   );
@@ -221,13 +226,13 @@ export const QuickSearchBox: React.FC = () => {
   const confirmSelection = useCallback(() => {
     if (!currentSelection.type) return; // Make sure we don't navivate to invalid selections
 
-    navigate(
+    void navigate(
       // TODO: fix duplicate logic here to get the path for an item; we already
       // do that in QuickSearchResults to create the link href prop of results
       itemToPath(results[currentSelection.type][currentSelection.index]),
     );
     close();
-  }, [currentSelection, history, results, close]);
+  }, [currentSelection, results, close, navigate]);
 
   useEffect(() => {
     // Do some raw-JS scrollIntoView so that moving up/down via keyboard scrolls
@@ -269,13 +274,21 @@ export const QuickSearchBox: React.FC = () => {
 
   return (
     <>
-      <Button className={classes.navButton} px="md" onClick={openWithHighlight}>
+      <UnstyledButton
+        className={classes.navButton}
+        px="xs"
+        onClick={openWithHighlight}
+        size="xs"
+      >
         <Group wrap="nowrap">
           <IconSearch />
-          <span>Search</span>
-          <Kbd>{os === "macos" ? "⌘" : "Ctrl +"} K</Kbd>
+          <Text size="md">Search...</Text>
+          <Space w="md" />
+          <Badge size="xs" radius="xs" variant="default">
+            {os === "macos" ? "⌘" : "Ctrl +"} K
+          </Badge>
         </Group>
-      </Button>
+      </UnstyledButton>
       <Modal
         size="82.5rem"
         opened={opened}
@@ -284,7 +297,7 @@ export const QuickSearchBox: React.FC = () => {
         fullScreen={isMobile}
         transitionProps={{
           transition: "pop",
-          duration: 100,
+          duration: 0,
           timingFunction: "cubic-bezier(0.5, 1, 0.89, 1)", // easeOutQuad
         }}
         // The height of top nav

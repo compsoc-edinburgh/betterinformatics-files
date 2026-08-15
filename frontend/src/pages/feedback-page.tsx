@@ -1,4 +1,4 @@
-import { useLocalStorageState, useRequest } from "ahooks";
+import { useLocalStorageState } from "ahooks";
 import {
   Alert,
   Anchor,
@@ -14,35 +14,37 @@ import {
   Loader,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { User, useUser } from "../auth";
+import { useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
-import { loadFeedback, submitFeedback } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
-import { FeedbackEntry } from "../interfaces";
 import { useDisclosure } from "@mantine/hooks";
 import CollapseWrapper from "../components/collapse-wrapper";
 import { parseISO, isValid } from "date-fns";
+import { submitFeedback, useListFeedback } from "../api/hooks/feedback";
+import type { FeedbackOut } from "../api/model";
 
 const FeedbackForm: React.FC = () => {
   const [success, setSuccess] = useState(false);
   useEffect(() => {
     if (success) {
-      const timeout = window.setTimeout(() => setSuccess(false), 10000);
+      const timeout = setTimeout(() => setSuccess(false), 10000);
       return () => {
-        window.clearTimeout(timeout);
+        clearTimeout(timeout);
       };
     }
-  });
+  }, [success]);
 
   const [text, setText] = useState("");
-  const { loading, run } = useRequest(submitFeedback, {
-    manual: true,
-    onSuccess() {
-      setText("");
-      setSuccess(true);
-    },
-  });
+
+  async function handleFeedbackSubmit() {
+    await submitFeedback({
+      text,
+    });
+
+    setText("");
+    setSuccess(true);
+  }
 
   return (
     <Stack>
@@ -79,11 +81,7 @@ const FeedbackForm: React.FC = () => {
         onChange={e => setText(e.currentTarget.value)}
         minRows={12}
       />
-      <Button
-        loading={loading}
-        disabled={text.length === 0 || loading}
-        onClick={() => run(text)}
-      >
+      <Button disabled={text.length === 0} onClick={handleFeedbackSubmit}>
         Submit
       </Button>
     </Stack>
@@ -91,64 +89,51 @@ const FeedbackForm: React.FC = () => {
 };
 
 const FeedbackReader: React.FC = () => {
-  const {
-    error,
-    loading,
-    data: feedback,
-    run: reload,
-  } = useRequest(loadFeedback);
+  const feedbacks = useListFeedback();
 
   const [opened, { toggle }] = useDisclosure(false);
 
-  const mapEntries = (feedback: FeedbackEntry[]) => {
+  const mapEntries = (feedback: readonly FeedbackOut[]) => {
     return (
       <Grid>
         {feedback.map(fb => (
           <Grid.Col span={{ lg: 6 }} key={fb.oid}>
-            <FeedbackEntryComponent entry={fb} entryChanged={reload} />
+            <FeedbackEntryComponent
+              entry={fb}
+              entryChanged={() => {
+                feedbacks.refetch();
+              }}
+            />
           </Grid.Col>
         ))}
       </Grid>
     );
   };
 
-  const categorized = {
-    waiting_action: [] as FeedbackEntry[],
-    done: [] as FeedbackEntry[],
-    read: [] as FeedbackEntry[],
-    read_and_done: [] as FeedbackEntry[],
-  };
+  feedbacks.data?.value
+    .map(fb => {
+      const date = parseISO(fb.time);
+      return {
+        ...fb,
+        date: isValid(date) ? date : new Date(0),
+      };
+    })
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  if (feedback) {
-    feedback
-      .map(fb => {
-        const date = parseISO(fb.time);
-        return {
-          ...fb,
-          date: isValid(date) ? date : new Date(0),
-        };
-      })
-      .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .forEach(fb => {
-        if (!fb.read && !fb.done) {
-          categorized.waiting_action.push(fb);
-        } else if (fb.read && fb.done) {
-          categorized.read_and_done.push(fb);
-        } else {
-          if (fb.done) {
-            categorized.done.push(fb);
-          }
-          if (fb.read) {
-            categorized.read.push(fb);
-          }
-        }
-      });
-  }
+  const categorized = {
+    waiting_action:
+      feedbacks.data?.value.filter(fb => !fb.read && !fb.done) ?? [],
+    read_and_done: feedbacks.data?.value.filter(fb => fb.read && fb.done) ?? [],
+    done: feedbacks.data?.value.filter(fb => !fb.read && fb.done) ?? [],
+    read: feedbacks.data?.value.filter(fb => fb.read && !fb.done) ?? [],
+  };
 
   return (
     <>
-      {error && <Alert color="red">{error.message}</Alert>}
-      {feedback && (
+      {feedbacks.error && (
+        <Alert color="red">{(feedbacks.error as Error).message}</Alert>
+      )}
+      {feedbacks.isSuccess && (
         <>
           {mapEntries(categorized.waiting_action)}
           <Divider my="xl" />
@@ -167,7 +152,7 @@ const FeedbackReader: React.FC = () => {
           />
         </>
       )}
-      {loading && <Loader />}
+      {feedbacks.isLoading && <Loader />}
     </>
   );
 };

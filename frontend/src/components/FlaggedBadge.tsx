@@ -8,7 +8,7 @@ interface FlaggedBadgeProps {
   isFlagged: boolean;
   loading: boolean;
   size?: string;
-  onToggle: () => void;
+  onToggle?: () => void;
 }
 
 const FlaggedBadge: React.FC<FlaggedBadgeProps> = ({
@@ -40,16 +40,20 @@ const FlaggedBadge: React.FC<FlaggedBadgeProps> = ({
         >
           {count}
         </TooltipButton>
-        <TooltipButton
-          px={8}
-          tooltip={isFlagged ? "Remove inappropriate flag" : "Add inappropriate flag"}
-          size={size ?? "sm"}
-          loading={loading}
-          style={{ borderLeftWidth: 0 }}
-          onClick={onToggle}
-        >
-          {isFlagged ? <IconX /> : <IconChevronUp />}
-        </TooltipButton>
+        {onToggle && (
+          <TooltipButton
+            px={8}
+            tooltip={
+              isFlagged ? "Remove inappropriate flag" : "Add inappropriate flag"
+            }
+            size={size ?? "sm"}
+            loading={loading}
+            style={{ borderLeftWidth: 0 }}
+            onClick={onToggle}
+          >
+            {isFlagged ? <IconX /> : <IconChevronUp />}
+          </TooltipButton>
+        )}
       </Button.Group>
     </Paper>
   );

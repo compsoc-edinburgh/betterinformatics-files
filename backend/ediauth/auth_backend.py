@@ -1,13 +1,14 @@
 import logging
-import jwt
 
+import jwt
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http.request import HttpRequest
-from django.contrib.auth.models import User
-from notifications.models import NotificationSetting, NotificationType
+
 from ediauth.models import Profile
+from notifications.models import NotificationSetting, NotificationType
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,7 @@ def add_auth_to_request(request: HttpRequest):
                 NotificationType.NEW_COMMENT_TO_COMMENT,
                 NotificationType.NEW_ANSWER_TO_ANSWER,
                 NotificationType.NEW_COMMENT_TO_DOCUMENT,
+                NotificationType.DOCUMENT_TRANSFER,
             ]:
                 setting = NotificationSetting(user=user, type=type_.value)
                 setting.save()

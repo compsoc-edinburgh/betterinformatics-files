@@ -38,6 +38,7 @@ export interface Answer {
   authorId: string; // username
   authorDisplayName: string; // display name of author
   canEdit: boolean; // whether the current user can edit the answer
+  isAuthor: boolean; // whether the current user is the author of the answer
   isUpvoted: boolean; // whether the current user upvoted the answer
   isDownvoted: boolean; // whether the current user downvoted the answer
   isExpertVoted: boolean; // whether the current user expert upvoted the answer
@@ -210,9 +211,7 @@ export interface CourseStats {
 }
 
 export type CategoryMetaDataAny =
-  | CategoryMetaData
-  | CategoryMetaDataOverview
-  | CategoryMetaDataMinimal;
+  CategoryMetaData | CategoryMetaDataOverview | CategoryMetaDataMinimal;
 
 export interface ExamMetaData {
   canEdit: boolean;
@@ -274,18 +273,6 @@ export interface UserInfo {
   score_cuts: number;
   score_official: number;
   score_documents: number;
-}
-
-export interface FeedbackEntry {
-  oid: string;
-  text: string;
-  authorId: string;
-  authorDisplayName: string;
-  time: string;
-  read: boolean;
-  done: boolean;
-  reply: string;
-  reply_time: string | null;
 }
 
 export interface FAQEntry {
@@ -362,90 +349,19 @@ export interface CommentSearchResult {
   category_slug: string;
 }
 export type SearchResult =
-  | ExamSearchResult
-  | AnswerSearchResult
-  | CommentSearchResult;
+  ExamSearchResult | AnswerSearchResult | CommentSearchResult;
 export type SearchResponse = SearchResult[];
 
-export interface Document {
-  slug: string;
-  display_name: string;
-  description: string;
-  category: string;
-  document_type: string;
-  category_display_name: string;
-  author: string;
-  anonymised: boolean;
-  author_displayname: string;
-  comments: DocumentComment[];
-  files: DocumentFile[];
-  liked: boolean;
-  like_count: number;
-  time: string | null; // ISO 8601, creation time
-  edittime: string | null; // ISO 8601, last edit time
-
-  can_edit: boolean;
-  can_delete: boolean;
-  api_key?: string;
-}
-
-export interface DocumentFile {
-  oid: number;
-  display_name: string;
-  filename: string;
-  mime_type: string;
-  order: number;
-}
-
-export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {
-  oid: number;
-  documentId: number;
-}
-
-export interface Dissertation {
-  id: number;
-  title: string;
-  field_of_study: string;
-  supervisors: string;
-  notes: string;
-  file_path: string;
-  uploaded_by: string;
-  upload_date: string;
-  study_level: string;
-  grade_band?: string;
-  year: number;
-  relevant_categories: { slug: string; displayname: string }[];
-  can_edit: boolean;
-}
-
-export interface DissertationCreate {
-  words_to_redact: string;
-  title: string;
-  field_of_study: string;
-  supervisors: string;
-  notes: string;
-  study_level: string;
-  grade_band?: string;
-  year: number;
-  relevant_categories: string[];
-}
-
-export type DissertationUpdate = Partial<DissertationCreate>;
-
 export interface Stats {
-  user_stats: GranularityStats<UserStat>;
-  exam_stats: GranularityStats<ExamStat>;
-  document_stats: GranularityStats<DocumentStat>;
-}
-
-// Mapping from granularity to list of data points for that granularity
-export interface GranularityStats<T> {
-  [key: string]: T[];
+  user_stats: UserStat[];
+  exam_stats: ExamStat[];
+  document_stats: DocumentStat[];
 }
 
 export interface UserStat {
   date: string;
   count: number;
+  active_count: number;
 }
 
 export interface ExamStat {

@@ -144,7 +144,7 @@ const CourseMetadataChecker: React.FC = () => {
           </Table.Thead>
           <Table.Tbody>
             {missingMapping &&
-              missingMapping.map(({ code, data, loading }) => (
+              missingMapping.map(({ code, data }) => (
                 <Table.Tr key={code}>
                   <Table.Td>{code}</Table.Td>
                   <Table.Td>

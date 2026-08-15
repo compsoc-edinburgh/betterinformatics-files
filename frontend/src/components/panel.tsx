@@ -2,7 +2,7 @@ import { Button } from "@mantine/core";
 import React, { useRef, CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 import { IconArrowLeft, IconX } from "@tabler/icons-react";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import classes from "./panel.module.css";
 
 interface PanelProps {

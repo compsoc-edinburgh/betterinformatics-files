@@ -24,9 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { useRef, useLayoutEffect, useState, MutableRefObject } from "react";
+import { useRef, useLayoutEffect, useState, type RefObject } from "react";
 
-import "intersection-observer";
 const radius = 500;
 
 type Arg = HTMLElement | (() => HTMLElement) | null;
@@ -64,15 +63,12 @@ function isInViewPort(el: HTMLElement): boolean {
 
 function useAlmostInViewport<T extends HTMLElement = HTMLElement>(): [
   InViewport,
-  MutableRefObject<T | null>,
+  RefObject<T | null>,
 ];
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function useAlmostInViewport<T extends HTMLElement = HTMLElement>(
-  arg: Arg,
-): [InViewport];
+function useAlmostInViewport(arg: Arg): [InViewport];
 function useAlmostInViewport<T extends HTMLElement = HTMLElement>(
   ...args: [Arg] | []
-): [InViewport, MutableRefObject<T | null>?] {
+): [InViewport, RefObject<T | null>?] {
   const element = useRef<T>(null);
   const hasPassedInElement = args.length === 1;
   const arg = useRef(args[0]);
@@ -122,7 +118,7 @@ function useAlmostInViewport<T extends HTMLElement = HTMLElement>(
     return [inViewPort];
   }
 
-  return [inViewPort, element as MutableRefObject<T | null>];
+  return [inViewPort, element as RefObject<T | null>];
 }
 
 export default useAlmostInViewport;

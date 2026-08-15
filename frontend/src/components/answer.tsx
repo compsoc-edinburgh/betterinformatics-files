@@ -5,6 +5,7 @@ import {
   Card,
   Group,
   GroupProps,
+  Loader,
   Menu,
   Paper,
   Switch,
@@ -12,10 +13,10 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { differenceInSeconds } from "date-fns";
-import React, { useCallback, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import clsx from "clsx";
-import { imageHandler } from "../api/fetch-utils";
+import { clsx } from "clsx";
+import { usePendingImages } from "./Editor/pending-images";
 import {
   useRemoveAnswer,
   useResetAnswerFlaggedVote,
@@ -33,7 +34,6 @@ import { Answer, AnswerKind, AnswerSection } from "../interfaces";
 import { copy } from "../utils/clipboard";
 import CodeBlock from "./code-block";
 import CommentSectionComponent from "./comment-section";
-import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
@@ -63,6 +63,13 @@ import classes from "./answer.module.css";
 import displayNameClasses from "../utils/display-name.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import TimeText from "./time-text";
+import {
+  saveDraftToStorage,
+  readDraftFromStorage,
+  clearExpiredDrafts,
+} from "../utils/drafts";
+
+const Editor = lazy(() => import("./Editor"));
 
 const AnswerToolbar = (props: GroupProps) => (
   <Group className={classes.answerToolbarStyle} {...props} />
@@ -94,12 +101,14 @@ const AnswerComponent: React.FC<Props> = ({
   const [setExpertVoteLoading, setExpertVote] =
     useSetExpertVote(onSectionChanged);
   const removeAnswer = useRemoveAnswer(onSectionChanged);
+  const answerId = section?.oid;
   const [updating, update] = useUpdateAnswer(res => {
     setEditing(false);
     if (onSectionChanged) onSectionChanged(res);
     if (answer === undefined && onDelete) onDelete();
+    saveDraftToStorage(answerId, "", true);
   });
-  const { isAdmin, isExpert } = useUser()!;
+  const { isAdmin, isExpert, username } = useUser()!;
   const [removeConfirm, modals] = useRemoveConfirm();
   const [editing, setEditing] = useState(false);
 
@@ -108,20 +117,38 @@ const AnswerComponent: React.FC<Props> = ({
   const [answerIsAnonymous, toggleAnonymity] = useToggle(false);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
 
+  const { deferredImageHandler, flushPendingImages, pendingObjectUrls } =
+    usePendingImages();
   const startEdit = useCallback(() => {
-    setDraftText(answer?.text ?? "");
+    const possibleAnswer = readDraftFromStorage(answerId, true);
+    if (possibleAnswer) {
+      setDraftText(possibleAnswer);
+    } else {
+      setDraftText(answer?.text ?? "");
+    }
     if (answer?.isAnonymous) {
       toggleAnonymity(true);
     }
+
     setEditing(true);
   }, [answer, toggleAnonymity]);
   const onCancel = useCallback(() => {
     setEditing(false);
     if (answer === undefined && onDelete) onDelete();
+    saveDraftToStorage(answerId, "", true);
   }, [onDelete, answer]);
-  const save = useCallback(() => {
-    if (section) update(section.oid, draftText, answerKind, answerIsAnonymous);
-  }, [section, draftText, update, answerKind, answerIsAnonymous]);
+  const save = useCallback(async () => {
+    if (!section) return;
+    const finalText = await flushPendingImages(draftText);
+    void update(section.oid, finalText, answerKind, answerIsAnonymous);
+  }, [
+    section,
+    draftText,
+    update,
+    answerKind,
+    answerIsAnonymous,
+    flushPendingImages,
+  ]);
   const remove = useCallback(() => {
     if (answer) removeConfirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [removeConfirm, removeAnswer, answer]);
@@ -129,11 +156,15 @@ const AnswerComponent: React.FC<Props> = ({
 
   const isDraft = !answer;
 
+  useEffect(() => {
+    clearExpiredDrafts();
+    setDraftText(readDraftFromStorage(answerId, true));
+  }, []);
+
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
   const canEdit = section && onSectionChanged && answer?.canEdit;
   const canRemove = section && onSectionChanged && (isAdmin || answer?.canEdit);
-  const { username } = useUser()!;
-
+  const isOwnAnswer = answer?.isAuthor ?? false;
   return (
     <>
       {modals}
@@ -294,8 +325,10 @@ const AnswerComponent: React.FC<Props> = ({
                   count={answer.flaggedCount}
                   isFlagged={answer.isFlagged}
                   loading={flaggedLoading}
-                  onToggle={() =>
-                    setAnswerFlagged(answer.oid, !answer.isFlagged)
+                  onToggle={
+                    isOwnAnswer
+                      ? undefined
+                      : () => setAnswerFlagged(answer.oid, !answer.isFlagged)
                   }
                 />
               )}
@@ -303,7 +336,6 @@ const AnswerComponent: React.FC<Props> = ({
                 <Score
                   oid={answer.oid}
                   upvotes={answer.upvotes}
-                  expertUpvotes={answer.expertvotes}
                   userVote={answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0}
                   onSectionChanged={onSectionChanged}
                 />
@@ -314,27 +346,36 @@ const AnswerComponent: React.FC<Props> = ({
         {editing || answer === undefined ? (
           <Card.Section>
             <Box p="md">
-              <Editor
-                value={draftText}
-                onChange={setDraftText}
-                imageHandler={imageHandler}
-                preview={value => (
-                  <MarkdownText value={value} languages={languages} />
-                )}
-                undoStack={undoStack}
-                setUndoStack={setUndoStack}
-              />
-              <Text mt="xs" c="dimmed">
-                Your answer will be licensed as{" "}
-                <Anchor
-                  c="blue"
-                  href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
-                  target="_blank"
-                >
-                  CC BY-NC-SA 4.0
-                </Anchor>
-                .
-              </Text>
+              <Suspense fallback={<Loader />}>
+                <Editor
+                  value={draftText}
+                  onChange={newValue => {
+                    setDraftText(newValue);
+                    saveDraftToStorage(answerId, newValue, true);
+                  }}
+                  imageHandler={deferredImageHandler}
+                  preview={value => (
+                    <MarkdownText
+                      value={value}
+                      languages={languages}
+                      pendingImages={pendingObjectUrls}
+                    />
+                  )}
+                  undoStack={undoStack}
+                  setUndoStack={setUndoStack}
+                />
+                <Text mt="xs" c="dimmed">
+                  Your answer will be licensed as{" "}
+                  <Anchor
+                    c="blue"
+                    href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+                    target="_blank"
+                  >
+                    CC BY-NC-SA 4.0
+                  </Anchor>
+                  .
+                </Text>
+              </Suspense>
             </Box>
           </Card.Section>
         ) : (
@@ -414,28 +455,32 @@ const AnswerComponent: React.FC<Props> = ({
                   </Button>
                 </Menu.Target>
                 <Menu.Dropdown>
-                  {!answer.isMarkedAsAi ? (
-                    <Menu.Item
-                      leftSection={<IconRobot />}
-                      onClick={() => setAnswerMarkedAsAi(answer.oid, true)}
-                    >
-                      Mark as AI-generated
-                    </Menu.Item>
-                  ) : (
-                    <Menu.Item
-                      leftSection={<IconRobotOff />}
-                      onClick={() => setAnswerMarkedAsAi(answer.oid, false)}
-                    >
-                      Remove AI-generated mark
-                    </Menu.Item>
-                  )}
-                  {answer.flaggedCount === 0 && (
-                    <Menu.Item
-                      leftSection={<IconFlag />}
-                      onClick={() => setAnswerFlagged(answer.oid, true)}
-                    >
-                      Flag as Inappropriate
-                    </Menu.Item>
+                  {!isOwnAnswer && (
+                    <>
+                      {!answer.isMarkedAsAi ? (
+                        <Menu.Item
+                          leftSection={<IconRobot />}
+                          onClick={() => setAnswerMarkedAsAi(answer.oid, true)}
+                        >
+                          Mark as AI-generated
+                        </Menu.Item>
+                      ) : (
+                        <Menu.Item
+                          leftSection={<IconRobotOff />}
+                          onClick={() => setAnswerMarkedAsAi(answer.oid, false)}
+                        >
+                          Remove AI-generated mark
+                        </Menu.Item>
+                      )}
+                      {answer.flaggedCount === 0 && (
+                        <Menu.Item
+                          leftSection={<IconFlag />}
+                          onClick={() => setAnswerFlagged(answer.oid, true)}
+                        >
+                          Flag as Inappropriate
+                        </Menu.Item>
+                      )}
+                    </>
                   )}
                   <Menu.Item
                     leftSection={<IconLink />}

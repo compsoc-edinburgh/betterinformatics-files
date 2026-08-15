@@ -15,15 +15,16 @@ import { escapeRegExp } from "lodash-es";
 import CodeBlock from "./code-block";
 import { Alert, Table } from "@mantine/core";
 import ErrorBoundary from "./error-boundary";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import classes from "./markdown-text.module.css";
 
-const transformImageUri = (uri: string) => {
-  if (uri.includes("/")) {
-    return uri;
-  } else {
-    return `/api/image/get/${uri}/`;
-  }
+const transformImageUri = (
+  uri: string,
+  pendingImages?: Map<string, string>,
+) => {
+  if (uri.startsWith("pending:")) return pendingImages?.get(uri) ?? "";
+  if (uri.includes("/")) return uri;
+  return `/api/image/get/${uri}/`;
 };
 
 export type ComponentRenderer = (
@@ -86,7 +87,6 @@ const addMarks = (
 const createComponents = (
   regex: RegExp | undefined,
   languages?: Record<string, ComponentRenderer>,
-  targetWidth?: number,
 ): Components => ({
   table: ({ children }) => {
     return (
@@ -174,7 +174,8 @@ interface Props {
    */
   ignoreHtml?: boolean;
   languages?: Record<string, ComponentRenderer>;
-  targetWidth?: number;
+  /** Map of pending image id → object URL for in-editor previews. */
+  pendingImages?: Map<string, string>;
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
@@ -200,7 +201,7 @@ const MarkdownText: React.FC<Props> = ({
   localLinkBase,
   ignoreHtml,
   languages,
-  targetWidth,
+  pendingImages,
 }) => {
   // Make sure we don't generate a RegExp with empty text, as that will match
   // everything (including the empty string) and can cause mayhem with
@@ -214,8 +215,8 @@ const MarkdownText: React.FC<Props> = ({
   );
 
   const renderers = useMemo(
-    () => createComponents(regex, languages, targetWidth),
-    [regex, languages, targetWidth],
+    () => createComponents(regex, languages),
+    [regex, languages],
   );
 
   return useMemo(() => {
@@ -226,9 +227,9 @@ const MarkdownText: React.FC<Props> = ({
       <div className={clsx(classes.wrapperStyle, classes.blockquoteStyle)}>
         <ErrorBoundary fallback={errorMessage}>
           <MarkdownHooks
-            urlTransform={(uri: string, key, node) => {
+            urlTransform={(uri: string, _key, node) => {
               if (node.tagName === "img") {
-                return transformImageUri(uri);
+                return transformImageUri(uri, pendingImages);
               } else if (localLinkBase && uri.startsWith("/")) {
                 return localLinkBase + defaultUrlTransform(uri);
               }
@@ -244,7 +245,7 @@ const MarkdownText: React.FC<Props> = ({
         </ErrorBoundary>
       </div>
     );
-  }, [value, renderers, ignoreHtml, localLinkBase]);
+  }, [value, renderers, pendingImages, ignoreHtml, localLinkBase]);
 };
 
 export default MarkdownText;

@@ -7,15 +7,10 @@ interface MarkedAsAiBadgeProps {
 }
 
 const MarkedAsAiBadge: React.FC<MarkedAsAiBadgeProps> = ({ count }) => {
-  if (count < 1) return null;
+  if (count < 3) return null;
 
-  const color = count >= 6 ? "red.7" : count >= 3 ? "yellow.7" : "blue.6";
-  const label =
-    count >= 6
-      ? "Very likely AI-generated"
-      : count >= 3
-        ? "Likely AI-generated"
-        : "Potentially AI-generated";
+  const color = count >= 6 ? "red.7" : "yellow.7";
+  const label = count >= 6 ? "Very likely AI-generated" : "Likely AI-generated";
 
   return (
     <Tooltip

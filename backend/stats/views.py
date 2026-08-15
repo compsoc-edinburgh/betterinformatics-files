@@ -1,74 +1,165 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import User
+from django.db.models import (
+    Count,
+    DateField,
+    ExpressionWrapper,
+    Min,
+    OuterRef,
+    Subquery,
+)
+from django.db.models.functions import Coalesce, TruncDate
 from django.utils import timezone
-from django.db.models import Q
 
-from ediauth import auth_check
-from util import response, func_cache
-from answers.models import Answer, Exam, AnswerSection
+from answers.models import Answer, AnswerSection
 from documents.models import Document
-
-month_in_weeks = 4
-semester_in_weeks = 26  # 52 weeks in a year, 2 semesters in a year
+from ediauth import auth_check
+from util import func_cache, response
 
 
 @func_cache.cache(3600 * 12)  # Cache for 12 hours
-def get_stats(weeks: int, months: int, semesters: int):
+def get_stats():
     stats = {}
-    for granularity in ["weekly", "monthly", "semesterly"]:
-        # Get last period for this granularity
-        if granularity == "weekly":
-            period = weeks
-            weeks_in_period = 1
-        elif granularity == "monthly":
-            period = months
-            weeks_in_period = month_in_weeks
-        elif granularity == "semesterly":
-            period = semesters
-            weeks_in_period = semester_in_weeks
 
-        # Get user count over the last period
-        stats.setdefault("user_stats", {})
-        stats["user_stats"][granularity] = []
-        for i in range(period * weeks_in_period, -weeks_in_period, -weeks_in_period):
-            date = timezone.now() - timedelta(weeks=i)
-            user_count = User.objects.filter(date_joined__lte=date).count()
-            stats["user_stats"][granularity].append(
-                {"date": date.strftime("%Y-%m-%d"), "count": user_count}
-            )
+    # Date of first user registration
+    first_user = User.objects.order_by("date_joined").first()
 
-        # Get exam questions count and answered question count for the last period
-        stats.setdefault("exam_stats", {})
-        stats["exam_stats"][granularity] = []
-        for i in range(period * weeks_in_period, -weeks_in_period, -weeks_in_period):
-            date = timezone.now() - timedelta(weeks=i)
-            answered_count = (
-                Answer.objects.filter(time__lte=date)
-                .values("answer_section")
-                .distinct()
-                .count()
-            )
-            answers_count = Answer.objects.filter(time__lte=date).count()
-            stats["exam_stats"][granularity].append(
-                {
-                    "date": date.strftime("%Y-%m-%d"),
-                    "answered_count": answered_count,
-                    "answers_count": answers_count,
-                }
-            )
+    # Add a week of offset to show we had 0 before
+    start_date = (
+        first_user.date_joined.date() - timedelta(days=7)
+        if first_user
+        else timezone.now().date()
+    )
+    end_date = timezone.now().date()
 
-        # Get document count for the last period
-        stats.setdefault("document_stats", {})
-        stats["document_stats"][granularity] = []
-        for i in range(period * weeks_in_period, -weeks_in_period, -weeks_in_period):
-            date = timezone.now() - timedelta(weeks=i)
-            document_count = Document.objects.filter(
-                Q(time__lte=date) | Q(time=None)
-            ).count()
-            stats["document_stats"][granularity].append(
-                {"date": date.strftime("%Y-%m-%d"), "count": document_count}
+    # Generate all days
+    days = []
+    current_day = start_date
+    while current_day <= end_date:
+        days.append(current_day)
+        current_day += timedelta(days=1)
+
+    user_rows = (
+        # Annotate each user with the day they  joined
+        User.objects.annotate(day=TruncDate("date_joined"))
+        # Group by day and count number of joined users per day
+        .values("day")
+        .annotate(cnt=Count("id"))
+        .values("day", "cnt")
+        .order_by("day")
+    )
+    user_counts = {row["day"]: row["cnt"] for row in user_rows}
+
+    inactive_user_rows = (
+        # Based on their last login date, add 250 days to it and annotate the
+        # day that they are officially considered inactive. Group by this date,
+        # filter out anything in the future, and count how many users were added
+        # each day.
+        # For those with last login set to NULL, use their date joined instead.
+        # (250 was chosen as a slightly arbitrary cutoff that isn't as long as
+        # a full year but is long enough to cover two semesters)
+        User.objects.annotate(
+            day=TruncDate(
+                ExpressionWrapper(
+                    Coalesce("last_login", "date_joined") + timedelta(days=250),
+                    output_field=DateField(),
+                )
             )
+        )
+        .filter(day__lte=timezone.now().date())
+        .values("day")
+        .annotate(cnt=Count("id"))
+        .values("day", "cnt")
+        .order_by("day")
+    )
+    inactive_user_counts = {row["day"]: row["cnt"] for row in inactive_user_rows}
+
+    stats["user_stats"] = []
+    last_user_count = 0
+    last_inactive_user_count = 0
+    for day in days:
+        if day in user_counts:
+            last_user_count += user_counts[day]
+        if day in inactive_user_counts:
+            last_inactive_user_count += inactive_user_counts[day]
+        stats["user_stats"].append(
+            {
+                "date": day.strftime("%Y-%m-%d"),
+                "count": last_user_count,
+                "active_count": last_user_count - last_inactive_user_count,
+            }
+        )
+
+    answer_rows = (
+        # Annotate each answer with the day it was created
+        Answer.objects.annotate(day=TruncDate("time"))
+        # Group by day and count number of answers per day
+        .values("day")
+        .annotate(cnt=Count("id"))
+        .values("day", "cnt")
+        .order_by("day")
+    )
+    answers_counts = {row["day"]: row["cnt"] for row in answer_rows}
+
+    earliest_answer_subquery = (
+        AnswerSection.objects.filter(pk=OuterRef("pk"))
+        .annotate(min_time=Min("answer__time"))
+        .values(first_day=TruncDate("min_time"))
+    )
+
+    # 2. Main query: Annotate each section with its first day, then group by that day and count
+    answered_rows = (
+        AnswerSection.objects.annotate(first_day=Subquery(earliest_answer_subquery))
+        .values("first_day")
+        .annotate(cnt=Count("id"))
+        .order_by("first_day")
+    )
+
+    answered_counts = {row["first_day"]: row["cnt"] for row in answered_rows}
+
+    stats["exam_stats"] = []
+    last_answers_count = 0
+    last_answered_count = 0
+    for day in days:
+        if day in answers_counts:
+            last_answers_count += answers_counts[day]
+        if day in answered_counts:
+            last_answered_count += answered_counts[day]
+        stats["exam_stats"].append(
+            {
+                "date": day.strftime("%Y-%m-%d"),
+                "answered_count": last_answered_count,
+                "answers_count": last_answers_count,
+            }
+        )
+
+    # Filter out documents made before time feature was added - add them as a
+    # const at the end
+    null_documents = Document.objects.filter(time__isnull=True).count()
+    document_rows = (
+        # Annotate each document with the day it was created
+        Document.objects.filter(time__isnull=False)
+        .annotate(day=TruncDate("time"))
+        # Group by day and count number of documents per day
+        .values("day")
+        .annotate(cnt=Count("id"))
+        .values("day", "cnt")
+        .order_by("day")
+    )
+    document_counts = {row["day"]: row["cnt"] for row in document_rows}
+
+    stats["document_stats"] = []
+    last_document_count = 0
+    for day in days:
+        if day in document_counts:
+            last_document_count += document_counts[day]
+        stats["document_stats"].append(
+            {
+                "date": day.strftime("%Y-%m-%d"),
+                "count": last_document_count + null_documents,
+            }
+        )
 
     return stats
 
@@ -76,17 +167,4 @@ def get_stats(weeks: int, months: int, semesters: int):
 @response.request_get()
 @auth_check.require_login
 def stats(request):
-    weeks = 8
-    months = 6
-    semesters = 6
-
-    # Allow overriding the default values via query parameters but only for admins
-    if auth_check.has_admin_rights(request):
-        if "weeks" in request.GET:
-            weeks = int(request.GET["weeks"])
-        if "months" in request.GET:
-            months = int(request.GET["months"])
-        if "semesters" in request.GET:
-            semesters = int(request.GET["semesters"])
-
-    return response.success(value=get_stats(weeks, months, semesters))
+    return response.success(value=get_stats())

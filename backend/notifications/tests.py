@@ -1,14 +1,12 @@
-from notifications.models import Notification
-from testing.tests import ComsolTest
-from categories.models import Category
-from documents.models import Document, DocumentType
 from django.contrib.auth.models import User
 from django.core import mail
-from testing.tests import ComsolTestExamData
+
+from documents.models import Document, DocumentType
+from notifications.models import Notification
+from testing.tests import ComsolTest, ComsolTestExamData
 
 
 class TestNotificationSettings(ComsolTest):
-
     def test_get_enabled(self):
         self.get("/api/notification/getenabled/")
 
@@ -51,7 +49,6 @@ class TestNotificationSettings(ComsolTest):
 
 
 class TestNotifications(ComsolTestExamData):
-
     def test_notification_lifecycle(self):
         res = self.get("/api/notification/unread/")["value"]
         self.assertEqual(len(res), 0)
@@ -79,9 +76,7 @@ class TestNotifications(ComsolTestExamData):
         res = self.get("/api/notification/unreadcount/")["value"]
         self.assertEqual(res, 1)
 
-        self.post(
-            "/api/notification/setread/{}/".format(notification.id), {"read": "true"}
-        )
+        self.post(f"/api/notification/setread/{notification.id}/", {"read": "true"})
 
         res = self.get("/api/notification/unread/")["value"]
         self.assertEqual(len(res), 0)
@@ -93,19 +88,19 @@ class TestNotifications(ComsolTestExamData):
         self.assertEqual(res, 0)
 
     def test_email_notification(self):
+        self.login_as(self.users[0])
         # Create a document owned by user 0
         document = Document(
             display_name="document",
             description="description",
             category=self.category,
-            author=User.objects.get(username=self.loginUsers[0]["username"]),
+            author=self.get_my_user(),
             anonymised=False,
             document_type=DocumentType.objects.get(display_name="Documents"),
         )
         document.save()
 
         # Setup default notification settings
-        self.user = self.loginUsers[0]
         for val in range(1, 5):
             self.post(
                 "/api/notification/setenabled/",
@@ -117,22 +112,22 @@ class TestNotifications(ComsolTestExamData):
             )
 
         # Let user 1 comment on the document
-        self.user = self.loginUsers[1]
+        self.login_as(self.users[1])
         self.post(
-            "/api/document/{}/comments/".format(document.slug),
+            f"/api/document/{document.slug}/comments/",
             {"text": "Comment"},
             test_get=False,
         )
 
         # Check that user 0 received an in-app and email notification
-        self.user = self.loginUsers[0]
+        self.login_as(self.users[0])
         res = self.get("/api/notification/unread/")["value"]
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0]["type"], 4)  # New comment on Document
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
-            mail.outbox[0].to, [f"{self.loginUsers[0]['username']}@sms.ed.ac.uk"]
+            mail.outbox[0].to, [f"{self.users[0]['username']}@sms.ed.ac.uk"]
         )
 
     def test_no_duplicate_when_comment_on_answer(self):
@@ -143,8 +138,8 @@ class TestNotifications(ComsolTestExamData):
 
         # Setup default notification settings for user 0
         # Set up only in-app notifications for user 2
-        self.user = self.loginUsers[0]
-        for val in range(1, 5):
+        self.login_as(self.users[0])
+        for val in range(1, 6):
             self.post(
                 "/api/notification/setenabled/",
                 {
@@ -153,8 +148,8 @@ class TestNotifications(ComsolTestExamData):
                     "email_enabled": "true",
                 },
             )
-        self.user = self.loginUsers[2]
-        for val in range(1, 5):
+        self.login_as(self.users[2])
+        for val in range(1, 6):
             self.post(
                 "/api/notification/setenabled/",
                 {
@@ -164,28 +159,35 @@ class TestNotifications(ComsolTestExamData):
                 },
             )
 
-        # self.answers[0] is made by user 0 and has comments by users 0,1,2
+        # self.answers[0] is made by user 0 and has comments by users 0,1,2,3
         # Let user 1 comment additionally on the answer
-        self.user = self.loginUsers[1]
+        self.login_as(self.users[1])
         self.post(
-            "/api/exam/addcomment/{}/".format(self.answers[0].id),
+            f"/api/exam/addcomment/{self.answers[0].id}/",
             {"text": "Comment"},
         )
 
         # Check that user 0 received only one notification (comment on answer)
-        self.user = self.loginUsers[0]
+        self.login_as(self.users[0])
         res = self.get("/api/notification/unread/")["value"]
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0]["type"], 1)
 
         # Check that user 2 received one notification (comment on comment)
-        self.user = self.loginUsers[2]
+        self.login_as(self.users[2])
         res = self.get("/api/notification/unread/")["value"]
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0]["type"], 2)
 
-        # Check that only one email was sent (comment on answer)
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(
-            mail.outbox[0].to, [f"{self.loginUsers[0]['username']}@sms.ed.ac.uk"]
-        )
+        # Check that user 3 also received one notification (comment on comment)
+        self.login_as(self.users[3])
+        res = self.get("/api/notification/unread/")["value"]
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]["type"], 2)
+
+        # Check that two emails were sent:
+        # - One for user 0 (comment on answer)
+        # - One for user 3 (comment on comment)
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertIn([f"{self.users[0]['username']}@sms.ed.ac.uk"], list(map(lambda x: x.to, mail.outbox)))
+        self.assertIn([f"{self.users[3]['username']}@sms.ed.ac.uk"], list(map(lambda x: x.to, mail.outbox)))

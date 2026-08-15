@@ -1,9 +1,15 @@
 repos:
   - repo: local
     hooks:
-      - id: black
-        name: black
+      - id: ruff-format
+        name: ruff format
         language: system
-        entry: uv run --no-sync black
+        entry: uv run --no-sync ruff format
+        pass_filenames: true
+        files: "\\.py$"
+      - id: ruff-check
+        name: ruff check
+        language: system
+        entry: uv run --no-sync ruff check --fix
         pass_filenames: true
         files: "\\.py$"

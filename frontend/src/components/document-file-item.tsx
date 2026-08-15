@@ -9,14 +9,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import React, { useState } from "react";
-import {
-  useMoveDocumentFile,
-  Mutate,
-  useDeleteDocumentFile,
-  useUpdateDocumentFile,
-} from "../api/hooks";
-import { Document, DocumentFile } from "../interfaces";
+import React, { useCallback, useState } from "react";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
 import {
@@ -28,58 +21,64 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import {
+  useDeleteDocumentFile,
+  useMoveDocumentFile,
+  useUpdateDocumentFile,
+} from "../api/hooks/documents";
+import type { DocumentSchema } from "../api/model/documentSchema";
+import type { DocumentFileSchema } from "../api/model/documentFileSchema";
 
 interface Props {
   max_order: number;
-  document: Document;
-  file: DocumentFile;
-  mutate: Mutate<Document>;
-  reload: () => Promise<void>;
+  document: DocumentSchema;
+  file: DocumentFileSchema;
+  refetch: () => void;
 }
 
 const DocumentFileItem: React.FC<Props> = ({
   max_order,
   file,
   document,
-  mutate,
-  reload,
+  refetch,
 }) => {
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
 
-  const [errorMoveUp, loadingMoveUp, moveUp] = useMoveDocumentFile(
-    document.author,
-    document.slug,
-    file.filename,
-    -1,
-    reload,
-  );
-  const [errorMoveDown, loadingMoveDown, moveDown] = useMoveDocumentFile(
-    document.author,
-    document.slug,
-    file.filename,
-    1,
-    reload,
-  );
-  const [_, deleteFile] = useDeleteDocumentFile(document.slug, file.oid, () => {
-    mutate(s => ({
-      ...s,
-      files: s.files.filter(f => f.oid !== file.oid),
-    }));
-  });
-  const [updateLoading, updateFile] = useUpdateDocumentFile(
-    document.slug,
-    file.oid,
-    file => {
-      setDisplayName(undefined);
-      setFile(undefined);
-      mutate(s => ({
-        ...s,
-        files: s.files.map(f => (f.oid !== file.oid ? f : file)),
-      }));
-      closeEditModal();
+  const moveFile = useMoveDocumentFile({
+    mutation: {
+      onSuccess() {
+        refetch();
+      },
     },
+  });
+  const handleMove = useCallback(
+    (direction: "up" | "down") => {
+      moveFile.mutate({
+        filename: file.filename,
+        slug: document.slug,
+        data: {
+          direction,
+        },
+      });
+    },
+    [file.filename, document.slug, document.author, moveFile],
   );
+
+  const deleteDocumentFile = useDeleteDocumentFile({
+    mutation: {
+      onSuccess() {
+        refetch();
+      },
+    },
+  });
+  const handleDeleteFile = useCallback(() => {
+    deleteDocumentFile.mutate({
+      slug: document.slug,
+      id: file.oid,
+    });
+  }, [document.author, document.slug, file.oid, deleteDocumentFile]);
+
   const [editIsOpen, { toggle: toggleEditIsOpen, close: closeEditModal }] =
     useDisclosure();
   const [keyIsOpen, { toggle: toggleKeyIsOpen, close: closeKeyModal }] =
@@ -88,6 +87,33 @@ const DocumentFileItem: React.FC<Props> = ({
     deleteModalIsOpen,
     { toggle: toggleDeleteModalIsOpen, close: closeDeleteModal },
   ] = useDisclosure();
+
+  const updateDocumentFile = useUpdateDocumentFile({
+    mutation: {
+      onSuccess() {
+        setDisplayName(undefined);
+        setFile(undefined);
+
+        refetch();
+
+        closeEditModal();
+      },
+    },
+  });
+  const handleUpdateFile = useCallback(
+    (displayName: string | undefined, newFile: File | undefined) => {
+      updateDocumentFile.mutate({
+        slug: document.slug,
+        id: file.oid,
+        data: {
+          display_name: displayName,
+          file: newFile,
+        },
+      });
+    },
+    [document.author, document.slug, file.oid, updateDocumentFile],
+  );
+
   return (
     <>
       <Modal
@@ -102,21 +128,12 @@ const DocumentFileItem: React.FC<Props> = ({
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
           <label>Replace File</label>
-          <FileInput
-            value={replaceFile}
-            onChange={setFile}
-            accept=".pdf,.tex,.md,.typ,.txt,.zip,.apkg,.colpkg,.docx,.pptx,.epub,.csv,.xlsx,.xls,.ods" // apkg=anki
-          />
+          <FileInput value={replaceFile} onChange={setFile} />
           <Button
             disabled={displayName?.trim() === ""}
-            onClick={() =>
-              updateFile({
-                display_name: displayName?.trim(),
-                file: replaceFile,
-              })
-            }
+            onClick={() => handleUpdateFile(displayName?.trim(), replaceFile)}
             leftSection={<IconDeviceFloppy />}
-            loading={updateLoading}
+            loading={updateDocumentFile.isPending}
           >
             Save
           </Button>
@@ -159,7 +176,7 @@ const DocumentFileItem: React.FC<Props> = ({
           </p>
           <pre>
             <code>
-              {`curl ${window.location.origin}/api/document/${document.slug}/files/${file.oid}/update/ \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
+              {`curl ${location.origin}/api/document/${document.slug}/files/${file.oid}/update/ \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
             </code>
           </pre>
         </Modal.Body>
@@ -175,7 +192,7 @@ const DocumentFileItem: React.FC<Props> = ({
           the file elsewhere.
           <Group justify="flex-end" mt="md">
             <Button onClick={closeDeleteModal}>Not really</Button>
-            <Button onClick={deleteFile} color="red">
+            <Button onClick={handleDeleteFile} color="red">
               Delete "{file.filename}"
             </Button>
           </Group>
@@ -195,7 +212,7 @@ const DocumentFileItem: React.FC<Props> = ({
               <Grid.Col span={{ xs: "auto" }}>
                 <IconButton
                   icon={<IconChevronUp />}
-                  onClick={moveUp}
+                  onClick={() => handleMove("up")}
                   tooltip="Move the file up in the list"
                 />
               </Grid.Col>
@@ -204,7 +221,7 @@ const DocumentFileItem: React.FC<Props> = ({
               <Grid.Col span={{ xs: "auto" }}>
                 <IconButton
                   icon={<IconChevronDown />}
-                  onClick={moveDown}
+                  onClick={() => handleMove("down")}
                   tooltip="Move the file down in the list"
                 />
               </Grid.Col>

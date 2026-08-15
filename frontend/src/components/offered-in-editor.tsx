@@ -5,8 +5,8 @@ import { IconX } from "@tabler/icons-react";
 import Creatable from "./creatable";
 
 interface OfferedInEditorProps {
-  offeredIn: Array<readonly [string, string]>;
-  setOfferedIn: (newOfferedIn: Array<readonly [string, string]>) => void;
+  offeredIn: (readonly [string, string])[];
+  setOfferedIn: (newOfferedIn: (readonly [string, string])[]) => void;
 }
 const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
   offeredIn,
@@ -24,9 +24,9 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
   const meta2Options: string[] = useMemo(
     () =>
       data && newMeta1.length > 0
-        ? data
+        ? (data
             .find(m => m.displayname === newMeta1)
-            ?.meta2.map(m => m.displayname) ?? []
+            ?.meta2.map(m => m.displayname) ?? [])
         : [],
     [data, newMeta1],
   );

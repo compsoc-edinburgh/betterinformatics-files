@@ -23,32 +23,44 @@ import {
   Flex,
 } from "@mantine/core";
 import { IconChevronRight, IconDownload, IconEdit } from "@tabler/icons-react";
-import { useRequest } from "ahooks";
-import { loadDissertation, loadDissertationPdf } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
 import IconButton from "../components/icon-button";
 import DissertationUploadPage from "./dissertation-upload-page";
+import {
+  useDownloadDissertation,
+  useGetDissertationDetail,
+} from "../api/hooks/dissertations";
 
 const DissertationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const {
-    loading: dissertationLoading,
     data: dissertation,
+    isLoading: dissertationLoading,
+    refetch: reloadDissertation,
+    isError: dissertationIsError,
     error: dissertationError,
-    run: reloadDissertation,
-  } = useRequest(() => loadDissertation(Number(id)), {
-    refreshDeps: [id],
+  } = useGetDissertationDetail(Number(id), {
+    query: {
+      select({ value: document }) {
+        return document;
+      },
+    },
   });
 
   const {
-    loading: pdfLoading,
     data: pdfUrl,
+    isLoading: pdfLoading,
+    refetch: reloadPdf,
+    isError: pdfIsError,
     error: pdfError,
-    run: reloadPdf,
-  } = useRequest(() => loadDissertationPdf(Number(id)), {
-    refreshDeps: [id],
+  } = useDownloadDissertation(Number(id), {
+    query: {
+      select({ value: document }) {
+        return document;
+      },
+    },
   });
 
   useTitle(dissertation ? dissertation.title : `Dissertation #${id}`);
@@ -65,7 +77,7 @@ const DissertationDetailPage: React.FC = () => {
     );
   }
 
-  if (dissertationError || pdfError) {
+  if (dissertationIsError || pdfIsError) {
     return (
       <Container size="xl" mt="xl">
         <Notification title="Error" color="red">

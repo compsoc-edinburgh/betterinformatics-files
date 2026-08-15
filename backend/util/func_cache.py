@@ -26,4 +26,3 @@ def cache(validity):
                 del self.cache_time[key]
 
     return FuncCache
-

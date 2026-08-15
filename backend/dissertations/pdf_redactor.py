@@ -16,8 +16,9 @@
 
 import re
 import sys
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, List, Optional, Tuple, Type, IO
+from typing import IO, Any
 
 from pdfrw import PdfDict
 
@@ -26,8 +27,8 @@ class RedactorOptions:
     """Redaction and I/O options."""
 
     # Input/Output
-    input_stream: Optional[IO] = None
-    output_stream: Optional[IO] = None
+    input_stream: IO | None = None
+    output_stream: IO | None = None
 
     # Metadata filters map names of entries in the PDF Document Information Dictionary
     # (e.g. "Title", "Author", "Subject", "Keywords", "Creator", "Producer", "CreationDate",
@@ -74,7 +75,7 @@ class RedactorOptions:
     #
     # Since pdfrw doesn't support content stream compression, you should use a tool like qpdf
     # to decompress the streams before using this tool (see the README).
-    content_filters: List[Tuple[re.Pattern, Callable[[re.Match], str]]] = []
+    content_filters: list[tuple[re.Pattern, Callable[[re.Match], str]]] = []
 
     # When replacement text isn't likely to have a glyph stored in the PDF's fonts,
     # replace the character with these other characters (if they don't have the same
@@ -134,7 +135,7 @@ def update_metadata(trailer, options):
     # Title, Author, Subject, Keywords, Creator, Producer, CreationDate, and ModDate
     # (the latter two containing Date values, the rest strings).
 
-    from pdfrw.objects import PdfString, PdfName
+    from pdfrw.objects import PdfName, PdfString
 
     # Create the metadata dict if it doesn't exist, since the caller may be adding fields.
     if not trailer.Info:
@@ -179,7 +180,7 @@ def update_metadata(trailer, options):
                 if len(value) == 19:
                     # If TZ info was included, add an apostrophe between the hour/minutes offsets.
                     value = value[:17] + "'" + value[17:]
-                value = PdfString("(D:%s)" % value)
+                value = PdfString(f"(D:{value})")
 
             elif value is None:
                 # delete the metadata value
@@ -187,8 +188,7 @@ def update_metadata(trailer, options):
 
             else:
                 raise ValueError(
-                    "Invalid type of value returned by metadata_filter function. %s was returned by %s."
-                    % (repr(value), f.__name__ or "anonymous function")
+                    f"Invalid type of value returned by metadata_filter function. {repr(value)} was returned by {f.__name__ or 'anonymous function'}."
                 )
 
             # Replace value.
@@ -299,9 +299,9 @@ def tokenize_streams(streams):
     # pdfrw's tokenizer PdfTokens does lexical analysis only. But we need
     # to collapse arrays ([ .. ]) and dictionaries (<< ... >>) into single
     # token entries.
-    from pdfrw import PdfTokens, PdfArray
+    from pdfrw import PdfArray, PdfTokens
 
-    stack: List[Tuple[Type, Optional[List[Any]]]] = []
+    stack: list[tuple[type, list[Any] | None]] = []
     for stream in streams:
         tokens = PdfTokens(stream)
         for token in tokens:
@@ -383,9 +383,9 @@ def build_text_layer(document, options):
     #
     # To know the active font, we look for the "<font> <size> Tf" operator.
 
-    from pdfrw import PdfObject, PdfString, PdfArray
-    from pdfrw.uncompress import uncompress as uncompress_streams
+    from pdfrw import PdfArray, PdfObject, PdfString
     from pdfrw.objects.pdfname import BasePdfName
+    from pdfrw.uncompress import uncompress as uncompress_streams
 
     text_tokens = []
     fontcache = {}
@@ -522,7 +522,7 @@ def chunk_triples(s):
         yield (s.pop(0), s.pop(0), s.pop(0))
 
 
-class CMap(object):
+class CMap:
     def __init__(self, cmap):
         self.bytes_to_unicode = {}
         self.unicode_to_bytes = {}
@@ -538,7 +538,7 @@ class CMap(object):
         # print(cmap.stream, file=sys.stderr)
 
         # This is based on https://github.com/euske/pdfminer/blob/master/pdfminer/cmapdb.py.
-        from pdfrw import PdfString, PdfArray
+        from pdfrw import PdfArray, PdfString
 
         in_cmap = False
         operand_stack = []
@@ -561,7 +561,7 @@ class CMap(object):
             elif width == 2:
                 code = bytes([code // 256, code & 255])
             else:
-                raise ValueError("Invalid code space range %s?" % repr(codespacerange))
+                raise ValueError(f"Invalid code space range {repr(codespacerange)}?")
 
             # Some range operands take an array.
             if isinstance(char, PdfArray):
@@ -735,7 +735,7 @@ def fromUnicode(string, font, fontcache, options):
 
     # Don't know how to handle this sort of font.
     else:
-        raise ValueError("Don't know how to encode data to font %s." % font)
+        raise ValueError(f"Don't know how to encode data to font {font}.")
 
 
 def update_text_layer(options: RedactorOptions, text_tokens, page_tokens):

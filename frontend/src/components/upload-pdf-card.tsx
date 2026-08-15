@@ -1,21 +1,27 @@
 import {
   Alert,
   Button,
+  Card,
   FileInput,
   Select,
   Stack,
   Text,
   TextInput,
+  Title,
 } from "@mantine/core";
+import { IconCloudUpload } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../api/hooks";
 import { useUser } from "../auth";
-import { IconCloudUpload } from "@tabler/icons-react";
 
-const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
-  preChosenCategory,
+interface UploadPdfFormProps {
+  preChosenCategory?: string;
+}
+
+export const UploadPdfForm: React.FC<UploadPdfFormProps> = ({
+  preChosenCategory: givenCategory,
 }) => {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
@@ -25,7 +31,9 @@ const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
     error: categoriesError,
     loading: categoriesLoading,
     data: categories,
-  } = useRequest(loadCategories);
+  } = useRequest(loadCategories, {
+    manual: !!givenCategory,
+  });
   const {
     error: uploadError,
     loading: uploadLoading,
@@ -35,7 +43,7 @@ const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
     onSuccess: filename => {
       if (isCategoryAdmin) {
         // Admins will be able to view the uploaded file but not regular users,
-        navigate(`/exams/${filename}`);
+        void navigate(`/exams/${filename}`);
       } else {
         // Reset file input and show success message
         setFile(undefined);
@@ -62,65 +70,72 @@ const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
   );
   const [file, setFile] = useState<File | null>();
   const [displayname, setDisplayname] = useState("");
-  const [category, setCategory] = useState<string | undefined>(
-    preChosenCategory,
-  );
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [category, setCategory] = useState<string | undefined>();
+  const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (file && category) {
-      upload(file, displayname, category);
+
+    const actualCategory = givenCategory ?? category;
+    if (file && actualCategory) {
+      void upload(file, displayname, actualCategory);
     } else if (file === undefined) {
       setValidationError("No file selected");
     } else {
       setValidationError("No category selected");
     }
   };
+
   return (
-    <>
-      <div>
-        <form onSubmit={onSubmit}>
-          <Stack>
-            {error && <Alert color="red">{error.toString()}</Alert>}
-            {message && <Alert color="blue">{message}</Alert>}
-            <FileInput
-              label="File"
-              placeholder="Click to choose file..."
-              leftSection={<IconCloudUpload />}
-              value={file}
-              onChange={setFile}
-              accept="application/pdf"
-            />
-            <TextInput
-              label="Name"
-              placeholder="December 2030"
-              value={displayname}
-              onChange={e => setDisplayname(e.currentTarget.value)}
-              required
-            />
-            {!preChosenCategory && (
-              <Select
-                label="Category"
-                placeholder="Choose category..."
-                searchable
-                nothingFoundMessage="No category found"
-                data={options}
-                onChange={(value: string | null) => value && setCategory(value)}
-                required
-              />
-            )}
-            {!isCategoryAdmin && (
-              <Text>
-                Exam uploads need to be reviewed unlike community documents, so
-                your contribution won't appear immediately.
-              </Text>
-            )}
-            <Button type="submit" loading={loading}>
-              Submit
-            </Button>
-          </Stack>
-        </form>
-      </div>
-    </>
+    <form onSubmit={onSubmit}>
+      <Stack>
+        {error && <Alert color="red">{error.toString()}</Alert>}
+        {message && <Alert color="blue">{message}</Alert>}
+        <FileInput
+          label="File"
+          placeholder="Click to choose file..."
+          leftSection={<IconCloudUpload />}
+          value={file}
+          onChange={setFile}
+          accept="application/pdf"
+        />
+        <TextInput
+          label="Name"
+          placeholder="December 2030"
+          value={displayname}
+          onChange={e => setDisplayname(e.currentTarget.value)}
+          required
+        />
+        {!givenCategory && (
+          <Select
+            label="Category"
+            placeholder="Choose category..."
+            searchable
+            nothingFoundMessage="No category found"
+            data={options}
+            onChange={(value: string | null) => value && setCategory(value)}
+            required
+          />
+        )}
+        {!isCategoryAdmin && (
+          <Text>
+            Exam uploads need to be reviewed unlike community documents, so
+            your contribution won't appear immediately.
+          </Text>
+        )}
+        <Button type="submit" loading={loading}>
+          Submit
+        </Button>
+      </Stack>
+    </form>
   );
 };
+
+const UploadPdfCard: React.FC = () => (
+  <Card withBorder shadow="md">
+    <Card.Section withBorder p="md">
+      <Title order={4}>Upload PDF</Title>
+    </Card.Section>
+    <UploadPdfForm />
+  </Card>
+);
+
 export default UploadPdfCard;

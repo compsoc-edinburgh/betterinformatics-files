@@ -1,35 +1,56 @@
-import { useLocalStorageState, useRequest } from "ahooks";
+import React, { useEffect, useMemo, useState } from "react";
+
 import {
-  Anchor,
   Alert,
+  Anchor,
   Center,
   Container,
   Group,
+  MantineColorsTuple,
   Table,
-  UnstyledButton,
-  SegmentedControl,
   Text,
   Title,
+  UnstyledButton,
   rem,
+  useComputedColorScheme,
+  useMantineTheme,
 } from "@mantine/core";
-import { LineChart } from "@mantine/charts";
-import React from "react";
-import { Link } from "react-router-dom";
-import LoadingOverlay from "../components/loading-overlay";
-import { fetchGet } from "../api/fetch-utils";
-import { UserInfo, Stats } from "../interfaces";
-import useTitle from "../hooks/useTitle";
 import { IconArrowsUpDown, IconChevronDown } from "@tabler/icons-react";
+import { useLocalStorageState, useRequest } from "ahooks";
+import type { EChartsOption } from "echarts";
+import { LineChart } from "echarts/charts";
+import {
+  DataZoomComponent,
+  GridComponent,
+  TitleComponent,
+  TooltipComponent,
+} from "echarts/components";
+import * as echarts from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import EChartsCore, { EChartsReactRef } from "react-echarts-library/core";
+import { Link } from "react-router-dom";
+
+import { fetchGet } from "../api/fetch-utils";
+import LoadingOverlay from "../components/loading-overlay";
+import useTitle from "../hooks/useTitle";
+import { Stats, UserInfo } from "../interfaces";
 import classes from "./scoreboard.module.css";
 
-const modes = [
-  "score",
-  "score_answers",
-  "score_comments",
-  "score_cuts",
-  "score_documents",
-] as const;
-type Mode = (typeof modes)[number];
+echarts.use([
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+  DataZoomComponent,
+  CanvasRenderer,
+]);
+
+type Mode =
+  | "score"
+  | "score_answers"
+  | "score_comments"
+  | "score_cuts"
+  | "score_documents";
 const loadScoreboard = async (scoretype: Mode) => {
   return (await fetchGet(`/api/scoreboard/top/${scoretype}/`))
     .value as UserInfo[];
@@ -67,6 +88,79 @@ function Th({ children, sorted, onSort }: ThProps) {
   );
 }
 
+const statOptions = (
+  xData: string[],
+  yData: Record<string, number[]>,
+  colors: MantineColorsTuple,
+) => {
+  return {
+    backgroundColor: "transparent",
+    grid: {
+      top: "0%",
+      left: "0%",
+      right: "0%",
+      containLabel: true,
+    },
+    dataZoom: [
+      {
+        // Show last 6 months by default
+        startValue: xData.length - 183,
+        endValue: xData.length - 1,
+        dataBackground: {
+          lineStyle: {
+            color: colors[3],
+          },
+          areaStyle: {
+            color: colors[2],
+          },
+        },
+      },
+    ],
+    xAxis: {
+      type: "category" as const,
+      data: xData,
+      boundaryGap: false,
+    },
+    yAxis: {
+      type: "value" as const,
+    },
+    tooltip: {
+      transitionDuration: 0,
+      trigger: "axis" as const,
+    },
+    series: Object.keys(yData).map(name => ({
+      name,
+      emphasis: {
+        lineStyle: {
+          width: 5,
+          color: colors[6],
+        },
+      },
+      data: yData[name],
+      type: "line" as const,
+      lineStyle: {
+        color: colors[6],
+      },
+      itemStyle: {
+        color: colors[6],
+      },
+      symbol: "none",
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          {
+            offset: 0,
+            color: colors[3],
+          },
+          {
+            offset: 1,
+            color: colors[6],
+          },
+        ]),
+      },
+    })),
+  } as EChartsOption;
+};
+
 const Scoreboard: React.FC = () => {
   useTitle("Stats and Scores");
   const [mode, setMode] = useLocalStorageState<Mode>(
@@ -78,84 +172,126 @@ const Scoreboard: React.FC = () => {
     cacheKey: `scoreboard-${mode}`,
   });
 
-  const [statsGranularity, setStatsGranularity] = useLocalStorageState<string>(
-    "stats-granularity",
-    "weekly",
-  );
-
   const {
     data: stats,
     error: statsError,
     loading: statsLoading,
   } = useRequest(loadStats);
+
+  const theme = useMantineTheme();
+
+  const [userStatRef, setUserStatRef] = useState<EChartsReactRef | null>(null);
+  const userStatsOptions: EChartsOption = useMemo(
+    () =>
+      statOptions(
+        stats?.user_stats.map(s => s.date) ?? [],
+        {
+          "Cumulative User Count": stats?.user_stats.map(s => s.count) ?? [],
+          "Active Student User Count":
+            stats?.user_stats.map(s => s.active_count) ?? [],
+        },
+        theme.colors[theme.primaryColor],
+      ),
+    [stats, theme],
+  );
+
+  const [examStatRef, setExamStatRef] = useState<EChartsReactRef | null>(null);
+  const examStatsOptions: EChartsOption = useMemo(
+    () =>
+      statOptions(
+        stats?.exam_stats.map(s => s.date) ?? [],
+        {
+          "Total Answer Count":
+            stats?.exam_stats.map(s => s.answers_count) ?? [],
+          "Unique Questions Answered":
+            stats?.exam_stats.map(s => s.answered_count) ?? [],
+        },
+        theme.colors[theme.primaryColor],
+      ),
+    [stats, theme],
+  );
+
+  const [documentStatRef, setDocumentStatRef] =
+    useState<EChartsReactRef | null>(null);
+  const documentStatsOptions: EChartsOption = useMemo(
+    () =>
+      statOptions(
+        stats?.document_stats.map(s => s.date) ?? [],
+        {
+          "Document Count": stats?.document_stats.map(s => s.count) ?? [],
+        },
+        theme.colors[theme.primaryColor],
+      ),
+    [stats, theme],
+  );
+
+  // When switching light/dark, toggle the same in the chart
+  const scheme = useComputedColorScheme();
+  useEffect(() => {
+    const charts = [
+      userStatRef?.getEchartsInstance(),
+      examStatRef?.getEchartsInstance(),
+      documentStatRef?.getEchartsInstance(),
+    ];
+    charts.forEach(chart => {
+      if (!chart) return;
+
+      if (scheme === "dark") {
+        chart.setTheme("dark");
+      } else {
+        chart.setTheme("default");
+      }
+    });
+  }, [scheme, userStatRef, examStatRef, documentStatRef]);
+
   return (
     <Container size="xl">
       <Title order={1} my="lg">
         Stats
       </Title>
-      <SegmentedControl
-        value={statsGranularity}
-        onChange={setStatsGranularity}
-        data={[
-          // Should equal the values in the backend as it is used as a key
-          { label: "Weekly", value: "weekly" },
-          { label: "Monthly", value: "monthly" },
-          { label: "Semesterly", value: "semesterly" },
-        ]}
-      />
       {statsError && <Alert color="red">{String(statsError)}</Alert>}
 
       <Title order={2} my="lg">
-        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)}{" "}
         User Stats
       </Title>
       <Container size="md">
-        <LineChart
-          h={300}
-          data={stats?.user_stats[statsGranularity] || []}
-          dataKey="date"
-          series={[{ name: "count", label: "User Count", color: "indigo.6" }]}
-          curveType="monotone"
+        <EChartsCore
+          echarts={echarts}
+          option={userStatsOptions}
+          style={{ height: 300 }}
+          ref={setUserStatRef}
+          // notMerge is required for dynamic setTheme calls
+          notMerge={true}
         />
+        <Text mt="sm" c="dimmed">
+          Note: An Active Student User is defined as a user who has logged in in
+          the last 250 days from the date of interest.
+        </Text>
       </Container>
       <Title order={2} my="lg">
-        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)}{" "}
-        Answered Questions Stats
+        Exam Stats
       </Title>
       <Container size="md">
-        <LineChart
-          h={300}
-          data={stats?.exam_stats[statsGranularity] || []}
-          dataKey="date"
-          series={[
-            {
-              name: "answers_count",
-              label: "Total Answer Count",
-              color: "cyan.6",
-            },
-            {
-              name: "answered_count",
-              label: "Unique Questions Answered",
-              color: "blue.6",
-            },
-          ]}
-          curveType="monotone"
+        <EChartsCore
+          echarts={echarts}
+          option={examStatsOptions}
+          style={{ height: 300 }}
+          ref={setExamStatRef}
+          // notMerge is required for dynamic setTheme calls
+          notMerge={true}
         />
       </Container>
       <Title order={2} my="lg">
-        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)}{" "}
         Document Stats
       </Title>
       <Container size="md">
-        <LineChart
-          h={300}
-          data={stats?.document_stats[statsGranularity] || []}
-          dataKey="date"
-          series={[
-            { name: "count", label: "Document Count", color: "green.6" },
-          ]}
-          tickLine="x"
-          curveType="monotone"
+        <EChartsCore
+          echarts={echarts}
+          option={documentStatsOptions}
+          style={{ height: 300 }}
+          ref={setDocumentStatRef}
+          // notMerge is required for dynamic setTheme calls
+          notMerge={true}
         />
       </Container>
 

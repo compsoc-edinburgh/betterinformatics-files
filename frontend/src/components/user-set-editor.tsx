@@ -1,17 +1,19 @@
-import { Button, Grid, Group, TextInput } from "@mantine/core";
+import { Button, Grid, Group } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import React, { useState } from "react";
+import UserSelect from "./user-select.js";
+import { UserSchema } from "../api/model/userSchema.js";
 
 interface UserSetEditorProps {
-  users: string[];
+  users: readonly string[];
   setUsers: (newUsers: string[]) => void;
 }
 const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
-  const [username, setUsername] = useState("");
+  const [user, setUser] = useState<UserSchema | null>(null);
   const onAdd = () => {
-    if (users.includes(username)) return;
-    setUsername("");
-    setUsers([...users, username]);
+    setUser(null);
+    if (!user || users.includes(user.username)) return;
+    setUsers([...users, user.username]);
   };
   const remove = (username: string) => {
     setUsers(users.filter(un => un !== username));
@@ -38,10 +40,11 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
       >
         <Grid align="flex-end" my="xs">
           <Grid.Col span="auto">
-            <TextInput
+            <UserSelect
               label="Name"
-              value={username}
-              onChange={e => setUsername(e.currentTarget.value)}
+              value={user}
+              onChange={user => setUser(user)}
+              filter={user => !users.includes(user.username)}
             />
           </Grid.Col>
           <Grid.Col span={{ md: 2 }}>

@@ -2,7 +2,7 @@ import * as React from "react";
 import { useRef, useCallback, useEffect } from "react";
 import { EditorSizingMode, Range } from "./utils/types";
 import classes from "./BasicEditor.module.css";
-import clsx from "clsx";
+import { clsx } from "clsx";
 
 interface Props {
   value: string;

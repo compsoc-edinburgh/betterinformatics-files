@@ -88,13 +88,17 @@ const PdfPanelBase: React.FC<PdfPanelBaseProps> = ({
     changeWidth(val);
   };
   const scrollToTop = useCallback(() => {
-    const c = document.documentElement.scrollTop || document.body.scrollTop;
-    if (c > 0) {
-      requestAnimationFrame(scrollToTop);
-      scrollTo(0, c - c / 10 - 1);
-    } else {
-      toggle();
-    }
+    const step = () => {
+      const scrollTop =
+        document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop <= 0) {
+        toggle();
+        return;
+      }
+      scrollTo(0, scrollTop - scrollTop / 10 - 1);
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }, [toggle]);
 
   const inViewPage = useMemo(() => {

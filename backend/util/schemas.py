@@ -1,8 +1,9 @@
+from typing import TypeVar
+
 from ninja import Schema
-from typing import TypeVar, Generic
 
 T = TypeVar("T")
 
 
-class ValueWrapped(Schema, Generic[T]):
+class ValueWrapped[T](Schema):
     value: T

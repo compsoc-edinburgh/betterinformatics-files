@@ -69,7 +69,6 @@ import {
   IconDownload,
   IconEdit,
   IconLink,
-  IconX,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
@@ -111,7 +110,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   renderer,
   reloadCuts,
   mutateCuts,
-  mutateMetaData,
+  mutateMetaData: _unused,
   goToEditPage,
 }) => {
   const computedColorScheme = useComputedColorScheme();

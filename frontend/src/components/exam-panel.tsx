@@ -1,7 +1,6 @@
 import {
   Button,
   Checkbox,
-  Grid,
   Stack,
   Text,
   Title,

@@ -1,28 +1,27 @@
-from django.shortcuts import render
-from ediauth import auth_check
-from util import response
 from categories.models import Category
+from ediauth import auth_check
 from favourites.models import FavouriteCategory
+from util import response
 
 
 @auth_check.require_login
 def get_favourites(request):
     favourites = FavouriteCategory.objects.filter(user=request.user)
 
-    return response.success(
-        value=[f.category.slug for f in favourites]
-    )
+    return response.success(value=[f.category.slug for f in favourites])
 
 
 @response.request_post()
 @auth_check.require_login
 def add_favorite(request, slug):
     favourites = FavouriteCategory.objects.filter(
-        user=request.user, category__slug=slug)
+        user=request.user, category__slug=slug
+    )
     if favourites.exists():
         return response.error("Category already in favourites")
     new_favourite = FavouriteCategory(
-        user=request.user, category=Category.objects.get(slug=slug))
+        user=request.user, category=Category.objects.get(slug=slug)
+    )
 
     new_favourite.save()
     return response.success()
@@ -31,8 +30,7 @@ def add_favorite(request, slug):
 @response.request_post()
 @auth_check.require_login
 def remove_favorite(request, slug):
-    favourite = FavouriteCategory.objects.get(
-        user=request.user, category__slug=slug)
+    favourite = FavouriteCategory.objects.get(user=request.user, category__slug=slug)
 
     favourite.delete()
     return response.success()

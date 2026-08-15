@@ -1,6 +1,5 @@
 import os
 import random
-from typing import Optional
 
 import boto3
 from botocore.client import Config
@@ -66,7 +65,7 @@ def save_uploaded_file_to_s3(
     directory: str,
     filename: str,
     uploaded_file: UploadedFile,
-    content_type: Optional[str] = None,
+    content_type: str | None = None,
 ):
     temp_file_path = os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename)
     save_uploaded_file_to_disk(temp_file_path, uploaded_file)
@@ -136,8 +135,8 @@ def presigned_get_object(
     directory: str,
     filename: str,
     inline: bool = True,
-    content_type: Optional[str] = None,
-    display_name: Optional[str] = None,
+    content_type: str | None = None,
+    display_name: str | None = None,
 ):
     if display_name is None:
         display_name = filename
@@ -163,7 +162,7 @@ def send_file(
     directory: str,
     filename: str,
     as_attachment: bool = False,
-    attachment_filename: Optional[str] = None,
+    attachment_filename: str | None = None,
 ):
     try:
         attachment_filename = attachment_filename or filename

@@ -1,10 +1,6 @@
-import {
-  Divider,
-  Modal,
-  Paper,
-} from "@mantine/core";
+import { Divider, Loader, Modal, Paper } from "@mantine/core";
 import * as React from "react";
-import { useCallback, useRef, useState } from "react";
+import { lazy, useCallback, useRef, useState, Suspense } from "react";
 import ImageOverlay from "../image-overlay";
 import BasicEditor from "./BasicEditor";
 import DropZone from "./Dropzone";
@@ -13,8 +9,9 @@ import EditorHeader from "./EditorHeader";
 import { ImageHandle, Range } from "./utils/types";
 import { push, redo, undo, UndoStack } from "./utils/undo-stack";
 import classes from "./Editor.module.css";
-import clsx from "clsx";
-import OfficialAnswerOverlay from "../official-answer-overlay.js";
+import { clsx } from "clsx";
+
+const OfficialAnswerOverlay = lazy(() => import("../official-answer-overlay"));
 
 interface Props {
   value: string;
@@ -40,9 +37,14 @@ const Editor: React.FC<Props> = ({
   const [imageOverlayOpen, setImageOverlayOpen] = useState(false);
   const [officialAnswerOverlayOpen, setOfficialAnswerOverlayOpen] =
     useState(false);
+  // OfficialAnswerOverlay is loaded async
+  // We want to load it when we need it (i.e. only add it to the DOM when needed)
+  // but then not remove it from the DOM, to let mantine complete its animations
+  const [shouldLoadOfficialAnswerOverlay, setShouldLoadOfficialAnswerOverlay] =
+    useState(false);
   const textareaElRef = useRef<HTMLTextAreaElement>(
     null,
-  ) as React.MutableRefObject<HTMLTextAreaElement>;
+  ) as React.RefObject<HTMLTextAreaElement>;
   const setCurrent = useCallback(
     (newValue: string, newSelection?: Range) => {
       if (newSelection) setSelectionRangeRef.current(newSelection);
@@ -56,7 +58,7 @@ const Editor: React.FC<Props> = ({
   );
 
   const setSelectionRangeRef = useRef<(newSelection: Range) => void>(
-    (a: Range) => undefined,
+    () => undefined,
   );
   const getSelectionRangeRef = useRef<() => Range | undefined>(() => ({
     start: 0,
@@ -94,29 +96,6 @@ const Editor: React.FC<Props> = ({
         end: selection.end + markdown.length,
       };
       setCurrent(before + markdown + after, newSelection);
-    },
-    [setCurrent, value],
-  );
-
-  const insertImages = useCallback(
-    (handles: ImageHandle[]) => {
-      const selection = getSelectionRangeRef.current();
-      if (selection === undefined) return;
-      const before = value.substring(0, selection.start);
-      const content = value.substring(selection.start, selection.end);
-      const after = value.substring(selection.end);
-      let newContent = ``;
-      for (let i = 0; i < handles.length; i++) {
-        newContent +=
-          i === 0
-            ? `![${content}](${handles[i].src})`
-            : `![](${handles[i].src})`;
-      }
-      const newSelection = {
-        start: selection.start + 2,
-        end: selection.start + content.length + 2,
-      };
-      setCurrent(before + newContent + after, newSelection);
     },
     [setCurrent, value],
   );
@@ -236,21 +215,13 @@ const Editor: React.FC<Props> = ({
       const handle = await imageHandler(file);
       insertImage(handle);
     },
-    [imageHandler, insertImage],
-  );
-
-  const getHandle = useCallback(
-    async (file: File) => {
-      const handle = await imageHandler(file);
-      return handle;
-    },
-    [imageHandler],
+    [insertImage, imageHandler],
   );
 
   const onFiles = useCallback(
-    (files: File[]) => {
+    async (files: File[]) => {
       for (const file of files) {
-        onFile(file);
+        await onFile(file);
       }
     },
     [onFile],
@@ -282,6 +253,7 @@ const Editor: React.FC<Props> = ({
     setImageOverlayOpen(true);
   }, []);
   const onOpenOfficialAnswerOverlay = useCallback(() => {
+    setShouldLoadOfficialAnswerOverlay(true);
     setOfficialAnswerOverlayOpen(true);
   }, []);
 
@@ -322,15 +294,7 @@ const Editor: React.FC<Props> = ({
       resize={isFullscreen ? "fill" : "vertical"}
       onPaste={e => {
         const fileList = e.clipboardData.files;
-        const filesArray: File[] = [];
-        if (fileList.length === 0) return;
-        for (let i = 0; i < fileList.length; i++) {
-          const file = fileList.item(i);
-          if (file) {
-            filesArray.push(file);
-          }
-        }
-        Promise.all(filesArray.map(getHandle)).then(insertImages);
+        void onFiles([...fileList]);
       }}
     />
   );
@@ -347,11 +311,15 @@ const Editor: React.FC<Props> = ({
         onClose={() => onImageDialogClose("")}
         closeWithImage={onImageDialogClose}
       />
-      <OfficialAnswerOverlay
-        isOpen={officialAnswerOverlayOpen}
-        onClose={() => onOfficialAnswerDialogClose(undefined)}
-        closeWithOfficialAnswer={onOfficialAnswerDialogClose}
-      />
+      <Suspense fallback={<Loader />}>
+        {shouldLoadOfficialAnswerOverlay && (
+          <OfficialAnswerOverlay
+            isOpen={officialAnswerOverlayOpen}
+            onClose={() => onOfficialAnswerDialogClose(undefined)}
+            closeWithOfficialAnswer={onOfficialAnswerDialogClose}
+          />
+        )}
+      </Suspense>
     </>
   );
 

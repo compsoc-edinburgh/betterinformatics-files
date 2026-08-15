@@ -11,17 +11,25 @@ import UserDisplayNameSettings from "../components/user-displayname-settings";
 import UserDocuments from "../components/user-documents";
 import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
+import NotFoundPage from "./not-found-page";
 
 const UserPage: React.FC = () => {
   const user = useUser()!;
   const { username = user.username } = useParams() as { username?: string };
   useTitle(username);
   const isMyself = user.username === username;
-  const [userInfoError, userInfoLoading, userInfo, reloadUserInfo] =
+  const [error, loading, userInfo, reloadUserInfo] =
     useUserInfo(username);
-  const error = userInfoError;
-  const loading = userInfoLoading;
   const [activeTab, setActiveTab] = useState<string | null>("overview");
+
+  // Assume any error is because of 404
+  // Other error from not being logged in shouldn't happen
+  // as we can't get here (this component) without being logged in
+  const isNotFound = !loading && !!error;
+
+  if (isNotFound) {
+    return <NotFoundPage />;
+  }
 
   return (
     <>
@@ -45,7 +53,7 @@ const UserPage: React.FC = () => {
             {!isMyself && !user.isAdmin && (
               <Alert color="gray">There's nothing here</Alert>
             )}
-            {isMyself && <UserNotifications username={username} />}
+            {isMyself && <UserNotifications />}
           </Tabs.Panel>
           <Tabs.Panel value="answers" pt="sm">
             <UserAnswers username={username} />
@@ -59,13 +67,13 @@ const UserPage: React.FC = () => {
           <Tabs.Panel value="settings" pt="sm">
             {isMyself && (
               <>
-                <UserNotificationsSettings username={username} />
+                <UserNotificationsSettings />
                 <Space h="md" />
                 {userInfo && (
                   <UserDisplayNameSettings
                     key={userInfo.username}
                     userInfo={userInfo}
-                    reloadUserInfo={reloadUserInfo}
+                    reloadUserInfo={() => void reloadUserInfo()}
                   />
                 )}
               </>

@@ -1,23 +1,24 @@
+import os
+import random
+from datetime import timedelta
 from itertools import cycle
 
-from django.core.management.base import BaseCommand
-from django.core.management import call_command
 from django.conf import settings
-from util import s3_util
-from django.utils import timezone
-from datetime import timedelta
 from django.contrib.auth.models import User
-from ediauth.models import Profile
+from django.core.management import call_command
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+
+from answers import pdf_utils
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
-from documents.models import DocumentType, Document, DocumentFile
-from categories.models import Category, MetaCategory, EuclidCode, CourseStats
+from categories.models import Category, CourseStats, EuclidCode, MetaCategory
+from documents.models import Document, DocumentFile, DocumentType
+from ediauth.models import Profile
 from feedback.models import Feedback
 from filestore.models import Attachment
 from images.models import Image
-from notifications.models import Notification, NotificationSetting, NotificationType
-import os
-import random
-from answers import pdf_utils
+from notifications.models import Notification, NotificationType
+from util import s3_util
 
 # Pool of words to choose category names from. Prefixes are chosen infrequently to
 # prefix a guaranteed combination of Adjective + Noun.
@@ -93,7 +94,7 @@ class Command(BaseCommand):
     def create_images(self):
         self.stdout.write("Create images")
         for user in User.objects.all():
-            for i in range(user.id % 10 + 5):
+            for _i in range(user.id % 10 + 5):
                 filename = s3_util.generate_filename(
                     16, settings.COMSOL_IMAGE_DIR, ".svg"
                 )
@@ -111,7 +112,7 @@ class Command(BaseCommand):
             meta.save()
             for i in range(5):
                 MetaCategory(
-                    displayname="Subcategory {} of {}".format(i + 1, meta.displayname),
+                    displayname=f"Subcategory {i + 1} of {meta.displayname}",
                     parent=meta,
                 ).save()
 
@@ -283,7 +284,7 @@ class Command(BaseCommand):
                     answer=answer,
                     author=author,
                     text=[
-                        "This is a comment ({}).".format(i + 1),
+                        f"This is a comment ({i + 1}).",
                         (
                             f"This is a test image: ![Testimage]({owned_image.filename})"
                             if owned_image
@@ -307,17 +308,17 @@ class Command(BaseCommand):
                 comment.flagged.add(reporter)
 
     def create_marked_as_ai_testcases(self):
-        self.stdout.write("Create marked as AI test cases (2, 5, 6 marks)")
+        self.stdout.write("Create marked as AI test cases (5, 6 marks)")
         all_users = list(User.objects.all())
         answers = list(Answer.objects.all())
         comments = list(Comment.objects.all())
 
-        for answer, count in zip(answers[::19], cycle([2, 5, 6])):
+        for answer, count in zip(answers[::19], cycle([5, 6])):
             non_authors = [u for u in all_users if u != answer.author]
             for user in non_authors[:count]:
                 answer.marked_as_ai.add(user)
 
-        for comment, count in zip(comments[::19], cycle([2, 5, 6])):
+        for comment, count in zip(comments[::19], cycle([5, 6])):
             non_authors = [u for u in all_users if u != comment.author]
             for user in non_authors[:count]:
                 comment.marked_as_ai.add(user)
@@ -398,17 +399,22 @@ class Command(BaseCommand):
     def create_documents(self):
         self.stdout.write("Create documents")
         users = User.objects.all()
+        document_counter = 0
+
         for i, category in enumerate(Category.objects.all()):
             for document_type in DocumentType.objects.all():
                 document = Document(
-                    display_name=document_type.display_name
-                    + " in "
-                    + str(category.displayname),
+                    display_name=f"{document_type.display_name} in {category.displayname}",
                     description="This is a test document.",
                     category=category,
                     author=users[i % len(users)],
                     anonymised=i % 3 == 0,
                     document_type=document_type,
+                    pending_transfer_user=(
+                        users[document_counter % len(users)]
+                        if document_counter % 11 == 0
+                        else None
+                    ),
                 )
                 document.save()
 
@@ -434,6 +440,7 @@ class Command(BaseCommand):
                 for user in users:
                     if (i + user.id) % 4 == 0:
                         document.likes.add(user)
+                document_counter += 1
 
     def create_course_stats(self):
         self.stdout.write("Create course statistics")

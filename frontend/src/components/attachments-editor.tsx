@@ -78,9 +78,9 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
   return (
     <div>
       <Stack gap="xs" mb="xs">
-        {attachments.map(({ displayname, filename }, i) => (
+        {attachments.map(({ displayname, filename }) => (
           <AttachmentFileItem
-            key={i}
+            key={toKey(filename)}
             displayname={displayname}
             filename={filename}
             remove={() => {
@@ -120,9 +120,7 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />
-        <Button onClick={onAdd}>
-          Add
-        </Button>
+        <Button onClick={onAdd}>Add</Button>
       </Flex>
     </div>
   );

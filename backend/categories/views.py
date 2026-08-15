@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Count, Exists, OuterRef, Q
+from django.db.models import Exists, OuterRef
 from django.shortcuts import get_object_or_404
 
-from answers.models import Answer, ExamUserSolved
-from categories.models import Category, MetaCategory, EuclidCode, CourseStats
+from answers.models import ExamUserSolved
+from categories.models import Category, CourseStats, EuclidCode, MetaCategory
 from ediauth import auth_check
-from util import response, func_cache
+from util import response
 
 
 @response.request_get()
@@ -117,6 +117,18 @@ def remove_category(request):
 @auth_check.require_login
 def list_exams(request, slug):
     cat = get_object_or_404(Category, slug=slug)
+
+    solved_subquery = ExamUserSolved.objects.filter(
+        user=request.user,
+        exam=OuterRef("pk"),
+    )
+
+    exams = (
+        cat.exam_set.select_related("exam_type", "import_claim", "counts")
+        .annotate(user_solved=Exists(solved_subquery))
+        .all()
+    )
+
     res = sorted(
         [
             {
@@ -139,14 +151,9 @@ def list_exams(request, slug):
                 "canView": ex.current_user_can_view(request),
                 "count_cuts": ex.counts.count_cuts,
                 "count_answered": ex.counts.count_answered,
-                "user_solved": ExamUserSolved.objects.filter(
-                    user=request.user,
-                    exam=ex,
-                ).exists(),
+                "user_solved": ex.user_solved,
             }
-            for ex in cat.exam_set.select_related(
-                "exam_type", "import_claim", "counts"
-            ).all()
+            for ex in exams
         ],
         key=lambda x: x["sort-key"],
         reverse=True,
@@ -452,9 +459,7 @@ def add_euclid_code(request, slug):
     # Check if code is already assigned to another category, if so return the name of it
     if cat.euclid_codes.filter(code=code).exists():
         return response.not_possible(
-            "Code already assigned to category {}".format(
-                cat.euclid_codes.get(code=code).category.displayname
-            )
+            f"Code already assigned to category {cat.euclid_codes.get(code=code).category.displayname}"
         )
     cat.euclid_codes.create(code=code)
     return response.success()

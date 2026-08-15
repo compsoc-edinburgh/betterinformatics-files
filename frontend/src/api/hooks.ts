@@ -9,32 +9,19 @@ import {
   CourseStats,
   CutVersions,
   ExamMetaData,
-  FeedbackEntry,
   MetaCategory,
   NotificationEnabled,
   NotificationInfo,
   ServerCutResponse,
-  Document,
-  DocumentComment,
-  DocumentFile,
   SingleComment,
   UserInfo,
   SearchResponse,
   AnswerKind,
   BICourseList,
-  DissertationCreate,
-  Dissertation,
-  DissertationUpdate,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
-import {
-  fetchDelete,
-  fetchGet,
-  fetchPost,
-  fetchPut,
-  NamedBlob,
-} from "./fetch-utils";
+import { fetchDelete, fetchGet, fetchPost, fetchPut } from "./fetch-utils";
 
 // Interval to consider "close succession" to de-dupe requests
 const RAPID_SUCCESSIVE_REQUESTS_DEDUPE_INTERVAL = 500; // milliseconds
@@ -72,8 +59,9 @@ export const useSetUserDisplayUsername = (onSuccess: () => void) => {
 const loadBICourseList = async () => {
   // Use normal fetch() instead of fetchGet as the latter is for internal API
   // and sends some credential cookies
-  return fetch("https://betterinformatics.com/courses.json")
-    .then(r => r.json()) as Promise<BICourseList>;
+  return fetch("https://betterinformatics.com/courses.json").then(r =>
+    r.json(),
+  ) as Promise<BICourseList>;
 };
 
 export const useBICourseList = () => {
@@ -85,7 +73,8 @@ export const useBICourseList = () => {
 
 const loadEnabledNotifications = async (isMyself: boolean) => {
   if (isMyself) {
-    return (await fetchGet(`/api/notification/getenabled/`)).value as NotificationEnabled[];
+    return (await fetchGet(`/api/notification/getenabled/`))
+      .value as NotificationEnabled[];
   } else {
     return undefined;
   }
@@ -100,7 +89,11 @@ export const useEnabledNotifications = (isMyself: boolean) => {
   );
   return [error, loading, data, run] as const;
 };
-const setEnabledNotifications = async (type: number, enabled?: boolean, email_enabled?: boolean) => {
+const setEnabledNotifications = async (
+  type: number,
+  enabled?: boolean,
+  email_enabled?: boolean,
+) => {
   await fetchPost(`/api/notification/setenabled/`, {
     type,
     enabled,
@@ -267,15 +260,6 @@ export const loadCuts = async (filename: string) => {
   return (await fetchGet(`/api/exam/cuts/${filename}/`))
     .value as ServerCutResponse;
 };
-export const submitFeedback = async (text: string) => {
-  return await fetchPost("/api/feedback/submit/", { text });
-};
-export const loadFeedback = async () => {
-  const fb = (await fetchGet("/api/feedback/list/")).value as FeedbackEntry[];
-  const getScore = (a: FeedbackEntry) => (a.read ? 10 : 0) + (a.done ? 1 : 0);
-  fb.sort((a: FeedbackEntry, b: FeedbackEntry) => getScore(a) - getScore(b));
-  return fb;
-};
 const loadAnswers = async (oid: string) => {
   const section = (await fetchGet(`/api/exam/answersection/${oid}/`))
     .value as AnswerSection;
@@ -310,8 +294,13 @@ const updateAnswer = async (
   kind: AnswerKind,
   isAnonymous: boolean = false,
 ) => {
-  return (await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, kind, is_anonymous: isAnonymous }))
-    .value as AnswerSection;
+  return (
+    await fetchPost(`/api/exam/setanswer/${answerId}/`, {
+      text,
+      kind,
+      is_anonymous: isAnonymous,
+    })
+  ).value as AnswerSection;
 };
 const removeAnswer = async (answerId: string) => {
   return (await fetchPost(`/api/exam/removeanswer/${answerId}/`, {}))
@@ -360,29 +349,6 @@ const resetExamCommentFlagged = async (oid: string) => {
 const resetExamCommentMarkedAsAi = async (oid: string) => {
   return (await fetchPost(`/api/exam/resetcommentmarkedasai/${oid}/`, {}))
     .value as AnswerSection;
-};
-const setDocumentCommentFlagged = async (oid: number, flagged: boolean) => {
-  return (
-    await fetchPost(`/api/document/setflaggedcomment/${oid}`, { flagged })
-  ).value as DocumentComment;
-};
-const setDocumentCommentMarkedAsAi = async (
-  oid: number,
-  marked_as_ai: boolean,
-) => {
-  return (
-    await fetchPost(`/api/document/setmarkedasaicomment/${oid}`, {
-      marked_as_ai,
-    })
-  ).value as DocumentComment;
-};
-const resetDocumentCommentFlagged = async (oid: number) => {
-  return (await fetchPost(`/api/document/resetflaggedcomment/${oid}`, {}))
-    .value as DocumentComment;
-};
-const resetDocumentCommentMarkedAsAi = async (oid: number) => {
-  return (await fetchPost(`/api/document/resetmarkedasaicomment/${oid}`, {}))
-    .value as DocumentComment;
 };
 const setExpertVote = async (oid: string, vote: boolean) => {
   return (
@@ -494,55 +460,6 @@ export const useResetExamCommentMarkedAsAi = (
     runResetExamCommentMarkedAsAi,
   ] as const;
 };
-
-export const useSetDocumentCommentFlagged = (
-  onSuccess?: (comment: DocumentComment) => void,
-) => {
-  const {
-    loading: setDocumentCommentFlaggedLoading,
-    run: runSetDocumentCommentFlagged,
-  } = useRequest(setDocumentCommentFlagged, { manual: true, onSuccess });
-  return [
-    setDocumentCommentFlaggedLoading,
-    runSetDocumentCommentFlagged,
-  ] as const;
-};
-export const useSetDocumentCommentMarkedAsAi = (
-  onSuccess?: (comment: DocumentComment) => void,
-) => {
-  const {
-    loading: setDocumentCommentMarkedAsAiLoading,
-    run: runSetDocumentCommentMarkedAsAi,
-  } = useRequest(setDocumentCommentMarkedAsAi, { manual: true, onSuccess });
-  return [
-    setDocumentCommentMarkedAsAiLoading,
-    runSetDocumentCommentMarkedAsAi,
-  ] as const;
-};
-export const useResetDocumentCommentFlaggedVote = (
-  onSuccess?: (comment: DocumentComment) => void,
-) => {
-  const {
-    loading: resetDocumentCommentFlaggedLoading,
-    run: runResetDocumentCommentFlagged,
-  } = useRequest(resetDocumentCommentFlagged, { manual: true, onSuccess });
-  return [
-    resetDocumentCommentFlaggedLoading,
-    runResetDocumentCommentFlagged,
-  ] as const;
-};
-export const useResetDocumentCommentMarkedAsAi = (
-  onSuccess?: (comment: DocumentComment) => void,
-) => {
-  const {
-    loading: resetDocumentCommentMarkedAsAiLoading,
-    run: runResetDocumentCommentMarkedAsAi,
-  } = useRequest(resetDocumentCommentMarkedAsAi, { manual: true, onSuccess });
-  return [
-    resetDocumentCommentMarkedAsAiLoading,
-    runResetDocumentCommentMarkedAsAi,
-  ] as const;
-};
 export const useUpdateAnswer = (onSuccess?: (data: AnswerSection) => void) => {
   const { loading: updating, run: runUpdateAnswer } = useRequest(updateAnswer, {
     manual: true,
@@ -578,257 +495,10 @@ export const removeCategory = async (slug: string) => {
 export const useRemoveCategory = (onSuccess?: () => void) =>
   useMutation(removeCategory, onSuccess);
 
-export const loadDocumentTypes = async () => {
-  return (await fetchGet("/api/document/listdocumenttypes/")).value as string[];
-};
-export const createDocument = async (
-  displayName: string,
-  categorySlug: string,
-) => {
-  return (
-    await fetchPost(`/api/document/`, {
-      display_name: displayName,
-      category: categorySlug,
-    })
-  ).value as Document;
-};
-export const useCreateDocument = (onSuccess?: (document: Document) => void) => {
-  const { error, loading, run } = useRequest(createDocument, {
-    manual: true,
-    onSuccess,
-  });
-  return { error, loading, run } as const;
-};
-
-export const loadDocuments = async (categorySlug: string) => {
-  return (await fetchGet(`/api/document/?category=${categorySlug}`))
-    .value as Document[];
-};
-export const useDocuments = (categorySlug: string) => {
-  const { data } = useRequest(() => loadDocuments(categorySlug), {
-    cacheKey: `documents-${categorySlug}`,
-    refreshDeps: [categorySlug],
-  });
-  return [data] as const;
-};
-
-export const loadDocumentsUsername = async (username: string) => {
-  return (
-    await fetchGet(`/api/document/?username=${encodeURIComponent(username)}`)
-  ).value as Document[];
-};
-export const useDocumentsUsername = (username: string) => {
-  const { error, loading, data } = useRequest(
-    () => loadDocumentsUsername(username),
-    {
-      refreshDeps: [username],
-      cacheKey: `documents-${username}`,
-    },
-  );
-  return [error, loading, data] as const;
-};
-
-export const loadDocumentsLikedBy = async (
-  likedBy: string,
-  isMyself: boolean,
-) => {
-  if (isMyself) {
-    return (
-      await fetchGet(`/api/document/?liked_by=${encodeURIComponent(likedBy)}`)
-    ).value as Document[];
-  } else {
-    return undefined;
-  }
-};
-export const useDocumentsLikedBy = (likedBy: string, isMyself: boolean) => {
-  const { error, loading, data } = useRequest(
-    () => loadDocumentsLikedBy(likedBy, isMyself),
-    { cacheKey: `documents-${likedBy}` },
-  );
-  return [error, loading, data] as const;
-};
-
-export const loadDocument = async (documentSlug: string) => {
-  return (
-    await fetchGet(
-      `/api/document/${documentSlug}/?include_comments&include_files`,
-    )
-  ).value as Document;
-};
-export const useDocument = (
-  documentSlug: string,
-  onSuccess?: (document: Document) => void,
-) => {
-  const {
-    error,
-    loading,
-    data,
-    mutate,
-    run: reload,
-  } = useRequest(() => loadDocument(documentSlug), {
-    cacheKey: `document-${documentSlug}`,
-    onSuccess,
-  });
-  return [error, loading, data, mutate, reload] as const;
-};
-
-export const deleteDocument = async (documentSlug: string) => {
-  await fetchDelete(`/api/document/${documentSlug}/`);
-};
-
-export const useDeleteDocument = (documentSlug: string, cb: () => void) =>
-  useMutation(() => deleteDocument(documentSlug), cb);
-
-export interface DocumentUpdate {
-  display_name?: string;
-  category?: string;
-  liked?: boolean;
-  description?: string;
-  document_type?: string;
-  anonymised?: boolean;
-}
-export const updateDocument = async (
-  documentSlug: string,
-  data: DocumentUpdate,
-) => {
-  return (await fetchPut(`/api/document/${documentSlug}/`, data))
-    .value as Document;
-};
-export const useUpdateDocument = (
-  documentSlug: string,
-  cb: (document: Document) => void,
-) =>
-  useMutation((data: DocumentUpdate) => updateDocument(documentSlug, data), cb);
-
-export const createDocumentComment = async (
-  documentSlug: string,
-  text: string,
-) => {
-  return (
-    await fetchPost(`/api/document/${documentSlug}/comments/`, {
-      text,
-    })
-  ).value as DocumentComment;
-};
-export const useCreateDocumentComment = (
-  documentSlug: string,
-  onSuccess?: (res: DocumentComment) => void,
-) =>
-  useMutation(
-    (text: string) => createDocumentComment(documentSlug, text),
-    onSuccess,
-  );
-
-export const deleteDocumentComment = async (
-  documentSlug: string,
-  commentId: number,
-) => {
-  await fetchDelete(`/api/document/${documentSlug}/comments/${commentId}/`);
-};
-
-export const useDeleteDocumentComment = (
-  documentSlug: string,
-  commentId: number,
-  onSuccess?: () => void,
-) =>
-  useMutation(() => deleteDocumentComment(documentSlug, commentId), onSuccess);
-
-export const updateDocumentComment = async (
-  documentSlug: string,
-  commentId: number,
-  text: string,
-) => {
-  return (
-    await fetchPut(`/api/document/${documentSlug}/comments/${commentId}/`, {
-      text,
-    })
-  ).value as DocumentComment;
-};
-
-export const useUpdateDocumentComment = (
-  documentSlug: string,
-  commentId: number,
-  onSuccess?: (res: DocumentComment) => void,
-) =>
-  useMutation(
-    (text: string) => updateDocumentComment(documentSlug, commentId, text),
-    onSuccess,
-  );
-
-export const createDocumentFile = async (
-  documentSlug: string,
-  display_name: string,
-  file: NamedBlob | File,
-) => {
-  return (
-    await fetchPost(`/api/document/${documentSlug}/files/`, {
-      file,
-      display_name,
-    })
-  ).value as DocumentFile;
-};
-export const useCreateDocumentFile = (
-  documentSlug: string,
-  onSuccess?: (res: DocumentFile) => void,
-) =>
-  useRequest(
-    (display_name: string, file: NamedBlob | File) =>
-      createDocumentFile(documentSlug, display_name, file),
-    { manual: true, onSuccess },
-  );
-
-export const deleteDocumentFile = async (
-  documentSlug: string,
-  fileId: number,
-) => {
-  await fetchDelete(`/api/document/${documentSlug}/files/${fileId}/`);
-};
-
-export const useDeleteDocumentFile = (
-  documentSlug: string,
-  fileId: number,
-  onSuccess?: () => void,
-) => useMutation(() => deleteDocumentFile(documentSlug, fileId), onSuccess);
-
-interface DocumentFileUpdate {
-  display_name?: string;
-  file?: NamedBlob | File;
-}
-export const updateDocumentFile = async (
-  documentSlug: string,
-  fileId: number,
-  update: DocumentFileUpdate,
-) => {
-  return (
-    await fetchPut(`/api/document/${documentSlug}/files/${fileId}/`, update)
-  ).value as DocumentFile;
-};
-
-export const useUpdateDocumentFile = (
-  documentSlug: string,
-  fileId: number,
-  onSuccess?: (res: DocumentFile) => void,
-) =>
-  useMutation(
-    (update: DocumentFileUpdate) =>
-      updateDocumentFile(documentSlug, fileId, update),
-    onSuccess,
-  );
-
-export const regenerateDocumentAPIKey = async (documentSlug: string) => {
-  return (
-    await fetchPost(`/api/document/${documentSlug}/regenerate_api_key/`, {})
-  ).value as Document;
-};
-
-export const useRegenerateDocumentAPIKey = (
-  documentSlug: string,
-  onSuccess?: (res: Document) => void,
-) => useMutation(() => regenerateDocumentAPIKey(documentSlug), onSuccess);
-
 // Course Stats
 export const loadCourseStats = async (slug: string) => {
-  return (await fetchGet(`/api/category/stats/${slug}/`)).value as CourseStats[];
+  return (await fetchGet(`/api/category/stats/${slug}/`))
+    .value as CourseStats[];
 };
 
 export const useCourseStats = (slug: string) => {
@@ -839,34 +509,10 @@ export const useCourseStats = (slug: string) => {
   return [error, loading, data] as const;
 };
 
-export const moveDocumentFile = async (
-  author: string,
-  documentSlug: string,
-  fileName: string,
-  direction: number,
-) => {
-  return await fetchPost(
-    `/api/document/${author}/${documentSlug}/files/${fileName}/move/`,
-    { direction },
-  );
+export const markAsChecked = async (filename: string) => {
+  return (await fetchPost(`/api/payment/markexamchecked/${filename}/`, {}))
+    .value;
 };
-
-export const useMoveDocumentFile = (
-  author: string,
-  documentSlug: string,
-  fileName: string,
-  direction: number,
-  onSuccess?: (res: DocumentFile) => void,
-) => {
-  const { error, loading, run } = useRequest(
-    () => moveDocumentFile(author, documentSlug, fileName, direction),
-    { manual: true, onSuccess },
-  );
-  return [error, loading, run] as const;
-};
-
-export const setFeedbackReply = async (oid: string, reply: string) =>
-  fetchPost(`/api/feedback/reply/${oid}/`, { reply });
 
 export const loadExamUserSolved = async (exam: string) => {
   return fetchGet<{ user_solved: boolean }>(`/api/exam/${exam}/usersolved`);
@@ -896,69 +542,3 @@ export const unmarkExamUserSolved = async (exam: string) => {
 };
 export const useUnmarkExamUserSolved = (exam: string) =>
   useMutation(() => unmarkExamUserSolved(exam));
-
-export const uploadDissertation = async (
-  file: Blob,
-  create_data: DissertationCreate,
-) => {
-  return (await fetchPost<{ value: Dissertation }>("/api/dissertations/", {
-    pdf_file: file,
-    ...create_data,
-  })).value;
-};
-
-export const editDissertation = async (
-  file: Blob | null,
-  id: number,
-  update_data: DissertationUpdate,
-) => {
-  return (await fetchPut<{ value: Dissertation }>(`/api/dissertations/${id}/`, {
-    ...(file ? { pdf_file: file } : {}),
-    ...update_data,
-  })).value;
-};
-
-export const deleteDissertation = async (id: number) => {
-  await fetchDelete(`/api/dissertations/${id}/`);
-};
-
-export const getRedactionPreview = async (
-  file: Blob,
-  words_to_redact: string,
-) => {
-  return (await fetchPost<{ value: string }>("/api/dissertations/redact/", {
-    pdf_file: file,
-    words: words_to_redact,
-  })).value;
-};
-
-export const loadDissertations = async (searchQuery: string, field: string, category?: string) => {
-  return (
-    await fetchGet<{ value: Dissertation[] }>(
-      `/api/dissertations/?${new URLSearchParams({
-        query: searchQuery,
-        field,
-        ...(category ? { category } : {}),
-      }).toString()}`,
-    )
-  ).value;
-};
-
-export const useDissertations = (searchQuery: string, field: string, category?: string) => {
-  const { error, loading, data } = useRequest(
-    () => loadDissertations(searchQuery, field, category),
-    {
-      refreshDeps: [searchQuery, field, category],
-      cacheKey: `dissertations-${field}-${searchQuery}-${category}`,
-    },
-  );
-  return { error, loading, data } as const;
-};
-
-export const loadDissertation = async (id: number) => {
-  return (await fetchGet<{ value: Dissertation }>(`/api/dissertations/${id}/`)).value;
-}
-
-export const loadDissertationPdf = async (id: number) => {
-  return (await fetchGet<{ value: string }>(`/api/dissertations/${id}/download/`)).value;
-}

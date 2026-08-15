@@ -1,14 +1,14 @@
 import React from "react";
-import { Document } from "../interfaces";
 import { Link } from "react-router-dom";
 import { Anchor, Badge, Card, Flex, Group, Text } from "@mantine/core";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import classes from "../utils/focus-outline.module.css";
 import { formatDistanceToNow } from "date-fns";
+import type { DocumentSchema } from "../api/model/documentSchema";
 
 interface DocumentCardProps {
-  document: Document;
+  document: DocumentSchema;
   showCategory?: boolean;
 }
 
@@ -41,8 +41,8 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
         {document.anonymised ? (
           <Text c="dimmed">Anonymous</Text>
         ) : (
-          <Anchor component={Link} to={`/user/${document.author}`}>
-            <Text c="dimmed">@{document.author}</Text>
+          <Anchor component={Link} to={`/user/${document.author.username}`}>
+            <Text c="dimmed">@{document.author.username}</Text>
           </Anchor>
         )}
         {document.liked ? (

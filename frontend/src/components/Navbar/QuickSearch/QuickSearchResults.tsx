@@ -10,7 +10,6 @@ import { QuickSearchResult } from "./QuickSearchResult";
 import { highlight, itemToPath } from "../../../utils/search-utils";
 import { HighlightedContent } from "../../HighlightSearchHeadline";
 import MarkdownText from "../../markdown-text";
-import { escapeRegExp } from "lodash-es";
 import { useMemo } from "react";
 
 type QuickSeachResultsProps = {
@@ -68,7 +67,7 @@ export const QuickSearchResults = ({
   // re-render the content if only the current selection index changes
   const contents = useMemo(() => {
     if (type === "categories")
-      return results.map((category, i) => ({
+      return results.map(category => ({
         element: <Text>{highlight(category.displayname, category.match)}</Text>,
         key: category.slug,
         link: itemToPath(category),
