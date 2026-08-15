@@ -86,6 +86,8 @@ export const PageArticle: React.FC<{
         } else {
           void navigate(`/guide/${slug}`);
         }
+        // Reset revision message
+        setFormValue("revision_message", "");
       },
     },
     request: {
