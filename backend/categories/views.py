@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from answers.models import ExamUserSolved
 from categories.models import Category, CourseStats, EuclidCode, MetaCategory
 from ediauth import auth_check
+from pages.api import create_page_nochecks, get_page_author
+from pages.models import Page
 from util import response
 
 
@@ -68,6 +70,18 @@ def add_category(request):
         slug=slug,
     )
     cat.save()
+
+    create_page = request.POST.get("create_page", "true").lower() == "true"
+    if create_page:
+        create_page_nochecks(
+            title=request.POST["category"],
+            kind=Page.Kind.GUIDE,
+            category=cat,
+            author=get_page_author(request),
+            parents=[],
+            is_anonymous=False,
+        )
+
     return response.success(slug=slug)
 
 

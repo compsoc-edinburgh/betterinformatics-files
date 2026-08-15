@@ -273,6 +273,50 @@ def patch_to_standard_diff(patch_text: str) -> str:
     return "\n".join(formatted_lines)
 
 
+def create_page_nochecks(
+    title: str,
+    kind: Page.Kind,
+    category: Category | None,
+    author: PageAuthor,
+    parents: list[Page],
+    is_anonymous: bool,
+) -> Page:
+    page = Page(
+        title=title,
+        slug=create_page_slug(title),
+        kind=kind,
+        category=category,
+        author=author,
+        anonymised=is_anonymous,
+        content="",
+    )
+    page.save()
+
+    if not parents:
+        # Create a PageParent with null parent for top-level pages
+        PageParent.objects.create(parent=None, child=page, order=0)
+    else:
+        for parent in parents:
+            # order is based on number of other childs
+            PageParent.objects.create(
+                parent=parent, child=page, order=parent.children.count()
+            )
+
+    content_patch = calculate_patch("", page.content)
+    title_patch = calculate_patch("", page.title)
+
+    PageRevision.objects.create(
+        page=page,
+        author=author,
+        anonymised=is_anonymous,
+        content_delta=content_patch,
+        title_delta=title_patch,
+        message="Created empty page",
+    )
+
+    return page
+
+
 @router.post(
     "/",
     response={
@@ -284,9 +328,6 @@ def patch_to_standard_diff(patch_text: str) -> str:
 )
 @decorate_view(auth_check.supports_temp_user)
 def create_page(request, data: Form[PageCreateRequest]):
-    slug = create_page_slug(data.title)
-    author = get_page_author(request)
-
     # Only admins can assign it a category - since they are category pages
     if data.category and not auth_check.has_admin_rights(request):
         return not_allowed()
@@ -313,37 +354,13 @@ def create_page(request, data: Form[PageCreateRequest]):
                 return not_possible(f"Parent page {parent_slug} does not exist")
             parents.append(parent)
 
-    page = Page(
+    page = create_page_nochecks(
         title=data.title,
-        slug=slug,
         kind=data.kind,
         category=category,
-        author=author,
-        anonymised=data.is_anonymous,
-        content="",
-    )
-    page.save()
-
-    if not parents:
-        # Create a PageParent with null parent for top-level pages
-        PageParent.objects.create(parent=None, child=page, order=0)
-    else:
-        for parent in parents:
-            # order is based on number of other childs
-            PageParent.objects.create(
-                parent=parent, child=page, order=parent.children.count()
-            )
-
-    content_patch = calculate_patch("", page.content)
-    title_patch = calculate_patch("", page.title)
-
-    PageRevision.objects.create(
-        page=page,
-        author=author,
-        anonymised=data.is_anonymous,
-        content_delta=content_patch,
-        title_delta=title_patch,
-        message="Created empty page",
+        author=get_page_author(request),
+        parents=parents,
+        is_anonymous=data.is_anonymous,
     )
 
     return 201, {"slug": page.slug}
