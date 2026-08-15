@@ -368,10 +368,10 @@ def create_page(request, data: Form[PageCreateRequest]):
 
 class PageUpdateRequest(Schema):
     slug: str
-    title: str
+    title: str | None
     category: str | None
     parents: list[str]
-    content: str
+    content: str | None
     revision_message: str
     is_anonymous: bool
 
@@ -410,6 +410,14 @@ def update_page(request, slug: str, data: PageUpdateRequest):
         and not auth_check.has_admin_rights(request)
     ):
         return not_allowed()
+
+    # If None, allow keeping existing title or content
+    # These are the only fields that are allowed to be partially updated -
+    # they are for situations when we only want to update metadata.
+    if data.title is None:
+        data.title = page.title
+    if data.content is None:
+        data.content = page.content
 
     title_patch = calculate_patch(page.title, data.title)
     content_patch = calculate_patch(page.content, data.content)
