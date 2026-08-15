@@ -179,7 +179,7 @@ export const GuideSidebarRight: React.FC<{
               style={{ textTransform: "uppercase" }}
               opacity={0.8}
             >
-              This page is part of
+              Parent Pages
             </Title>
           </Group>
           {parentPages.map(page => (

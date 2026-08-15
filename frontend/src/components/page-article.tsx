@@ -8,9 +8,11 @@ import {
 import {
   ActionIcon,
   Anchor,
+  Divider,
   Fieldset,
   Flex,
   Group,
+  List,
   MultiSelect,
   Paper,
   Select,
@@ -19,13 +21,13 @@ import {
   Title,
 } from "@mantine/core";
 import MarkdownText, { slugifyHeading } from "./markdown-text";
-import { IconBook } from "@tabler/icons-react";
+import { IconBook, IconHierarchy } from "@tabler/icons-react";
 import style from "./page-article.module.css";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import { GuideSidebarRight } from "./guide-sidebar-right";
 import { useTableOfContents } from "../hooks/useTableOfContents";
-import { useUpdatePage } from "../api/hooks/pages";
+import { useListPages, useUpdatePage } from "../api/hooks/pages";
 import useForm from "../hooks/useForm";
 import { useUser } from "../auth";
 import { loadCategories } from "../api/hooks";
@@ -51,6 +53,17 @@ export const PageArticle: React.FC<{
 
   const match = useMatch(`/guide/${page.slug}/edit`);
   const [searchParams, _] = useSearchParams();
+
+  const { data: childPagesWithCat } = useListPages(
+    {
+      child_of: page.slug,
+    },
+    {
+      query: {
+        select: data => data.pages.filter(p => p.category),
+      },
+    },
+  );
 
   const toc = useTableOfContents(`# ${page.title}\n\n${page.content}`);
 
@@ -259,6 +272,34 @@ export const PageArticle: React.FC<{
               />
             )}
           </Fieldset>
+        )}
+        {!editing && childPagesWithCat && childPagesWithCat.length > 0 && (
+          <>
+            <Divider my="lg" />
+            <Group gap="xs" mt="md" mb="xs">
+              <IconHierarchy size={16} />
+              <Title
+                order={2}
+                fz="h6"
+                style={{ textTransform: "uppercase" }}
+                opacity={0.8}
+              >
+                Relevant Categories
+              </Title>
+            </Group>
+            <List>
+              {childPagesWithCat.map(page => (
+                <List.Item key={page.slug}>
+                  <Anchor
+                    component={Link}
+                    to={`/category/${page.category?.slug}/guide`}
+                  >
+                    {page.category?.displayname}
+                  </Anchor>
+                </List.Item>
+              ))}
+            </List>
+          </>
         )}
       </Paper>
       <GuideSidebarRight
