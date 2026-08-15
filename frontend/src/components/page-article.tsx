@@ -214,10 +214,12 @@ export const PageArticle: React.FC<{
             />
           )
         ) : page.kind === "static_html" ? (
-          <ExtremelyTrustedHTML html={page.content} />
+          <ExtremelyTrustedHTML
+            html={page.content.trim() || "Nothing here yet."}
+          />
         ) : (
           <MarkdownText
-            value={page.content}
+            value={page.content.trim() || "Nothing here yet."}
             addAnchors={true}
             localLinkBase="https://betterinformatics.com"
             ignoreHtml={true}
