@@ -21,6 +21,7 @@ import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { IconTrash } from "@tabler/icons-react";
+import { CategoryGuideParentChecker } from "../components/category-guide-parent-checker";
 
 const loadExams = async (includeHidden: boolean) => {
   return (
@@ -138,6 +139,15 @@ const ModQueue: React.FC = () => {
         requested by students).
       </Text>
       <CourseMetadataChecker />
+      <Title my="sm" mt="xl" order={2}>
+        Category Guide Parent Checker
+      </Title>
+      <Text>
+        The following categories have a guide page that has no parent page. Next
+        to them are their existing metadata, which may help in deciding what
+        parent page to assign them to.
+      </Text>
+      <CategoryGuideParentChecker />
     </Container>
   );
 };

@@ -7,8 +7,13 @@ import { UserSchema } from "../api/model/userSchema.js";
 interface UserSetEditorProps {
   users: readonly string[];
   setUsers: (newUsers: string[]) => void;
+  check?: boolean;
 }
-const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
+const UserSetEditor: React.FC<UserSetEditorProps> = ({
+  users,
+  setUsers,
+  check,
+}) => {
   const [user, setUser] = useState<UserSchema | null>(null);
   const onAdd = () => {
     setUser(null);
