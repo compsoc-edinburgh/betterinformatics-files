@@ -14,7 +14,11 @@ import {
 } from "@mantine/core";
 import { IconMenu3, IconPencil, IconSitemap } from "@tabler/icons-react";
 import { ErrorSchema, PageListResponseItem, PageResponse } from "../api/model";
-import { TableOfContentsEntry, ToCItem } from "../hooks/useTableOfContents";
+import {
+  TableOfContentsEntry,
+  ToCContainer,
+  ToCItem,
+} from "../hooks/useTableOfContents";
 import { formatRelative, parseISO } from "date-fns";
 import { useUser } from "../auth";
 import style from "./guide-sidebar-right.module.css";
@@ -151,9 +155,18 @@ export const GuideSidebarRight: React.FC<{
               On This Page
             </Title>
           </Group>
-          {toc.map((_, i) => (
-            <ToCItem key={toc[i].slug} entries={toc} index={i} />
-          ))}
+          <ToCContainer entries={toc}>
+            {activeIndex =>
+              toc.map((_, i) => (
+                <ToCItem
+                  key={toc[i].slug}
+                  entries={toc}
+                  index={i}
+                  activeIndex={activeIndex}
+                />
+              ))
+            }
+          </ToCContainer>
         </>
       )}
       {parentPages.length > 0 && (

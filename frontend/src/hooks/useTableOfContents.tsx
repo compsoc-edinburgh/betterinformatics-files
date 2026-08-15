@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { slugifyHeading } from "../components/markdown-text";
 import { Anchor } from "@mantine/core";
 
@@ -45,7 +45,8 @@ function getLineOffset(depth: number): number {
 export const ToCItem: React.FC<{
   entries: TableOfContentsEntry[];
   index: number;
-}> = ({ entries, index }) => {
+  activeIndex: number;
+}> = ({ entries, index, activeIndex }) => {
   const entry = entries[index];
   const l1 = getLineOffset(entry.level);
   const l0 = index === 0 ? l1 : getLineOffset(entries[index - 1].level);
@@ -58,8 +59,12 @@ export const ToCItem: React.FC<{
       href={`#${entry.slug}`}
       style={{
         paddingInlineStart: `${getItemOffset(entry.level)}px`,
-        color: "var(--mantine-color-dimmed)",
+        color:
+          index === activeIndex
+            ? "var(--mantine-text-color)"
+            : "var(--mantine-color-dimmed)",
         textDecoration: "none",
+        transition: "color 150ms ease",
       }}
       pos="relative"
     >
@@ -82,7 +87,11 @@ export const ToCItem: React.FC<{
             strokeWidth="2"
             fill="none"
             style={{
-              stroke: "var(--mantine-primary-color-filled)",
+              stroke:
+                index <= activeIndex
+                  ? "var(--mantine-primary-color-filled-hover)"
+                  : "var(--mantine-primary-color-light)",
+              transition: "stroke 150ms ease",
             }}
           />
         )}
@@ -93,11 +102,89 @@ export const ToCItem: React.FC<{
           y2="100%"
           strokeWidth="2"
           style={{
-            stroke: "var(--mantine-primary-color-filled)",
+            stroke:
+              index <= activeIndex
+                ? "var(--mantine-primary-color-filled-hover)"
+                : "var(--mantine-primary-color-light)",
+            transition: "stroke 150ms ease",
           }}
         />
       </svg>
       {entry.text}
     </Anchor>
   );
+};
+
+export const ToCContainer: React.FC<{
+  entries: TableOfContentsEntry[];
+  children: (activeIndex: number) => React.ReactNode;
+}> = ({ entries, children }) => {
+  // Track scroll position against each heading's document offset to select
+  // the active entry, and pass its index down to display children with.
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
+
+  useEffect(() => {
+    if (entries.length === 0) {
+      return;
+    }
+
+    let offsets: number[] = [];
+    const measure = () => {
+      offsets = entries.map(entry => {
+        // Get its top offset
+        const el = document.getElementById(entry.slug);
+        if (!el) return Infinity;
+
+        // Compensate for any scroll-margin-top
+        const scrollMarginTop =
+          parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+        return (
+          el.getBoundingClientRect().top + window.scrollY - scrollMarginTop
+        );
+      });
+      updateActiveIndex();
+    };
+
+    const updateActiveIndex = () => {
+      const scrollY = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+
+      // At the very top of the page, always highlight the first heading
+      if (scrollY <= 1) {
+        setActiveIndex(0);
+        return;
+      }
+      // At the very bottom of the page, always highlight the last heading
+      if (scrollY + viewportHeight >= docHeight - 1) {
+        setActiveIndex(entries.length - 1);
+        return;
+      }
+
+      // Otherwise, check at 20% down the viewport
+      const referenceLine = scrollY + viewportHeight * 0.2;
+      let index = offsets.findLastIndex(offset => offset <= referenceLine);
+      if (index === -1) {
+        index = 0;
+      }
+      setActiveIndex(index);
+    };
+
+    // Only re-measure on start on window resize
+    measure();
+    const resizeObserver = new ResizeObserver(() => measure());
+    resizeObserver.observe(document.body);
+
+    // On scroll just use the cached offsets to highlight
+    window.addEventListener("scroll", updateActiveIndex, { passive: true });
+    window.addEventListener("resize", updateActiveIndex);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("scroll", updateActiveIndex);
+      window.removeEventListener("resize", updateActiveIndex);
+    };
+  }, [entries]);
+
+  return children(entries.length ? activeIndex : -1);
 };
