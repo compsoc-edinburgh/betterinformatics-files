@@ -37,6 +37,7 @@ const CategoryParentSetButton: React.FC<CategoryParentSetButtonProps> = ({
         <MultiSelect
           label="Parent Pages"
           data={pages.pages
+            .filter(p => p.category === null)
             .filter(p => p.slug !== page.slug)
             .map(p => ({ value: p.slug, label: p.title }))}
           value={parents}
