@@ -48,7 +48,9 @@ class ComsolTest(TestCase):
             return response.json()
         return response
 
-    def post(self, path, args, status_code=200, test_get=True, as_json=True):
+    def post(
+        self, path, args, status_code=200, test_get=True, as_json=True, json_body=False
+    ):
         if self.user:
             self.client.cookies = SimpleCookie({"access_token": get_token(self.user)})
         else:
@@ -57,10 +59,16 @@ class ComsolTest(TestCase):
         if test_get and self.test_http_methods:
             response = self.client.get(path)
             self.assertEqual(response.status_code, 405)
-        for arg in args:
-            if isinstance(args[arg], bool):
-                args[arg] = "true" if args[arg] else "false"
-        response = self.client.post(path, args)
+        if json_body:
+            body = json.dumps(args)
+            content_type = "application/json"
+        else:
+            for arg in args:
+                if isinstance(args[arg], bool):
+                    args[arg] = "true" if args[arg] else "false"
+            body = args
+            content_type = MULTIPART_CONTENT
+        response = self.client.post(path, body, content_type=content_type)
         self.assertEqual(response.status_code, status_code)
         if as_json:
             return response.json()

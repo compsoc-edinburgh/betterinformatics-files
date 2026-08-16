@@ -106,12 +106,12 @@ export const PageArticle: React.FC<{
         // Initial values
         content: page.content,
         title: page.title,
-        category: page.category?.slug ?? "",
+        category: page.category?.slug ?? null,
         slug: page.slug,
         parents: page.parents,
         is_anonymous: false,
         revision_message: "",
-      } as PageUpdateRequest,
+      },
       async data => {
         data.content = await flushPendingImages(data.content);
         updatePage({

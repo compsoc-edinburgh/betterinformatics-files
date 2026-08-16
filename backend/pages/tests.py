@@ -146,6 +146,7 @@ class TestPermissions(ComsolTest):
             },
             test_get=False,
             status_code=201 if allowed else 403,
+            json_body=True,
         )
 
     def create_static_html(self, allowed):
@@ -159,6 +160,7 @@ class TestPermissions(ComsolTest):
             },
             test_get=False,
             status_code=201 if allowed else 403,
+            json_body=True,
         )
 
     def create_page_author(self, user):

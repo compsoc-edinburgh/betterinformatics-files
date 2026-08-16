@@ -3,7 +3,7 @@ import datetime
 import diff_match_patch as dmp_module
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
-from ninja import Form, Router, Schema
+from ninja import Router, Schema
 from ninja.decorators import decorate_view
 
 from backend import settings
@@ -208,9 +208,7 @@ class PageCreateRequest(Schema):
     kind: Page.Kind
     title: str
     category: str | None = None
-    # We cannot distinguish empty array vs the field not being present, so we
-    # explicitly add the None typehint to allow the field to be empty
-    parents: list[str] | None = None
+    parents: list[str]
     is_anonymous: bool
 
 
@@ -327,7 +325,7 @@ def create_page_nochecks(
     operation_id="createPage",
 )
 @decorate_view(auth_check.supports_temp_user)
-def create_page(request, data: Form[PageCreateRequest]):
+def create_page(request, data: PageCreateRequest):
     # Only admins can assign it a category - since they are category pages
     if data.category and not auth_check.has_admin_rights(request):
         return not_allowed()
