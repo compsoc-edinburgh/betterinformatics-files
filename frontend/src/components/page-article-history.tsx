@@ -84,7 +84,7 @@ export const PageArticleHistory: React.FC<{
         {page.title}: Revision History
       </Title>
       <Anchor component={Link} to={`/guide/${page.slug}`}>
-        <Group mb="md" gap="xs">
+        <Group mb="md" gap="xs" wrap="nowrap" align="flex-start">
           <ActionIcon variant="transparent">
             <IconArrowLeft size={16} />
           </ActionIcon>
