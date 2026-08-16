@@ -292,7 +292,11 @@ def create_page_nochecks(
 
     if not parents:
         # Create a PageParent with null parent for top-level pages
-        PageParent.objects.create(parent=None, child=page, order=0)
+        PageParent.objects.create(
+            parent=None,
+            child=page,
+            order=PageParent.objects.filter(parent=None).count(),
+        )
     else:
         for parent in parents:
             # order is based on number of other childs
@@ -458,7 +462,11 @@ def update_page(request, slug: str, data: PageUpdateRequest):
         and PageParent.objects.filter(child=page, parent__isnull=False).exists()
     ):
         # Create a PageParent with null parent for top-level pages
-        PageParent.objects.create(parent=None, child=page, order=0)
+        PageParent.objects.create(
+            parent=None,
+            child=page,
+            order=PageParent.objects.filter(parent=None).count(),
+        )
         # Remove all existing PageParent entries for this page
         PageParent.objects.filter(child=page).exclude(parent=None).delete()
     else:
@@ -605,5 +613,9 @@ def delete_page(request, slug: str):
 
     # Create a PageParent relation against None for all children
     for child in page.children.all():
-        PageParent.objects.create(parent=None, child=child, order=0)
+        PageParent.objects.create(
+            parent=None,
+            child=child,
+            order=PageParent.objects.filter(parent=None).count(),
+        )
     return 204, None

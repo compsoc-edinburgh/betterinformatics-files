@@ -63,7 +63,7 @@ def create_pages_for_categories(apps, schema_editor):
         )
         page.save()
 
-        PageParent.objects.create(parent=None, child=page, order=0)
+        PageParent.objects.create(parent=None, child=page, order=PageParent.objects.filter(parent=None).count())
 
         content_patch = calculate_patch("", page.content)
         title_patch = calculate_patch("", page.title)
