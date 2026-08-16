@@ -191,7 +191,7 @@ export const PageArticle: React.FC<{
         )}
         {page.category && !editing && (
           <Anchor component={Link} to={`/category/${page.category.slug}`}>
-            <Group gap="xs" mb="md">
+            <Group gap="xs" mb="md" wrap="nowrap" align="flex-start">
               <ActionIcon variant="transparent">
                 <IconBook size={16} />
               </ActionIcon>
