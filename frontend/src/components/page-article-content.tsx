@@ -11,10 +11,7 @@ export const PageArticleContent: React.FC<{
     <div className={styles.pageArticleContent}>
       {page.kind === "static_html" ? (
         <ExtremelyTrustedHTML
-          html={
-            page.content.trim() ||
-            "Nothing here yet. Perhaps you want to add some? Click 'edit'!"
-          }
+          html={page.content.trim() || "Nothing here yet."}
         />
       ) : (
         <MarkdownText
