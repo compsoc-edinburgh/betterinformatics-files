@@ -614,13 +614,18 @@ def delete_page(request, slug: str):
     ):
         return not_allowed()
 
+    # Get children first - needed, because we need to delete page before
+    # re-parent children to avoid 'order' potentially being off by one
+    children = list(page.children.all())
+
     page.delete()
 
-    # Create a PageParent relation against None for all children
-    for child in page.children.all():
+    # Re-parent all former children to the root (parent=None)
+    for child in children:
         PageParent.objects.create(
             parent=None,
             child=child,
             order=PageParent.objects.filter(parent=None).count(),
         )
+
     return 204, None
