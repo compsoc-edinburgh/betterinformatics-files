@@ -251,6 +251,7 @@ export const PageArticle: React.FC<{
             {isAdmin && (
               <Select
                 label="Associated Category"
+                searchable
                 data={
                   categories?.map(c => ({
                     value: c.slug,
