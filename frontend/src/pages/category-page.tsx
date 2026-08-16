@@ -278,7 +278,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   )}
                 </Flex>
                 <Group gap="xs">
-                  {metaData.euclid_codes.map((code, i) => (
+                  {metaData.euclid_codes.map(code => (
                     <EuclidCodeBadge
                       key={code}
                       code={code}
