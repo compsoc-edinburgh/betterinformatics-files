@@ -11,8 +11,10 @@ import { Link } from "react-router-dom";
 import { IconChevronRight, IconUpload } from "@tabler/icons-react";
 import { DissertationList } from "../components/dissertation-list";
 import ContentContainer from "../components/secondary-container";
+import useTitle from "../hooks/useTitle";
 
 const DissertationListPage: React.FC = () => {
+  useTitle("Dissertation Archive");
   return (
     <>
       <Container size="xl" style={{ position: "relative" }}>

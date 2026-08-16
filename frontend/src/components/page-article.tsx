@@ -37,6 +37,7 @@ import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
 import { ExtremelyTrustedHTML } from "./extremely-trusted-html";
 import { usePendingImages } from "./Editor/pending-images";
 import { HtmlEditor } from "./html-editor";
+import useTitle from "../hooks/useTitle";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
@@ -45,6 +46,7 @@ export const PageArticle: React.FC<{
   refetch: () => void;
   onDelete: () => void;
 }> = ({ page, pages, parentPages, refetch, onDelete }) => {
+  useTitle(page.title);
   const user = useUser();
   // Admin or owner
   const isPrivileged =
