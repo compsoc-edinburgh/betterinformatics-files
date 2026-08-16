@@ -36,6 +36,7 @@ const CategoryParentSetButton: React.FC<CategoryParentSetButtonProps> = ({
       <Group align="end">
         <MultiSelect
           label="Parent Pages"
+          searchable
           data={pages.pages
             .filter(p => p.category === null)
             .filter(p => p.slug !== page.slug)
