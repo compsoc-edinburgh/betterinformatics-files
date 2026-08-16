@@ -190,7 +190,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
     const tabs = useCategoryTabs([
       { name: "Resources", id: "resources" },
-      { name: "Guide", id: "guide" },
+      { name: "Guide", id: "guide", disabled: !page },
       { name: "Testimonials", id: "testimonials", count: testimonials? testimonials.length : 0},
       { name: "Grade Stats", id: "statistics" },
     ]);
