@@ -91,9 +91,16 @@ def get_scoreboard_top(scoretype, limit):
 @auth_check.require_login
 def userinfo(request, username):
     user = get_object_or_404(User.objects.select_related("scores"), username=username)
+
+    if auth_check.has_admin_rights(request):
+        last_login = user.last_login
+    else:
+        last_login = None
+
     res = {
         "username": username,
         "displayName": user.profile.display_username,
+        "lastLogin": last_login,
     }
     get_user_scores(user, res)
     return response.success(value=res)
