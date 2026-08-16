@@ -80,6 +80,7 @@ def add_category(request):
             author=get_page_author(request),
             parents=[],
             is_anonymous=False,
+            slug=slug,  # Request to use the same slug as category
         )
 
     return response.success(slug=slug)

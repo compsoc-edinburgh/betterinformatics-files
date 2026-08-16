@@ -280,10 +280,11 @@ def create_page_nochecks(
     author: PageAuthor,
     parents: list[Page],
     is_anonymous: bool,
+    slug: str | None = None,
 ) -> Page:
     page = Page(
         title=title,
-        slug=create_page_slug(title),
+        slug=create_page_slug(title if slug is None else slug),
         kind=kind,
         category=category,
         author=author,
