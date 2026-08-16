@@ -168,7 +168,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           return [];
         }),
       )
-      .map(c => (c.length > 0 ? c[0] : undefined));
+      .flat();
   }, [metaData, bi_courses_data]);
 
   const { data: pages } = useListPages({
@@ -282,7 +282,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                     <EuclidCodeBadge
                       key={code}
                       code={code}
-                      badge_data={quickinfo_data[i]}
+                      badge_data={quickinfo_data.find(c => c?.code === code)}
                       loading={bi_courses_loading}
                       error={bi_courses_error}
                     />
