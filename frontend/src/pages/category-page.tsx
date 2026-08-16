@@ -393,8 +393,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           pos="absolute"
                           right={0}
                           top={0}
-                          mr="md"
-                          mt="md"
+                          px="xs"
+                          bdrs="sm"
+                          bg="var(--mantine-color-gray-light)"
                         >
                           <Anchor
                             component={Link}
