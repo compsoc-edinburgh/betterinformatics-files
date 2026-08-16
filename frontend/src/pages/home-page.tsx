@@ -56,10 +56,9 @@ const loadCategoryData = async () => {
     favourites,
   ] as const;
 };
-const addCategory = async (category: string, createPage: boolean) => {
+const addCategory = async (category: string) => {
   await fetchPost("/api/category/add/", {
     category,
-    create_page: createPage.toString(),
   });
 };
 
@@ -113,9 +112,8 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
     },
   });
   const [categoryName, setCategoryName] = useState("");
-  const [createPage, setCreatePage] = useState(true);
   const onSubmit = () => {
-    void run(categoryName, createPage);
+    void run(categoryName);
   };
 
   return (
@@ -131,11 +129,6 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
             type="text"
             value={categoryName}
             onChange={e => setCategoryName(e.currentTarget.value)}
-          />
-          <Checkbox
-            label="Create a guide page for this category"
-            checked={createPage}
-            onChange={e => setCreatePage(e.currentTarget.checked)}
           />
           <Button
             onClick={onSubmit}

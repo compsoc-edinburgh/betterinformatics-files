@@ -71,17 +71,15 @@ def add_category(request):
     )
     cat.save()
 
-    create_page = request.POST.get("create_page", "true").lower() == "true"
-    if create_page:
-        create_page_nochecks(
-            title=request.POST["category"],
-            kind=Page.Kind.GUIDE,
-            category=cat,
-            author=get_page_author(request),
-            parents=[],
-            is_anonymous=False,
-            slug=slug,  # Request to use the same slug as category
-        )
+    create_page_nochecks(
+        title=request.POST["category"],
+        kind=Page.Kind.GUIDE,
+        category=cat,
+        author=get_page_author(request),
+        parents=[],
+        is_anonymous=False,
+        slug=slug,  # Request to use the same slug as category
+    )
 
     return response.success(slug=slug)
 
