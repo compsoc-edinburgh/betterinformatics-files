@@ -96,7 +96,13 @@ export const GuideSidebarRight: React.FC<{
           onSubmit={onSave}
         >
           {error && (
-            <Alert color="red" p="xs">
+            <Alert
+              color="red"
+              p="xs"
+              miw="100%"
+              w="0"
+              style={{ wordBreak: "break-word" }}
+            >
               <span>{String(error)}</span>
             </Alert>
           )}

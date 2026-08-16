@@ -409,9 +409,12 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     if (
         data.category
         and (page.category.slug if page.category else None) != data.category
-        and not auth_check.has_admin_rights(request)
     ):
-        return not_allowed()
+        if not auth_check.has_admin_rights(request):
+            return not_allowed()
+
+        if Page.objects.filter(category__slug=data.category).exists():
+            return not_possible("The category is associated with another page")
 
     # If None, allow keeping existing title or content
     # These are the only fields that are allowed to be partially updated -
