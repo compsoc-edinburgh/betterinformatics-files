@@ -38,6 +38,7 @@ import { ExtremelyTrustedHTML } from "./extremely-trusted-html";
 import { usePendingImages } from "./Editor/pending-images";
 import { HtmlEditor } from "./html-editor";
 import useTitle from "../hooks/useTitle";
+import { PageArticleContent } from "./page-article-content";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
@@ -230,17 +231,8 @@ export const PageArticle: React.FC<{
               }}
             />
           )
-        ) : page.kind === "static_html" ? (
-          <ExtremelyTrustedHTML
-            html={page.content.trim() || "Nothing here yet."}
-          />
         ) : (
-          <MarkdownText
-            value={page.content.trim() || "Nothing here yet."}
-            addAnchors={true}
-            localLinkBase="https://betterinformatics.com"
-            ignoreHtml={true}
-          />
+          <PageArticleContent page={page} />
         )}
         {editing && isPrivileged && (
           <Fieldset legend="Privileged Actions">

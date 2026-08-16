@@ -64,6 +64,7 @@ import { loadTestimonialsByCourse } from "../api/testimonials";
 import { TestimonialCard } from "../components/testimonial-card";
 import { CourseworkExamRatioChart } from "../components/Charts/CourseworkExamRatioChart";
 import { useGetPage, useListPages } from "../api/hooks/pages";
+import { PageArticleContent } from "../components/page-article-content";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -413,14 +414,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           </Anchor>
                         </Group>
                       )}
-                      <MarkdownText
-                        value={
-                          page?.content ||
-                          `*There is no content here.${page ? " Perhaps you want to add some? Click 'edit'!" : ""}*`
-                        }
-                        localLinkBase="https://betterinformatics.com"
-                        ignoreHtml={true}
-                      />
+                      {page && <PageArticleContent page={page} />}
                     </Paper>
                   ) : null}
                 </Grid.Col>

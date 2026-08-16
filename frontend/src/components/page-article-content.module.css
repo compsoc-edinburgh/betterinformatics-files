@@ -1,0 +1,34 @@
+/* todo: deduplicate this and page-article.module.css content */
+.page-article-content {
+  & a {
+    color: var(--mantine-color-blue-9);
+    /* text-underline-offset: 3.5px; */
+    text-decoration: none;
+
+    &:hover {
+      color: var(--mantine-color-blue-4);
+      text-decoration: none;
+    }
+
+    &:active {
+      text-decoration: underline;
+      text-underline-offset: 3.5px;
+    }
+
+    &:visited {
+      color: var(--mantine-color-grape-7);
+    }
+
+    @mixin dark {
+      color: var(--mantine-color-blue-4);
+
+      &:hover {
+        color: var(--mantine-color-blue-9);
+      }
+
+      &:visited {
+        color: var(--mantine-color-grape-4);
+      }
+    }
+  }
+}
