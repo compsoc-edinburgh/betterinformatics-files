@@ -6,8 +6,6 @@ import {
   Grid,
   Group,
   NativeSelect,
-  PillsInput,
-  Select,
   Stack,
   TagsInput,
   Text,
