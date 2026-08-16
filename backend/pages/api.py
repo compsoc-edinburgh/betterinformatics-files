@@ -602,4 +602,8 @@ def delete_page(request, slug: str):
         return not_allowed()
 
     page.delete()
+
+    # Create a PageParent relation against None for all children
+    for child in page.children.all():
+        PageParent.objects.create(parent=None, child=child, order=0)
     return 204, None
