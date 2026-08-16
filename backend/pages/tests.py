@@ -25,6 +25,7 @@ MATRIX = {
         "redact_revision": True,
         "view_redacted_revisions": True,
         "view_author": True,
+        "view_anonymised_author": True,
     },
     "user": {
         "create_guide": True,
@@ -41,6 +42,7 @@ MATRIX = {
         "redact_revision": False,
         "view_redacted_revisions": False,
         "view_author": True,
+        "view_anonymised_author": False,
     },
     "guest": {
         "create_guide": True,
@@ -57,6 +59,7 @@ MATRIX = {
         "redact_revision": False,
         "view_redacted_revisions": False,
         "view_author": False,
+        "view_anonymised_author": False,
     },
 }
 
@@ -128,12 +131,12 @@ class TestPermissions(ComsolTest):
             self.redact_revision(allowed)
         if action == "view_redacted_revisions":
             self.view_redacted_revisions(allowed)
-        if action == "view_author":
-            self.view_author(allowed)
         if action == "view_redacted_revisions":
             self.view_redacted_revisions(allowed)
         if action == "view_author":
             self.view_author(allowed)
+        if action == "view_anonymised_author":
+            self.view_anonymised_author(allowed)
 
     def create_guide(self, allowed):
         self.post(
@@ -401,6 +404,40 @@ class TestPermissions(ComsolTest):
 
         self.login_as(self.adminUsers[0])
         self.create_guide(True)
-
         self.user = user
-        self.get("/api/page/testguide", status_code=200)
+
+        data = self.get("/api/page/testguide", status_code=200)
+
+        if allowed:
+            self.assertNotEqual(data["author"]["display_name"], "Hidden")
+        else:
+            self.assertEqual(data["author"]["display_name"], "Hidden")
+
+    def view_anonymised_author(self, allowed):
+        user = self.user
+
+        # Pick a user that is not the one to check
+        self.login_as(self.adminUsers[1])
+        self.post(
+            "/api/page/",
+            {
+                "kind": "guide",
+                "title": "Test Guide",
+                "parents": [],
+                "is_anonymous": True,
+            },
+            test_get=False,
+            status_code=201,
+            json_body=True,
+        )
+        self.user = user
+
+        data = self.get("/api/page/testguide", status_code=200)
+
+        if allowed:
+            self.assertNotEqual(data["author"]["display_name"], "Anonymous")
+        else:
+            if self.user is None:
+                self.assertEqual(data["author"]["display_name"], "Hidden")
+            else:
+                self.assertEqual(data["author"]["display_name"], "Anonymous")
