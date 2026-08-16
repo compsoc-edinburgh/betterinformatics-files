@@ -176,7 +176,6 @@ const createComponents = (
       <CodeBlock
         language={language}
         value={String(children).replace(/\n$/, "")}
-        {...props}
       />
     ) : (
       <code className={className} {...props}>
