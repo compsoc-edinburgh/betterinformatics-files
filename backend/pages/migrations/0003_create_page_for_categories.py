@@ -54,7 +54,7 @@ def create_pages_for_categories(apps, schema_editor):
 
         page = Page(
             title=category.displayname,
-            slug=create_page_slug(Page, category.displayname),
+            slug=create_page_slug(Page, category.slug),
             kind="guide",
             category=category,
             author=temp_author,
