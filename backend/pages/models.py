@@ -80,6 +80,7 @@ class PageAuthor(models.Model):
     authored_revisions: models.QuerySet["PageRevision"]
 
 
+# Unused for now, but may be useful in the future - kept
 class Resource(models.Model):
     class Kind(models.TextChoices):
         FILE = "file"
