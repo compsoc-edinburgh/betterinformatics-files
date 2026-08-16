@@ -65,6 +65,8 @@ export const ToCItem: React.FC<{
             : "var(--mantine-color-dimmed)",
         textDecoration: "none",
         transition: "color 150ms ease",
+        minWidth: "100%",
+        width: 0,
       }}
       pos="relative"
     >
