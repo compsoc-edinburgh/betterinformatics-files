@@ -1,4 +1,11 @@
-import { Container, Alert, Tabs, LoadingOverlay, Space } from "@mantine/core";
+import {
+  Container,
+  Alert,
+  Tabs,
+  LoadingOverlay,
+  Space,
+  Text,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";
@@ -18,8 +25,7 @@ const UserPage: React.FC = () => {
   const { username = user.username } = useParams() as { username?: string };
   useTitle(username);
   const isMyself = user.username === username;
-  const [error, loading, userInfo, reloadUserInfo] =
-    useUserInfo(username);
+  const [error, loading, userInfo, reloadUserInfo] = useUserInfo(username);
   const [activeTab, setActiveTab] = useState<string | null>("overview");
 
   // Assume any error is because of 404
@@ -54,6 +60,11 @@ const UserPage: React.FC = () => {
               <Alert color="gray">There's nothing here</Alert>
             )}
             {isMyself && <UserNotifications />}
+            {user.isAdmin && userInfo?.lastLogin && (
+              <Text mb="md" c="dimmed" size="xs">
+                Last login: {new Date(userInfo.lastLogin).toLocaleString()}
+              </Text>
+            )}
           </Tabs.Panel>
           <Tabs.Panel value="answers" pt="sm">
             <UserAnswers username={username} />

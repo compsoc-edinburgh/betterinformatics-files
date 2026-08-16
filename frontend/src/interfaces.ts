@@ -265,6 +265,7 @@ export interface NotificationInfo {
 export interface UserInfo {
   username: string;
   displayName: string;
+  lastLogin: string | null; // ISO 8601, last login time
   rank: number;
   total_users: number;
   score: number;
