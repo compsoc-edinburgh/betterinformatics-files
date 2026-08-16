@@ -86,6 +86,8 @@ class PageRevisionListResponse(Schema):
 def get_page_author_response(
     author: PageAuthor, anonymised: bool, request: HttpRequest
 ) -> PageAuthorResponse:
+    # Do not reveal the author (i.e. student ID) to users not logged in for
+    # safety and privacy reasons
     if not request.user:
         return PageAuthorResponse(
             display_name="Hidden",
