@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("categories", "0019_coursestats_course_organiser"),
+        ("ediauth", "0007_temporaryuser"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -57,23 +58,6 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("is_anonymous", models.BooleanField(default=False)),
-            ],
-        ),
-        migrations.CreateModel(
-            name="TemporaryUser",
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
-                ("session_id", models.UUIDField(default=uuid.uuid4, editable=False)),
             ],
         ),
         migrations.CreateModel(
@@ -122,6 +106,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "title_delta",
+                    models.TextField(default="")
+                ),
                 ("content_delta", models.TextField(default="")),
                 (
                     "author",
@@ -139,6 +127,18 @@ class Migration(migrations.Migration):
                         to="pages.page",
                     ),
                 ),
+                (
+                    "message",
+                    models.TextField(default=""),
+                ),
+                (
+                    "anonymised",
+                    models.BooleanField(default=False),
+                ),
+                (
+                    "redacted",
+                    models.BooleanField(default=False),
+                ),
             ],
         ),
         migrations.AddField(
@@ -147,7 +147,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                to="pages.temporaryuser",
+                to="ediauth.temporaryuser",
             ),
         ),
         migrations.AddField(
@@ -171,10 +171,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="page",
             name="category",
-            field=models.ForeignKey(
+            field=models.OneToOneField(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="pages",
+                related_name="page",
                 to="categories.category",
             ),
         ),

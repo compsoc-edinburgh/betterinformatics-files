@@ -106,7 +106,7 @@ def reverse_create_pages_for_categories(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pages', '0007_pageparent_alter_page_parents'),
+        ('pages', '0002_set_top_level_parents'),
     ]
 
     operations = [

@@ -20,7 +20,7 @@ def populate_page_parents(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pages', '0006_pagerevision_redacted'),
+        ('pages', '0001_initial'),
     ]
 
 
