@@ -192,7 +192,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       fill={
                         bit === "1"
                           ? "var(--mantine-primary-color-filled)"
-                          : "transparent"
+                          : "var(--mantine-primary-color-light)"
                       }
                       key={index}
                     />
