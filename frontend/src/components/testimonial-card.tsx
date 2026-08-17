@@ -1,4 +1,4 @@
-import { Modal, LoadingOverlay, SegmentedControl, Alert, Space, Textarea, Card, Text, Box, Tooltip, Group, Flex, Button, Stack} from "@mantine/core";
+import { Card, Text, Flex, Stack} from "@mantine/core";
 import { ApprovalStatus, Testimonial } from "../interfaces";
 import classes from "./testimonial-card.module.css";
 
