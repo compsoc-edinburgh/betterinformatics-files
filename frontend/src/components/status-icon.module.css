@@ -1,0 +1,9 @@
+.status-icon {
+  color: var(--status-icon-color);
+  stroke: var(--status-icon-color);
+
+  &:hover {
+    color: var(--status-icon-color-hover);
+    stroke: var(--status-icon-color-hover);
+  }
+}
