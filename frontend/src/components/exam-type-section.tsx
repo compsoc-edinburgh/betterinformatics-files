@@ -160,7 +160,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               )}
             </Group>
             {catAdmin && !exam.finished_cuts && (
-              <ClaimButton exam={exam} reloadExams={reload} mt="sm" />
+              <ClaimButton exam={exam} reloadExams={reload} size="compact-sm" />
             )}
             <Group gap="xs" wrap="nowrap">
               <IconButton
