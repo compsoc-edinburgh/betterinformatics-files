@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.core import mail
 
 from documents.models import Document, DocumentType
@@ -189,5 +188,11 @@ class TestNotifications(ComsolTestExamData):
         # - One for user 0 (comment on answer)
         # - One for user 3 (comment on comment)
         self.assertEqual(len(mail.outbox), 2)
-        self.assertIn([f"{self.users[0]['username']}@sms.ed.ac.uk"], list(map(lambda x: x.to, mail.outbox)))
-        self.assertIn([f"{self.users[3]['username']}@sms.ed.ac.uk"], list(map(lambda x: x.to, mail.outbox)))
+        self.assertIn(
+            [f"{self.users[0]['username']}@sms.ed.ac.uk"],
+            list(map(lambda x: x.to, mail.outbox)),
+        )
+        self.assertIn(
+            [f"{self.users[3]['username']}@sms.ed.ac.uk"],
+            list(map(lambda x: x.to, mail.outbox)),
+        )

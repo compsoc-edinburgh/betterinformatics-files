@@ -42,7 +42,7 @@ import DocumentList from "../components/document-list";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import useTitle from "../hooks/useTitle";
 import MarkdownText from "../components/markdown-text";
-import { CategoryMetaData } from "../interfaces";
+import { CategoryMetaData, Testimonial } from "../interfaces";
 import {
   getMetaCategoriesForCategory,
   removeMarkdownFrontmatter,
@@ -60,6 +60,8 @@ import { EuclidCodeBadge } from "../components/euclid-code-badge";
 import { useCategoryTabs } from "../hooks/useCategoryTabs";
 import CategoryStatsComponent from "../components/category-stats";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
+import { loadTestimonialsByCourse } from "../api/testimonials";
+import { TestimonialCard } from "../components/testimonial-card";
 import { CourseworkExamRatioChart } from "../components/Charts/CourseworkExamRatioChart";
 
 interface CategoryPageContentProps {
@@ -167,16 +169,20 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       .flat();
   }, [metaData, bi_courses_data]);
 
-  const tabs = useCategoryTabs([
-    { name: "Resources", id: "resources" },
-    { name: "Testimonials", id: "testimonials", count: 0, disabled: true },
-    { name: "Grade Stats", id: "statistics" },
-  ]);
-
+  
   const sessionString = bi_courses_data
-    ? bi_courses_data.session.replace("-", "/")
-    : "this year's";
+  ? bi_courses_data.session.replace("-", "/")
+  : "this year's";
+  
+  const { data : testimonials} = useRequest(
+    () => loadTestimonialsByCourse(metaData.slug)
+    );
 
+    const tabs = useCategoryTabs([
+      { name: "Resources", id: "resources" },
+      { name: "Testimonials", id: "testimonials", count: testimonials? testimonials.length : 0},
+      { name: "Grade Stats", id: "statistics" },
+    ]);
   return (
     <>
       {modals}
@@ -359,7 +365,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                         </Anchor>
                       </Flex>
                     </Paper>
-                  ) : null}
+                  ) : tabs.currentTabId === "testimonials" ? testimonials && (
+                        <>
+                          {testimonials.map((testimonial: Testimonial, index: number) => <TestimonialCard key={index} author_id={testimonial.author_id} author_display_name={testimonial.author_display_name} slug={testimonial.slug} testimonial={testimonial.testimonial} year_taken={testimonial.year_taken} approval_status={testimonial.approval_status}/>)}
+                        </>
+                       )
+                  : null}
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   {metaData.experts.includes(user.username) && (

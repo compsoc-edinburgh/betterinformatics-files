@@ -402,3 +402,18 @@ export interface BICourse {
   name: string;
   year: string;
 }
+
+export enum ApprovalStatus {
+  APPROVED = 0,
+  PENDING = 1,
+  REJECTED = 2,
+}
+
+export interface Testimonial {
+  author_id: string;
+  author_display_name: string;
+  slug: string;
+  testimonial: string;
+  year_taken: number;
+  approval_status : ApprovalStatus;
+}

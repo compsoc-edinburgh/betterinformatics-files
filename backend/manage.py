@@ -7,7 +7,6 @@ import sys
 
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
-
     # Only import instrumentation if we have pyroscope installed.
     # Pyroscope is not available on Windows, so this workaround is necessary
     # to be able to develop ComSol on Windows.

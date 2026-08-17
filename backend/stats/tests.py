@@ -113,7 +113,7 @@ class TestStats(TestCase):
             join_time = timezone.make_aware(datetime.combine(join_day, time(9, 0)))
             users.append(
                 User(
-                    username="perf_user_{:04d}".format(i),
+                    username=f"perf_user_{i:04d}",
                     date_joined=join_time,
                 )
             )
@@ -127,12 +127,12 @@ class TestStats(TestCase):
         for i in range(500):
             exams.append(
                 Exam(
-                    filename="perf-{:03d}.pdf".format(i),
-                    displayname="Perf Exam {:03d}".format(i),
+                    filename=f"perf-{i:03d}.pdf",
+                    displayname=f"Perf Exam {i:03d}",
                     category=category,
                     exam_type=exam_type,
                     remark="Remark",
-                    resolve_alias="alias-{:03d}.pdf".format(i),
+                    resolve_alias=f"alias-{i:03d}.pdf",
                     public=True,
                     finished_cuts=True,
                 )
@@ -150,7 +150,7 @@ class TestStats(TestCase):
                         author=author,
                         page_num=1,
                         rel_height=0.05 * (section_index + 1),
-                        name="Section {:03d}-{:02d}".format(exam_index, section_index),
+                        name=f"Section {exam_index:03d}-{section_index:02d}",
                     )
                 )
         AnswerSection.objects.bulk_create(sections)
