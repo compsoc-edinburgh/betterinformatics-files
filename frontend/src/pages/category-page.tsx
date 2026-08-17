@@ -367,7 +367,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                     </Paper>
                   ) : tabs.currentTabId === "testimonials" ? testimonials && (
                         <>
-                          {testimonials.map((testimonial: Testimonial, index: number) => <TestimonialCard key={index} author_id={testimonial.author_id} author_display_name={testimonial.author_display_name} slug={testimonial.slug} testimonial={testimonial.testimonial} year_taken={testimonial.year_taken} approval_status={testimonial.approval_status}></TestimonialCard>)}
+                          {testimonials.map((testimonial: Testimonial, index: number) => <TestimonialCard key={index} author_id={testimonial.author_id} author_display_name={testimonial.author_display_name} slug={testimonial.slug} testimonial={testimonial.testimonial} year_taken={testimonial.year_taken} approval_status={testimonial.approval_status}/>)}
                         </>
                        )
                   : null}
