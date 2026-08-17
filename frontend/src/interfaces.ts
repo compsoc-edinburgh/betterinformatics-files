@@ -146,6 +146,7 @@ export interface CategoryExam {
   canView: boolean; // whether the exam can be viewed by the user
   count_cuts: number; // number of cuts in exam
   count_answered: number; // number of cuts with answers in exam
+  answered_bits: string; // which cuts have answers
   user_solved: boolean;
 }
 

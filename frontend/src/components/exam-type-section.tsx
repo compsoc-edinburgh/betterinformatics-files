@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import React from "react";
 import examTypeClasses from "./exam-type-section.module.css";
@@ -95,6 +96,24 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
     reload();
   }
 
+  const contiguousAnswered = (exam: CategoryExam) => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
+    return [...exam.answered_bits, "1"].reduce<
+      { bit: string; count: number; index: number }[]
+    >((acc, b, index) => {
+      if (acc.length === 0) {
+        return [{ bit: b, count: 1, index }];
+      }
+      if (b === acc[acc.length - 1].bit) {
+        acc[acc.length - 1].count += 1;
+        return acc;
+      } else {
+        acc.push({ bit: b, count: 1, index });
+        return acc;
+      }
+    }, []);
+  };
+
   return (
     <>
       {modals}
@@ -143,12 +162,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               )}
             </Stack>
             <Group gap={4} wrap="nowrap">
-              <Badge
-                className={examTypeClasses.badge}
-                title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
-              >
-                {exam.count_answered} / {exam.count_cuts}
-              </Badge>
               {exam.has_solution && (
                 <Badge
                   className={examTypeClasses.badge}
@@ -158,6 +171,40 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   Solution
                 </Badge>
               )}
+              <Tooltip
+                label={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
+              >
+                <svg width="100" height="25" xmlns="http://www.w3.org/2000/svg">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="100"
+                    height="10"
+                    fill="transparent"
+                  />
+                  {contiguousAnswered(exam).map(({ bit, count, index }) => (
+                    <rect
+                      x={((index * 100) / exam.answered_bits.length).toFixed(2)}
+                      y="10"
+                      width={(count * 100) / exam.answered_bits.length}
+                      height="5"
+                      fill={
+                        bit === "1"
+                          ? "var(--mantine-primary-color-filled)"
+                          : "transparent"
+                      }
+                      key={index}
+                    />
+                  ))}
+                  <rect
+                    x="0"
+                    y="15"
+                    width="100"
+                    height="10"
+                    fill="transparent"
+                  />
+                </svg>
+              </Tooltip>
             </Group>
             {catAdmin && !exam.finished_cuts && (
               <ClaimButton exam={exam} reloadExams={reload} size="compact-sm" />

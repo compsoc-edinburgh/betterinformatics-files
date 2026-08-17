@@ -70,6 +70,7 @@ class ExamCounts(models.Model):
 
     count_cuts = models.IntegerField()
     count_answered = models.IntegerField()
+    answered_bits = models.TextField(null=True)
 
     class Meta:
         managed = False
