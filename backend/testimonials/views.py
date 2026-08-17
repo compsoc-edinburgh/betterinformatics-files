@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+
 from categories.models import Category
 from ediauth import auth_check
 from testimonials.models import Testimonial
@@ -8,12 +10,13 @@ from util import response
 @auth_check.require_login
 def testimonial_metadata(request, slug: str):
     res = []
-
-    try:
-        category_obj = Category.objects.get(slug=slug)
-    except Category.DoesNotExist:
-        return response.not_possible(f"Category with slug: '{slug}' does not exist")
-    testimonials = Testimonial.objects.filter(category=category_obj)
+    category_obj = get_object_or_404(
+        Category,
+        slug=slug,
+    )
+    testimonials = Testimonial.objects.filter(category=category_obj).select_related(
+        "author", "category"
+    )
 
     res = [
         {

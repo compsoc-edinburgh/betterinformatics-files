@@ -164,7 +164,7 @@ def verify(request: HttpRequest):
 
 @response.request_post("display_username")
 def update_name(request: HttpRequest):
-    if request.user == None:
+    if request.user is None:
         return response.not_allowed()
 
     if "display_username" not in request.POST:
