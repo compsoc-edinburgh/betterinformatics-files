@@ -5,8 +5,14 @@
 }
 
 .exam-table {
-  width: calc(100% + 2 * var(--mantine-spacing-md));
-  margin-left: calc(-1 * var(--mantine-spacing-md));
+  /* Appear flush with the outer edge of Paper. Use the same breakpoints. */
+  width: calc(100% + 2 * var(--mantine-spacing-sm));
+  margin-left: calc(-1 * var(--mantine-spacing-sm));
+
+  @mixin larger-than $mantine-breakpoint-sm {
+    width: calc(100% + 2 * var(--mantine-spacing-md));
+    margin-left: calc(-1 * var(--mantine-spacing-md));
+  }
 }
 
 .exam-row {
@@ -20,11 +26,21 @@
   }
 
   & > :first-child {
-    padding-left: var(--mantine-spacing-md);
+    /* Align inner content with how it should be without the exam-table
+    negative margin */
+    padding-left: var(--mantine-spacing-sm);
+
+    @mixin larger-than $mantine-breakpoint-sm {
+      padding-left: var(--mantine-spacing-md);
+    }
   }
 
   & > :last-child {
-    padding-right: var(--mantine-spacing-md);
+    padding-right: var(--mantine-spacing-sm);
+
+    @mixin larger-than $mantine-breakpoint-sm {
+      padding-right: var(--mantine-spacing-md);
+    }
   }
 
   &:hover {
