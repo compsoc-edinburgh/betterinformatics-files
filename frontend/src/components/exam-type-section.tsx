@@ -23,6 +23,7 @@ import { clsx } from "clsx";
 import {
   IconChecklist,
   IconEyeOff,
+  IconFileCertificate,
   IconPencilCheck,
   IconScissors,
   IconTrash,
@@ -148,13 +149,22 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               flex="0 0 auto"
             />
             <Stack gap={0} flex={1} className={clsx(examTypeClasses.examLink)}>
-              {exam.canView ? (
-                <Anchor component={Link} to={`/exams/${exam.filename}`}>
-                  <Text size="md">{exam.displayname}</Text>
-                </Anchor>
-              ) : (
-                exam.displayname
-              )}
+              <Group gap="xs">
+                {exam.canView ? (
+                  <Anchor component={Link} to={`/exams/${exam.filename}`}>
+                    <Text size="md">{exam.displayname}</Text>
+                  </Anchor>
+                ) : (
+                  exam.displayname
+                )}
+                {exam.has_solution && (
+                  <StatusIcon
+                    tooltip="Official Solutions Available"
+                    icon={IconFileCertificate}
+                    color="blue"
+                  />
+                )}
+              </Group>
               {exam.remark && (
                 <Text c="dimmed" size="sm" mb="0.15em">
                   {exam.remark}
@@ -162,15 +172,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               )}
             </Stack>
             <Group gap={4} wrap="nowrap">
-              {exam.has_solution && (
-                <Badge
-                  className={examTypeClasses.badge}
-                  title="Has an official solution."
-                  color="green"
-                >
-                  Solution
-                </Badge>
-              )}
               <Tooltip
                 label={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
               >
