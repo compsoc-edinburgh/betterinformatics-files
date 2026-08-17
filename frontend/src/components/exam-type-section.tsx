@@ -1,7 +1,6 @@
 import { useRequest } from "ahooks";
 import {
   Anchor,
-  Badge,
   Box,
   Checkbox,
   Group,
@@ -128,12 +127,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       </Group>
       <Box className={examTypeClasses.examTable}>
         {exams.map(exam => (
-          <Group
+          <Box
             key={exam.filename}
             className={clsx(examTypeClasses.examRow, fadeClasses.fadeInOrder)}
-            align="center"
-            wrap="nowrap"
-            gap="md"
           >
             <Checkbox
               checked={selected.has(exam.filename)}
@@ -146,9 +142,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               // Might be obsolete code below, unviewable exams should be
               // filtered already at this point.
               disabled={!exam.canView}
-              flex="0 0 auto"
+              style={{ alignSelf: "center" }}
             />
-            <Stack gap={0} flex={1} className={clsx(examTypeClasses.examLink)}>
+            <Stack gap={0} className={clsx(examTypeClasses.examLink)}>
               <Group gap="xs">
                 {exam.canView ? (
                   <Anchor component={Link} to={`/exams/${exam.filename}`}>
@@ -218,11 +214,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     fill="transparent"
                   />
                 </svg>
-                <Text
-                  aria-hidden
-                  size="sm"
-                  className={examTypeClasses.answeredCount}
-                >
+                <Text aria-hidden size="sm" opacity={0.8}>
                   {exam.count_answered}/{exam.count_cuts}
                 </Text>
               </Group>
@@ -278,7 +270,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 />
               )}
             </Group>
-          </Group>
+          </Box>
         ))}
       </Box>
     </>
