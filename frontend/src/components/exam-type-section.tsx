@@ -171,15 +171,24 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 </Text>
               )}
             </Stack>
-            <Group gap={4} wrap="nowrap">
-              <Tooltip
-                label={`${exam.count_answered}/${exam.count_cuts} questions have been answered.`}
+            <Tooltip
+              label={`${exam.count_answered}/${exam.count_cuts} questions have been answered.`}
+            >
+              <Group
+                gap={4}
+                wrap="nowrap"
+                pos="relative"
+                justify="space-between"
               >
-                <svg width="100" height="25" xmlns="http://www.w3.org/2000/svg">
-                  <title>
-                    {exam.count_answered} out of {exam.count_cuts} questions
-                    have been answered.
-                  </title>
+                <svg
+                  width="100"
+                  height="25"
+                  xmlns="http://www.w3.org/2000/svg"
+                  role="img"
+                  aria-label={`${exam.count_answered} out of ${exam.count_cuts} questions have
+                    been answered.`}
+                  className={examTypeClasses.answeredBar}
+                >
                   <rect
                     x="0"
                     y="0"
@@ -209,8 +218,15 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     fill="transparent"
                   />
                 </svg>
-              </Tooltip>
-            </Group>
+                <Text
+                  aria-hidden
+                  size="sm"
+                  className={examTypeClasses.answeredCount}
+                >
+                  {exam.count_answered}/{exam.count_cuts}
+                </Text>
+              </Group>
+            </Tooltip>
             {catAdmin && !exam.finished_cuts && (
               <ClaimButton exam={exam} reloadExams={reload} size="compact-sm" />
             )}
