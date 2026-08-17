@@ -1,16 +1,18 @@
 import { useRequest } from "ahooks";
 import {
+  Anchor,
   Badge,
-  Card,
+  Box,
   Checkbox,
-  Flex,
-  Grid,
   Group,
+  Stack,
   Text,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import React from "react";
 import examTypeClasses from "./exam-type-section.module.css";
+import fadeClasses from "../utils/fade-in-order.module.css";
 import { Link } from "react-router-dom";
 import { useUser } from "../auth";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
@@ -18,9 +20,14 @@ import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
 import { clsx } from "clsx";
-import classes from "../utils/focus-outline.module.css";
-import ExamGrid from "./exam-grid";
-import { IconCheck, IconTrash } from "@tabler/icons-react";
+import {
+  IconChecklist,
+  IconEyeOff,
+  IconPencilCheck,
+  IconScissors,
+  IconTrash,
+  IconWorld,
+} from "@tabler/icons-react";
 import {
   markExamUserSolved,
   removeExam,
@@ -72,20 +79,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
     );
   };
 
-  const clickOnExam = (exam: CategoryExam) => {
-    // If there are exams selected already, then clicking on an exam will behave
-    // as if we clicked on the checkbox. This is to make the UX less prone to
-    // inadvertently clicking on exams and navigating away, losing the selection.
-    if (someSelected) {
-      if (selected.has(exam.filename)) {
-        onDeselect(exam.filename);
-      } else {
-        onSelect(exam.filename);
-      }
-    }
-    // If there are no exams selected, the Link component will handle the click.
-  };
-
   async function handleToggleUserSolved(
     event: React.SyntheticEvent,
     exam: CategoryExam,
@@ -113,130 +106,114 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
         />
         <Title order={3}>{examtype}</Title>
       </Group>
-      <ExamGrid>
+      <Box className={examTypeClasses.examTable}>
         {exams.map(exam => (
-          <Card
-            withBorder
-            className={clsx(classes.focusOutline, classes.hoverShadow)}
-            // Add onClick and onKeydown functionality for when the component
-            // is not a Link, i.e. when there are exams selected.
-            onClick={(_e: any) => clickOnExam(exam)}
-            onKeyDown={(e: any) => {
-              if (e.code === "Enter") clickOnExam(exam);
-            }}
-            tabIndex={0}
+          <Group
             key={exam.filename}
-            fw={600}
-            // Prevent navigating away when there are exams selected.
-            component={(someSelected ? undefined : Link) as any}
-            style={{ cursor: someSelected ? "default" : "pointer" }}
-            to={`/exams/${exam.filename}`}
+            className={clsx(examTypeClasses.examRow, fadeClasses.fadeInOrder)}
+            align="center"
+            wrap="nowrap"
+            gap="md"
           >
-            <Grid>
-              <Grid.Col span="content">
-                <Checkbox
-                  mt="0.25em"
-                  checked={selected.has(exam.filename)}
-                  // Prevent the click event from propagating to the containing
-                  // card's handlers.
-                  onClick={e => e.stopPropagation()}
-                  // Toggle the selection state in the parent component.
-                  onChange={e => {
-                    e.currentTarget.checked
-                      ? onSelect(exam.filename)
-                      : onDeselect(exam.filename);
-                  }}
-                  // Might be obsolete code below, unviewable exams should be
-                  // filtered already at this point.
-                  disabled={!exam.canView}
-                />
-              </Grid.Col>
-              <Grid.Col span="auto">
-                {exam.canView ? (
-                  <Text size="lg" fw={600} mb="sm">
-                    {exam.displayname}
-                  </Text>
+            <Checkbox
+              checked={selected.has(exam.filename)}
+              // Toggle the selection state in the parent component.
+              onChange={e =>
+                e.currentTarget.checked
+                  ? onSelect(exam.filename)
+                  : onDeselect(exam.filename)
+              }
+              // Might be obsolete code below, unviewable exams should be
+              // filtered already at this point.
+              disabled={!exam.canView}
+              flex="0 0 auto"
+            />
+            <Stack gap={0} flex={1} className={clsx(examTypeClasses.examLink)}>
+              {exam.canView ? (
+                <Anchor component={Link} to={`/exams/${exam.filename}`}>
+                  <Text size="md">{exam.displayname}</Text>
+                </Anchor>
+              ) : (
+                exam.displayname
+              )}
+              {exam.remark && (
+                <Text c="dimmed" size="sm" mb="0.15em">
+                  {exam.remark}
+                </Text>
+              )}
+            </Stack>
+            <Group gap={4} wrap="nowrap">
+              <Badge
+                className={examTypeClasses.badge}
+                title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
+              >
+                {exam.count_answered} / {exam.count_cuts}
+              </Badge>
+              {exam.has_solution && (
+                <Badge
+                  className={examTypeClasses.badge}
+                  title="Has an official solution."
+                  color="green"
+                >
+                  Solution
+                </Badge>
+              )}
+            </Group>
+            {catAdmin && !exam.finished_cuts && (
+              <ClaimButton exam={exam} reloadExams={reload} mt="sm" />
+            )}
+            <Group gap="xs" wrap="nowrap">
+              {catAdmin &&
+                (exam.finished_cuts ? (
+                  <Tooltip label="Admin actions all done">
+                    <IconChecklist color="green" />
+                  </Tooltip>
                 ) : (
-                  exam.displayname
-                )}
-                <div>
-                  {exam.remark && (
-                    <Text c="dimmed" size="sm" mb="0.15em">
-                      {exam.remark}
-                    </Text>
-                  )}
-                  <Flex mt="0.2em" gap={4} wrap="wrap">
-                    {catAdmin &&
-                      (exam.public ? (
-                        <Badge className={examTypeClasses.badge}>public</Badge>
-                      ) : (
-                        <Badge className={examTypeClasses.badge}>hidden</Badge>
-                      ))}
-                    {catAdmin &&
-                      (exam.finished_cuts ? (
-                        <Badge className={examTypeClasses.badge} color="green">
-                          All done
-                        </Badge>
-                      ) : (
-                        <Badge className={examTypeClasses.badge} color="orange">
-                          Needs Cuts
-                        </Badge>
-                      ))}
+                  <Tooltip label="Admin must cut the exam">
+                    <IconScissors color="orange" />
+                  </Tooltip>
+                ))}
 
-                    <Badge
-                      className={examTypeClasses.badge}
-                      title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
-                    >
-                      {exam.count_answered} / {exam.count_cuts}
-                    </Badge>
-                    {exam.has_solution && (
-                      <Badge title="Has an official solution." color="green">
-                        Solution
-                      </Badge>
-                    )}
-                    {exam.user_solved && (
-                      <Badge title="Marked as already solved" color="grape">
-                        Solved
-                      </Badge>
-                    )}
-                  </Flex>
-                </div>
-                {catAdmin && !exam.finished_cuts && (
-                  <ClaimButton exam={exam} reloadExams={reload} mt="sm" />
-                )}
-              </Grid.Col>
-              <Grid.Col span="content">
+              {catAdmin &&
+                (exam.public ? (
+                  <Tooltip label="Exam is public">
+                    <IconWorld />
+                  </Tooltip>
+                ) : (
+                  <Tooltip label="Exam is hidden">
+                    <IconEyeOff />
+                  </Tooltip>
+                ))}
+              <IconButton
+                size="sm"
+                color={exam.user_solved ? "grape" : "gray"}
+                tooltip={
+                  exam.user_solved
+                    ? "Mark exam as unsolved"
+                    : "Mark exam as solved"
+                }
+                icon={<IconPencilCheck />}
+                onClick={(event: React.SyntheticEvent) => {
+                  void handleToggleUserSolved(event, exam);
+                }}
+                variant={exam.user_solved ? "filled" : "transparent"}
+              />
+              {user.isAdmin && (
                 <IconButton
-                  size="md"
-                  color={exam.user_solved ? "grape" : "gray"}
-                  tooltip={
-                    exam.user_solved
-                      ? "Mark exam as unsolved"
-                      : "Mark exam as solved"
+                  size="sm"
+                  color="red"
+                  tooltip="Delete exam"
+                  icon={<IconTrash />}
+                  variant="outline"
+                  onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                    handleRemoveClick(e, exam)
                   }
-                  icon={<IconCheck />}
-                  onClick={(event: React.SyntheticEvent) => {
-                    void handleToggleUserSolved(event, exam);
-                  }}
                 />
-                {user.isAdmin && (
-                  <IconButton
-                    ms="xs"
-                    size="md"
-                    color="red"
-                    tooltip="Delete exam"
-                    icon={<IconTrash />}
-                    variant="outline"
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
-                      handleRemoveClick(e, exam)
-                    }
-                  />
-                )}
-              </Grid.Col>
-            </Grid>
-          </Card>
+              )}
+            </Group>
+          </Group>
         ))}
-      </ExamGrid>
+      </Box>
     </>
   );
 };
