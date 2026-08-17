@@ -173,7 +173,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
             </Stack>
             <Group gap={4} wrap="nowrap">
               <Tooltip
-                label={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
+                label={`${exam.count_answered}/${exam.count_cuts} questions have an answer.`}
               >
                 <svg width="100" height="25" xmlns="http://www.w3.org/2000/svg">
                   <rect
