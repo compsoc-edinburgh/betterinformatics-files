@@ -174,7 +174,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   ? bi_courses_data.session.replace("-", "/")
   : "this year's";
   
-  const { data : testimonials, loading: loading_testimonials, error: error_testimonials } = useRequest(
+  const { data : testimonials} = useRequest(
     () => loadTestimonialsByCourse(metaData.slug)
     );
 
