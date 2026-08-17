@@ -1,6 +1,5 @@
 import {
   Tooltip,
-  alpha,
   lighten,
   parseThemeColor,
   useMantineTheme,

@@ -8,7 +8,6 @@ import {
   Stack,
   Text,
   Title,
-  Tooltip,
 } from "@mantine/core";
 import React from "react";
 import examTypeClasses from "./exam-type-section.module.css";
