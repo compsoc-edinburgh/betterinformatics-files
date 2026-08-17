@@ -33,6 +33,7 @@ import {
   removeExam,
   unmarkExamUserSolved,
 } from "../api/hooks";
+import { StatusIcon } from "./status-icon";
 
 interface ExamTypeCardProps {
   examtype: string;
@@ -163,27 +164,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               <ClaimButton exam={exam} reloadExams={reload} mt="sm" />
             )}
             <Group gap="xs" wrap="nowrap">
-              {catAdmin &&
-                (exam.finished_cuts ? (
-                  <Tooltip label="Admin actions all done">
-                    <IconChecklist color="green" />
-                  </Tooltip>
-                ) : (
-                  <Tooltip label="Admin must cut the exam">
-                    <IconScissors color="orange" />
-                  </Tooltip>
-                ))}
-
-              {catAdmin &&
-                (exam.public ? (
-                  <Tooltip label="Exam is public">
-                    <IconWorld />
-                  </Tooltip>
-                ) : (
-                  <Tooltip label="Exam is hidden">
-                    <IconEyeOff />
-                  </Tooltip>
-                ))}
               <IconButton
                 size="sm"
                 color={exam.user_solved ? "grape" : "gray"}
@@ -198,13 +178,33 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 }}
                 variant={exam.user_solved ? "filled" : "transparent"}
               />
+              {catAdmin &&
+                (exam.finished_cuts ? (
+                  <StatusIcon
+                    tooltip="Admin actions all done"
+                    icon={IconChecklist}
+                    color="green"
+                  />
+                ) : (
+                  <StatusIcon
+                    tooltip="Admin must cut the exam"
+                    icon={IconScissors}
+                    color="orange"
+                  />
+                ))}
+              {catAdmin &&
+                (exam.public ? (
+                  <StatusIcon tooltip="Exam is public" icon={IconWorld} />
+                ) : (
+                  <StatusIcon tooltip="Exam is hidden" icon={IconEyeOff} />
+                ))}
               {user.isAdmin && (
                 <IconButton
                   size="sm"
                   color="red"
                   tooltip="Delete exam"
                   icon={<IconTrash />}
-                  variant="outline"
+                  variant="transparent"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
                     handleRemoveClick(e, exam)
                   }
