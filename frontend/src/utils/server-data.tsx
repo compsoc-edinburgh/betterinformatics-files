@@ -14,7 +14,7 @@ interface IServerData {
     icon: string | undefined;
   }[];
   document_download_safe_extensions: string[];
-  hcaptcha_sitekey: string;
+  turnstile_sitekey: string;
 }
 const getServerData = () => {
   const element = document.getElementById("server-data");

@@ -97,7 +97,11 @@ export default defineConfig(
             "@typescript-eslint/non-nullable-type-assertion-style": "warn",
             "@typescript-eslint/prefer-for-of": "warn",
             "@typescript-eslint/prefer-includes": "warn",
-            "@typescript-eslint/prefer-nullish-coalescing": "warn",
+            "@typescript-eslint/prefer-nullish-coalescing": ["warn", {
+                "ignorePrimitives": {
+                    "boolean": true,
+                }
+            }],
             "@typescript-eslint/prefer-optional-chain": "warn",
             "@typescript-eslint/prefer-promise-reject-errors": "warn",
             "@typescript-eslint/prefer-reduce-type-parameter": "warn",

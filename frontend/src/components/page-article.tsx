@@ -32,12 +32,13 @@ import { useUser } from "../auth";
 import { loadCategories } from "../api/hooks";
 import { useRequest } from "ahooks";
 import { Link, useMatch, useNavigate, useSearchParams } from "react-router-dom";
-import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { ExtremelyTrustedHTML } from "./extremely-trusted-html";
 import { usePendingImages } from "./Editor/pending-images";
 import { HtmlEditor } from "./html-editor";
 import useTitle from "../hooks/useTitle";
 import { PageArticleContent } from "./page-article-content";
+import serverData from "../utils/server-data";
 
 export const PageArticle: React.FC<{
   page: PageResponse;
@@ -71,7 +72,7 @@ export const PageArticle: React.FC<{
 
   const editing = match !== null;
 
-  const { ready, token, executeInstance } = useHCaptcha();
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const {
@@ -95,7 +96,7 @@ export const PageArticle: React.FC<{
     request: {
       method: "PUT", // will be overridden anyway by orval definition
       headers: {
-        "X-HCaptcha-Token": token ?? "",
+        "X-Turnstile-Token": turnstileToken ?? "",
       },
     },
   });
@@ -297,6 +298,15 @@ export const PageArticle: React.FC<{
             </List>
           </>
         )}
+        {!editing && !user?.isAdmin && (
+          <Turnstile
+            siteKey={serverData.turnstile_sitekey}
+            onSuccess={setTurnstileToken}
+            options={{
+              action: "update_page",
+            }}
+          />
+        )}
       </Paper>
       <GuideSidebarRight
         page={page}
@@ -310,8 +320,7 @@ export const PageArticle: React.FC<{
         onSave={onSubmit}
         error={updatePageError}
         onDelete={onDelete}
-        captchaReady={ready}
-        captchaExecute={executeInstance}
+        captchaReady={user?.isAdmin || turnstileToken !== null}
       />
     </Flex>
   );

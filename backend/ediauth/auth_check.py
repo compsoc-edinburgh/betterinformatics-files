@@ -31,22 +31,22 @@ def supports_temp_user(f):
         if settings.COMSOL_AUTH_GUESTS_ALLOWED is False:
             return not_allowed()
 
-        # Before doing anything, check the required hcaptcha token
+        # Before doing anything, check the required turnstile token
         if not settings.TESTING:
-            hcaptcha_token = request.headers.get("X-HCaptcha-Token")
-            if not hcaptcha_token:
-                print("No hcaptcha token provided")
+            turnstile_token = request.headers.get("X-Turnstile-Token")
+            if not turnstile_token:
+                print("No turnstile token provided")
                 return not_allowed()
 
             r = req.post(
-                "https://hcaptcha.com/siteverify",
+                "https://challenges.cloudflare.com/turnstile/v0/siteverify",
                 data={
-                    "secret": settings.HCAPTCHA_SECRET,
-                    "response": hcaptcha_token,
+                    "secret": settings.TURNSTILE_SECRET,
+                    "response": turnstile_token,
                 },
             )
             if not r.json().get("success"):
-                print("Hcaptcha verification failed", r.json())
+                print("Turnstile verification failed", r.json())
                 return not_allowed()
 
         if (
