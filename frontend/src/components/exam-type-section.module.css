@@ -26,7 +26,6 @@
 
   border-bottom: calc(0.0625rem * var(--mantine-scale)) solid
     var(--mantine-color-gray-3);
-  padding: calc(var(--mantine-spacing-xs) / 2) 0;
 
   &:first-child {
     border-top: calc(0.0625rem * var(--mantine-scale)) solid
@@ -60,6 +59,10 @@
   }
 
   &:hover {
+    background-color: var(--mantine-color-gray-light-hover);
+  }
+
+  &:active {
     background-color: var(--mantine-color-gray-light);
   }
 
@@ -74,6 +77,7 @@
 
 .exam-link {
   position: relative;
+  padding: calc(var(--mantine-spacing-xs) / 2) 0;
 
   & a:hover {
     text-decoration: none;
