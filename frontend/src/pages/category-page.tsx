@@ -7,7 +7,6 @@ import {
   Flex,
   Group,
   Grid,
-  List,
   Button,
   Skeleton,
   Text,
@@ -16,7 +15,6 @@ import {
   useComputedColorScheme,
   Card,
   Paper,
-  Stack,
 } from "@mantine/core";
 import React, { useCallback, useMemo } from "react";
 import {
@@ -35,21 +33,17 @@ import {
 } from "../api/hooks";
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
-import ExamList from "../components/exam-list";
-import DissertationList from "../components/dissertation-list";
 import LoadingOverlay from "../components/loading-overlay";
-import DocumentList from "../components/document-list";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import useTitle from "../hooks/useTitle";
 import MarkdownText from "../components/markdown-text";
-import { CategoryMetaData, Testimonial } from "../interfaces";
+import { CategoryMetaData } from "../interfaces";
 import {
   getMetaCategoriesForCategory,
   removeMarkdownFrontmatter,
   useEditableMarkdownLink,
 } from "../utils/category-utils";
 import {
-  IconArrowRight,
   IconChevronRight,
   IconEdit,
   IconStar,
@@ -61,10 +55,11 @@ import { useCategoryTabs } from "../hooks/useCategoryTabs";
 import CategoryStatsComponent from "../components/category-stats";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { loadTestimonialsByCourse } from "../api/testimonials";
-import { TestimonialCard } from "../components/testimonial-card";
-import { CourseworkExamRatioChart } from "../components/Charts/CourseworkExamRatioChart";
 import { useGetPage, useListPages } from "../api/hooks/pages";
-import { PageArticleContent } from "../components/page-article-content";
+import { CategoryResources } from "../components/category-resources";
+import { CategoryTestimonials } from "../components/category-testimonials";
+import { CategoryGuide } from "../components/category-guide";
+import { CategoryDRPSSession } from "./category-drps-session";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -326,79 +321,13 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                     </Paper>
                   ) : tabs.currentTabId === "resources" ? (
                     <Paper withBorder p={{ base: "sm", sm: "md" }}>
-                      <ExamList metaData={metaData} />
-
-                      <DocumentList slug={metaData.slug} />
-
-                      {metaData.attachments.length > 0 && (
-                        <>
-                          <Title order={2} mt="xl" mb="lg">
-                            Attachments
-                          </Title>
-                          <List>
-                            {metaData.attachments.map(att => (
-                              <List.Item key={att.filename}>
-                                <Anchor
-                                  href={`/api/filestore/get/${att.filename}/`}
-                                  c="blue"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {att.displayname}
-                                </Anchor>
-                              </List.Item>
-                            ))}
-                          </List>
-                        </>
-                      )}
-
-                      <Title order={2} mt="xl" mb="sm">
-                        Relevant Dissertations
-                      </Title>
-                      <Text c="gray" size="sm">
-                        Did you enjoy the contents of this course?
-                      </Text>
-                      <Text c="gray" mb="md" size="sm">
-                        You can check out dissertations that students have
-                        claimed are related to this course. These might help in
-                        finding a dissertation topic, a supervisor, or
-                        understanding what kind of novel work is being done in
-                        this area.
-                      </Text>
-                      <DissertationList slug={metaData.slug} disableSearch />
-                      <Flex justify="flex-end" mt="md">
-                        <Anchor
-                          component={Link}
-                          to="/dissertations"
-                          fz="sm"
-                          c="blue"
-                        >
-                          <Group gap="sm">
-                            View Dissertations in All Categories{" "}
-                            <IconArrowRight />
-                          </Group>
-                        </Anchor>
-                      </Flex>
+                      <CategoryResources metaData={metaData} />
                     </Paper>
                   ) : tabs.currentTabId === "testimonials" ? (
                     testimonials && (
-                      <>
-                        {testimonials.map(
-                          (testimonial: Testimonial, index: number) => (
-                            <TestimonialCard
-                              key={index}
-                              author_id={testimonial.author_id}
-                              author_display_name={
-                                testimonial.author_display_name
-                              }
-                              slug={testimonial.slug}
-                              testimonial={testimonial.testimonial}
-                              year_taken={testimonial.year_taken}
-                              approval_status={testimonial.approval_status}
-                            />
-                          ),
-                        )}
-                      </>
+                      <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                        <CategoryTestimonials testimonials={testimonials} />
+                      </Paper>
                     )
                   ) : tabs.currentTabId === "guide" ? (
                     <Paper
@@ -406,35 +335,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       p={{ base: "sm", sm: "md" }}
                       pos="relative"
                     >
-                      {page && (
-                        <Group
-                          justify="flex-end"
-                          pos="absolute"
-                          right={0}
-                          top={0}
-                          px="xs"
-                          bdrs="sm"
-                          bg="var(--mantine-color-gray-light)"
-                        >
-                          <Anchor
-                            component={Link}
-                            to={`/guide/${page.slug}/history`}
-                            size="sm"
-                          >
-                            <Text c="dimmed" size="sm">
-                              {page.revision_count} revisions
-                            </Text>
-                          </Anchor>
-                          <Anchor
-                            component={Link}
-                            to={`/guide/${page.slug}/edit?from=category`}
-                            size="sm"
-                          >
-                            Edit
-                          </Anchor>
-                        </Group>
-                      )}
-                      {page && <PageArticleContent page={page} />}
+                      <CategoryGuide page={page} />
                     </Paper>
                   ) : null}
                 </Grid.Col>
@@ -464,80 +365,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   )}
 
                   <Paper withBorder p={{ base: "sm", sm: "md" }} mb="md">
-                    <Title order={2} mb="lg">
-                      Info for {sessionString} run
-                    </Title>
-                    {quickinfo_data.length === 0 && (
-                      /*
-                      If none of the variants of this course are running this year,
-                      we show a message to the user.
-                    */ <Text c="dimmed" size="sm">
-                        This course is either not running this year or is not an
-                        Informatics course.
-                      </Text>
-                    )}
-                    {quickinfo_data.map((course, i) => (
-                      <Stack key={metaData.euclid_codes[i]} mb="sm" gap={0}>
-                        <Text>
-                          <Text span fw="bold">
-                            {metaData.euclid_codes[i]}
-                          </Text>
-                          {" - "}
-                          {course?.course_url && (
-                            <>
-                              <Anchor
-                                href={course.course_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                c="blue"
-                              >
-                                Course Page
-                              </Anchor>
-                              {", "}
-                            </>
-                          )}
-                          {course?.euclid_url && (
-                            <Anchor
-                              href={course.euclid_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              c="blue"
-                            >
-                              DRPS
-                            </Anchor>
-                          )}
-                        </Text>
-                        {course && (
-                          <>
-                            <Text>
-                              {course.name} ({course.acronym})<br />
-                              SCQF {course.level} / {course.credits} Credits /
-                              Semester {course.delivery_ordinal}
-                            </Text>
-                            <Group gap="xs">
-                              <CourseworkExamRatioChart
-                                cw_exam_ratio={course.cw_exam_ratio}
-                                style={{ height: 20, width: 20 }}
-                              />
-                              <Text>
-                                {course.cw_exam_ratio[0] > 0 &&
-                                  `${course.cw_exam_ratio[0]}% Coursework`}
-                                {course.cw_exam_ratio[0] > 0 &&
-                                  course.cw_exam_ratio[1] > 0 &&
-                                  " + "}
-                                {course.cw_exam_ratio[1] > 0 &&
-                                  `${course.cw_exam_ratio[1]}% Exam`}
-                              </Text>
-                            </Group>
-                          </>
-                        )}
-                        {!course && (
-                          <Text c="dimmed">
-                            No course information available for this code.
-                          </Text>
-                        )}
-                      </Stack>
-                    ))}
+                    <CategoryDRPSSession
+                      euclid_codes={metaData.euclid_codes}
+                      sessionString={sessionString}
+                      quickinfo_data={quickinfo_data}
+                    />
                   </Paper>
 
                   {metaData.more_markdown_link && (
