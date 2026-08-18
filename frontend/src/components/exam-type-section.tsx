@@ -167,6 +167,11 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 </Text>
               )}
             </Stack>
+            {catAdmin && !exam.finished_cuts ? (
+              <ClaimButton exam={exam} reloadExams={reload} size="compact-sm" />
+            ) : (
+              <div />
+            )}
             <Tooltip
               label={`${exam.count_answered}/${exam.count_cuts} questions have been answered.`}
             >
@@ -219,9 +224,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 </Text>
               </Group>
             </Tooltip>
-            {catAdmin && !exam.finished_cuts && (
-              <ClaimButton exam={exam} reloadExams={reload} size="compact-sm" />
-            )}
             <Group gap="xs" wrap="nowrap">
               <IconButton
                 size="sm"

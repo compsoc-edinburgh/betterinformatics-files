@@ -6,7 +6,7 @@
 
 .exam-table {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   column-gap: var(--mantine-spacing-sm);
 
   /* Appear flush with the outer edge of Paper. Use the same breakpoints. */
