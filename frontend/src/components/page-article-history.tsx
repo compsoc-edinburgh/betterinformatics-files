@@ -11,7 +11,11 @@ import {
 } from "@mantine/core";
 import { useUser } from "../auth";
 import { PageResponse } from "../api/model";
-import { useListRevisions, useRedactRevision } from "../api/hooks/pages";
+import {
+  useListRevisions,
+  useRedactRevision,
+  useRestoreRevision,
+} from "../api/hooks/pages";
 import { useState } from "react";
 import CodeBlock from "./code-block";
 import { IconArrowLeft, IconChevronRight } from "@tabler/icons-react";
@@ -68,6 +72,14 @@ export const PageArticleHistory: React.FC<{
     });
   };
 
+  const { mutate: restoreRevision } = useRestoreRevision({
+    mutation: {
+      onSuccess: () => {
+        void refetch();
+      },
+    },
+  });
+
   return (
     <Paper
       flex={1}
@@ -100,7 +112,7 @@ export const PageArticleHistory: React.FC<{
       ) : (
         isError && "There was an error loading the revision history."
       )}
-      {revisions?.revisions.map(revision => (
+      {revisions?.revisions.map((revision, i) => (
         <Stack key={revision.id} gap={0} w="100%">
           <Group gap="xs" wrap="nowrap" align="flex-start">
             <ActionIcon
@@ -139,9 +151,23 @@ export const PageArticleHistory: React.FC<{
                 <i>({revision.message})</i>
               </Text>
               {user?.isAdmin && (
-                <Anchor onClick={() => toggleRedaction(revision.id)}>
-                  (Redact)
-                </Anchor>
+                <>
+                  <Anchor onClick={() => toggleRedaction(revision.id)}>
+                    (Redact)
+                  </Anchor>{" "}
+                  {i > 0 && (
+                    <Anchor
+                      onClick={() =>
+                        restoreRevision({
+                          slug: page.slug,
+                          revisionId: revision.id,
+                        })
+                      }
+                    >
+                      (Restore)
+                    </Anchor>
+                  )}
+                </>
               )}
             </Text>
           </Group>

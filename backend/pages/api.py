@@ -559,17 +559,22 @@ def redact_revision(request, slug: str, revision_id: int, data: UpdateRevisionRe
     return 204, None
 
 
-@router.get(
-    "/{slug}/revisions/{revision_id}",
-    response={200: PageRevisionResponse, 403: ErrorSchema, 404: ErrorSchema},
-    operation_id="getRevision",
+@router.post(
+    "/{slug}/revisions/{revision_id}/restore",
+    response={204: None, 403: ErrorSchema, 404: ErrorSchema},
+    operation_id="restoreRevision",
 )
-def get_revision(request, slug: str, revision_id: int):
+@auth_check.require_admin
+def restore_revision(request, slug: str, revision_id: int):
     page = get_object_or_404(Page, slug=slug)
     revision = get_object_or_404(PageRevision, id=revision_id, page=page)
+    author = get_page_author(request)
 
-    can_see_redacted = auth_check.has_admin_rights(request)
+    # Can't restore current revision
+    if revision == page.revisions.order_by("-created_at").first():
+        return not_possible("Cannot restore the current revision")
 
+    # Restore the content and title of the page to the state of the revision
     recreated_content = ""
     recreated_title = ""
     all_previous_revisions = PageRevision.objects.filter(page=page, id__lte=revision.id)
@@ -582,6 +587,57 @@ def get_revision(request, slug: str, revision_id: int):
         recreated_title = dmp.patch_apply(
             dmp.patch_fromText(rev.title_delta), recreated_title
         )[0]
+
+    content_delta = calculate_patch(page.content, recreated_content)
+    title_delta = calculate_patch(page.title, recreated_title)
+
+    page.content = recreated_content
+    page.title = recreated_title
+    page.edited_at = datetime.datetime.now(datetime.UTC)
+    page.save()
+
+    # Create new revision
+    PageRevision.objects.create(
+        page=page,
+        author=author,
+        anonymised=False,
+        content_delta=content_delta,
+        title_delta=title_delta,
+        message=f"Restored to revision {revision.id}",
+    )
+
+    return 204, None
+
+
+@router.get(
+    "/{slug}/revisions/{revision_id}",
+    response={200: PageRevisionResponse, 403: ErrorSchema, 404: ErrorSchema},
+    operation_id="getRevision",
+)
+def get_revision(request, slug: str, revision_id: int):
+    page = get_object_or_404(Page, slug=slug)
+    revision = get_object_or_404(PageRevision, id=revision_id, page=page)
+
+    can_see_redacted = auth_check.has_admin_rights(request)
+
+    if revision.redacted and not can_see_redacted:
+        recreated_content = ""
+        recreated_title = ""
+    else:
+        all_previous_revisions = PageRevision.objects.filter(
+            page=page, id__lte=revision.id
+        )
+
+        dmp = dmp_module.diff_match_patch()
+        recreated_content = ""
+        recreated_title = ""
+        for rev in all_previous_revisions:
+            recreated_content = dmp.patch_apply(
+                dmp.patch_fromText(rev.content_delta), recreated_content
+            )[0]
+            recreated_title = dmp.patch_apply(
+                dmp.patch_fromText(rev.title_delta), recreated_title
+            )[0]
 
     return {
         "id": revision.id,
