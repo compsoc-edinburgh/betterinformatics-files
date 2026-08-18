@@ -213,15 +213,27 @@ CONTENT_SECURITY_POLICY = {
             "'self'",
             "'unsafe-eval'",
             "https://analytics.betterinformatics.com/api/",
+            # Captchas
+            "https://hcaptcha.com",
+            "https://*.hcaptcha.com",
             *allowed_script_sources,
         ],
         "style-src": [
             "'self'",
             "'unsafe-inline'",
             "https://fonts.googleapis.com",
+            # Captchas
+            "https://hcaptcha.com",
+            "https://*.hcaptcha.com",
         ],
         "font-src": ["'self'", "data:", "https://fonts.gstatic.com"],
-        "frame-src": ["'self'", "https://minio.on.tardis.ac:80"],
+        "frame-src": [
+            "'self'",
+            "https://minio.on.tardis.ac:80",
+            # Captchas
+            "https://hcaptcha.com",
+            "https://*.hcaptcha.com",
+        ],
         "connect-src": [
             "'self'",
             "https://" + s3_host + ":" + s3_port,
@@ -233,6 +245,9 @@ CONTENT_SECURITY_POLICY = {
             "https://betterinformatics.com/courses.json",
             # Allow self hosted tracking
             "https://analytics.betterinformatics.com/api/",
+            # Captchas
+            "https://hcaptcha.com",
+            "https://*.hcaptcha.com",
         ],
         "img-src": [
             "'self'",
