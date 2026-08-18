@@ -2,13 +2,12 @@
 
 ## v2026.08.18-1
 
-- Add merge\_group to CI to trigger on merge trains ([\#135](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/135))
-- Fix the link hitbox in the exam list being thinner than row ([\#134](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/134))
-- Extract out all category page tabs into components for modularity ([\#133](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/133))
-- Fix claim button changing exam list layout above 4 columns ([\#132](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/132))
+- Hotfix for the link hitbox in the exam list being thinner than row ([\#134](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/134))
+- Hotfix for exam list layout breaking for admins ([\#132](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/132))
+- Swap HCaptcha for Cloudflare Turnstile ([\#129](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/129))
+- Remove now-redundant 'Useful Links' box ([\#130](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/130))
+- Developer improvements: use merge trains ([\#135](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/135)), split large files ([\#133](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/133))
 - Fix inconisistent spacing between boxes on category page ([\#131](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/131))
-- Remove redundant 'Useful Links' box from category page ([\#130](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/130))
-- Hotfix: Replace HCaptcha with Cloudflare Turnstile ([\#129](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/129))
 
 ## v2026.08.18
 
