@@ -8,11 +8,8 @@ import {
   Group,
   Grid,
   Button,
-  Skeleton,
   Text,
   Title,
-  Tooltip,
-  useComputedColorScheme,
   Card,
   Paper,
 } from "@mantine/core";
@@ -36,13 +33,8 @@ import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import LoadingOverlay from "../components/loading-overlay";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import useTitle from "../hooks/useTitle";
-import MarkdownText from "../components/markdown-text";
 import { CategoryMetaData } from "../interfaces";
-import {
-  getMetaCategoriesForCategory,
-  removeMarkdownFrontmatter,
-  useEditableMarkdownLink,
-} from "../utils/category-utils";
+import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import {
   IconChevronRight,
   IconEdit,
@@ -69,8 +61,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   onMetaDataChange,
   metaData,
 }) => {
-  const computedColorScheme = useComputedColorScheme("light");
-
   const {
     data,
     loading: _,
@@ -78,29 +68,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   } = useRequest(loadMetaCategories, {
     cacheKey: "meta-categories",
   });
-
-  // Fetch the content at data.more_markdown_link (should be CSP-compliant
-  // because we verify before storing it in the database)
-  const {
-    data: raw_md_contents,
-    loading: md_loading,
-    error: md_error,
-  } = useRequest(
-    () =>
-      fetch(metaData.more_markdown_link)
-        .then(r => r.text())
-        .then(m => removeMarkdownFrontmatter(m)),
-    {
-      // cache and set a liberal throttle (ms) to avoid frequently fetching
-      // something that doesn't change too often
-      refreshDeps: [metaData],
-      cacheKey: `category-md-${metaData.slug}`,
-      throttleInterval: 1800000,
-    },
-  );
-  const { editable: md_editable, link: md_edit_link } = useEditableMarkdownLink(
-    metaData.more_markdown_link,
-  );
 
   const navigate = useNavigate();
   const [removeLoading, remove] = useRemoveCategory(() => navigate("/"));
@@ -371,51 +338,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       quickinfo_data={quickinfo_data}
                     />
                   </Paper>
-
-                  {metaData.more_markdown_link && (
-                    <Paper withBorder p={{ base: "sm", sm: "md" }}>
-                      <Group align="baseline" justify="space-between" mb="sm">
-                        <Title order={2}>Useful Links</Title>
-                        {md_editable && (
-                          <Tooltip label="Edit this page on GitHub">
-                            <Button
-                              size="compact-sm"
-                              variant="light"
-                              component="a"
-                              target="_blank"
-                              href={md_edit_link}
-                              visibleFrom="md"
-                            >
-                              Edit
-                            </Button>
-                          </Tooltip>
-                        )}
-                      </Group>
-                      {md_loading && !raw_md_contents && (
-                        <Skeleton height="2rem" />
-                      )}
-                      {md_error && (
-                        <Alert color="red">
-                          Failed to render additional info: {md_error.message}
-                        </Alert>
-                      )}
-                      {raw_md_contents !== undefined && (
-                        <Text
-                          c={
-                            computedColorScheme === "light"
-                              ? "gray.7"
-                              : "gray.4"
-                          }
-                        >
-                          <MarkdownText
-                            value={raw_md_contents}
-                            localLinkBase="https://betterinformatics.com"
-                            ignoreHtml={true}
-                          />
-                        </Text>
-                      )}
-                    </Paper>
-                  )}
                 </Grid.Col>
               </Grid>
             </>
