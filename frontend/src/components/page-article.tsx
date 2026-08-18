@@ -298,13 +298,15 @@ export const PageArticle: React.FC<{
             </List>
           </>
         )}
-        <Turnstile
-          siteKey={serverData.turnstile_sitekey}
-          onSuccess={setTurnstileToken}
-          options={{
-            action: "update_page",
-          }}
-        />
+        {!editing && !user?.isAdmin && (
+          <Turnstile
+            siteKey={serverData.turnstile_sitekey}
+            onSuccess={setTurnstileToken}
+            options={{
+              action: "update_page",
+            }}
+          />
+        )}
       </Paper>
       <GuideSidebarRight
         page={page}
@@ -318,7 +320,7 @@ export const PageArticle: React.FC<{
         onSave={onSubmit}
         error={updatePageError}
         onDelete={onDelete}
-        captchaReady={turnstileToken !== null}
+        captchaReady={user?.isAdmin || turnstileToken !== null}
       />
     </Flex>
   );

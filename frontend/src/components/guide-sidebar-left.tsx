@@ -178,6 +178,26 @@ export const GuideSideBarLeft: React.FC = () => {
                 }
               />
             )}
+          </Group>
+          <Button
+            disabled={createIsPending || newPageName.trim() === ""}
+            onClick={() =>
+              createPage({
+                data: {
+                  kind: newPageKind,
+                  title: newPageName,
+                  parents: newPageParents,
+                  category: null,
+                  is_anonymous: newPageAnonymous,
+                },
+              })
+            }
+            leftSection={<IconPlus />}
+            loading={createIsPending || (!user?.isAdmin && !turnstileToken)}
+          >
+            Add
+          </Button>
+          {!user?.isAdmin && (
             <Turnstile
               siteKey={serverData.turnstile_sitekey}
               onSuccess={setTurnstileToken}
@@ -185,25 +205,7 @@ export const GuideSideBarLeft: React.FC = () => {
                 action: "create_page",
               }}
             />
-            <Button
-              disabled={createIsPending || newPageName.trim() === ""}
-              onClick={() =>
-                createPage({
-                  data: {
-                    kind: newPageKind,
-                    title: newPageName,
-                    parents: newPageParents,
-                    category: null,
-                    is_anonymous: newPageAnonymous,
-                  },
-                })
-              }
-              leftSection={<IconPlus />}
-              loading={createIsPending || !turnstileToken}
-            >
-              Add
-            </Button>
-          </Group>
+          )}
         </Stack>
       </Modal>
       <Stack
