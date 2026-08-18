@@ -273,6 +273,33 @@ def patch_to_standard_diff(patch_text: str) -> str:
     return "\n".join(formatted_lines)
 
 
+def normalise_page_parents(page: Page):
+    """
+    Make sure that a page with at least one parent has no
+    PageParent(parent=None), and that a page with no parents has exactly one.
+    Should be called after fiddling around with page parents.
+    """
+    links = PageParent.objects.filter(child=page)
+    top_level_links = links.filter(parent__isnull=True)
+
+    if links.filter(parent__isnull=False).exists():
+        top_level_links.delete()
+        return
+
+    # No parents, so it needs exactly one top-level relation. If there are
+    # multiple (there shouldn't be..., but bad code can introduce it), use the
+    # oldest one
+    kept = top_level_links.order_by("id").first()
+    if kept is None:
+        PageParent.objects.create(
+            parent=None,
+            child=page,
+            order=PageParent.objects.filter(parent=None).count(),
+        )
+    else:
+        top_level_links.exclude(id=kept.id).delete()
+
+
 def create_page_nochecks(
     title: str,
     kind: Page.Kind,
@@ -293,19 +320,13 @@ def create_page_nochecks(
     )
     page.save()
 
-    if not parents:
-        # Create a PageParent with null parent for top-level pages
+    for parent in parents:
+        # order is based on number of other childs
         PageParent.objects.create(
-            parent=None,
-            child=page,
-            order=PageParent.objects.filter(parent=None).count(),
+            parent=parent, child=page, order=parent.children.count()
         )
-    else:
-        for parent in parents:
-            # order is based on number of other childs
-            PageParent.objects.create(
-                parent=parent, child=page, order=parent.children.count()
-            )
+
+    normalise_page_parents(page)
 
     content_patch = calculate_patch("", page.content)
     title_patch = calculate_patch("", page.title)
@@ -465,28 +486,20 @@ def update_page(request, slug: str, data: PageUpdateRequest):
         except Page.DoesNotExist:
             return not_possible(f"Parent page {parent_slug} does not exist")
 
-    # If changing from a child to top-level, add a PageParent with null parent
-    if (
-        not parents
-        and PageParent.objects.filter(child=page, parent__isnull=False).exists()
-    ):
-        # Create a PageParent with null parent for top-level pages
-        PageParent.objects.create(
-            parent=None,
-            child=page,
-            order=PageParent.objects.filter(parent=None).count(),
-        )
-        # Remove all existing PageParent entries for this page
-        PageParent.objects.filter(child=page).exclude(parent=None).delete()
-    else:
-        # Otherwise, remove all existing PageParent entries for this page and
-        # add new ones
+    if parents:
+        # Remove all existing PageParent entries for this page and add new ones
         PageParent.objects.filter(child=page).delete()
         for parent in parents:
             # order is based on number of other childs
             PageParent.objects.create(
                 parent=parent, child=page, order=parent.children.count()
             )
+    else:
+        # Changing to top-level - only drop the parents here, so that an
+        # existing top-level relation keeps its position among its peers
+        PageParent.objects.filter(child=page, parent__isnull=False).delete()
+
+    normalise_page_parents(page)
 
     page.edited_at = datetime.datetime.now(datetime.UTC)
     page.save()
@@ -680,12 +693,8 @@ def delete_page(request, slug: str):
 
     page.delete()
 
-    # Re-parent all former children to the root (parent=None)
+    # Re-parent all former exclusive children to the root
     for child in children:
-        PageParent.objects.create(
-            parent=None,
-            child=child,
-            order=PageParent.objects.filter(parent=None).count(),
-        )
+        normalise_page_parents(child)
 
     return 204, None
