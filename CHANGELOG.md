@@ -1,5 +1,15 @@
 # Changelog
 
+## v2026.08.18
+
+- Cool bitmask bar instead of badges for exam progress ([\#127](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/127))
+- Show the exam list as rows instead of a grid ([\#126](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/126))
+- Show last login date on user profiles if admin ([\#125](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/125))
+- Guide Pages: Markdown articles as a native feature ([\#124](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/124))
+- Fix footer uwu being broken due to bad merge of query-string removal ([\#123](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/123))
+- Migrate Dissertation pages from ahooks to React Query ([\#122](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/122))
+- feat: list testimonials by course ([\#115](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/115))
+
 ## v2026.08.01
 
 (This release is based on upstream v2026.07.p1)
