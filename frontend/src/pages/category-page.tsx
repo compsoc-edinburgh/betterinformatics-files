@@ -181,19 +181,23 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   });
 
   const sessionString = bi_courses_data
-  ? bi_courses_data.session.replace("-", "/")
-  : "this year's";
-  
-  const { data : testimonials} = useRequest(
-    () => loadTestimonialsByCourse(metaData.slug)
-    );
+    ? bi_courses_data.session.replace("-", "/")
+    : "this year's";
 
-    const tabs = useCategoryTabs([
-      { name: "Resources", id: "resources" },
-      { name: "Guide", id: "guide", disabled: !page },
-      { name: "Testimonials", id: "testimonials", count: testimonials? testimonials.length : 0},
-      { name: "Grade Stats", id: "statistics" },
-    ]);
+  const { data: testimonials } = useRequest(() =>
+    loadTestimonialsByCourse(metaData.slug),
+  );
+
+  const tabs = useCategoryTabs([
+    { name: "Resources", id: "resources" },
+    { name: "Guide", id: "guide", disabled: !page },
+    {
+      name: "Testimonials",
+      id: "testimonials",
+      count: testimonials ? testimonials.length : 0,
+    },
+    { name: "Grade Stats", id: "statistics" },
+  ]);
   return (
     <>
       {modals}
@@ -314,7 +318,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </Card.Section>
               </Card>
 
-              <Grid my="sm" gap={{ base: "sm", sm: "md" }}>
+              <Grid my="sm" gap="sm">
                 <Grid.Col span={{ base: 12, md: 8 }}>
                   {tabs.currentTabId === "statistics" ? (
                     <Paper withBorder p={{ base: "sm", sm: "md" }}>
@@ -376,12 +380,27 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                         </Anchor>
                       </Flex>
                     </Paper>
-                  ) : tabs.currentTabId === "testimonials" ? testimonials && (
-                        <>
-                          {testimonials.map((testimonial: Testimonial, index: number) => <TestimonialCard key={index} author_id={testimonial.author_id} author_display_name={testimonial.author_display_name} slug={testimonial.slug} testimonial={testimonial.testimonial} year_taken={testimonial.year_taken} approval_status={testimonial.approval_status}/>)}
-                        </>
-                       )
-                  : tabs.currentTabId === "guide" ? (
+                  ) : tabs.currentTabId === "testimonials" ? (
+                    testimonials && (
+                      <>
+                        {testimonials.map(
+                          (testimonial: Testimonial, index: number) => (
+                            <TestimonialCard
+                              key={index}
+                              author_id={testimonial.author_id}
+                              author_display_name={
+                                testimonial.author_display_name
+                              }
+                              slug={testimonial.slug}
+                              testimonial={testimonial.testimonial}
+                              year_taken={testimonial.year_taken}
+                              approval_status={testimonial.approval_status}
+                            />
+                          ),
+                        )}
+                      </>
+                    )
+                  ) : tabs.currentTabId === "guide" ? (
                     <Paper
                       withBorder
                       p={{ base: "sm", sm: "md" }}
