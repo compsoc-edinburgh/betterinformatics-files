@@ -27,7 +27,7 @@ export const PrivacyPolicyPage: React.FC = () => {
         We currently collect and process the following information:
         <ul>
           <li>Student UUN (i.e. username)</li>
-          <li>IP Address (stored ephemeraly during login)</li>
+          <li>IP Address (stored ephemerally during login)</li>
           <li>Account creation date</li>
           <li>Last login date</li>
           <li>
@@ -45,7 +45,16 @@ export const PrivacyPolicyPage: React.FC = () => {
           </li>
         </ul>
       </p>
-
+      <p>
+        Additionally, we use Cloudflare Turnstile to protect our publicly
+        browsable pages from automated spam and abuse. Turnstile collects and
+        processes a variety of client-side signals, including:
+        <ul>
+          <li>Client IP address</li>
+          <li>TLS Fingerprint</li>
+          <li>User-Agent Header</li>
+        </ul>
+      </p>
       <Title order={2}>
         How we get the personal information and why we have it
       </Title>
@@ -235,6 +244,22 @@ export const PrivacyPolicyPage: React.FC = () => {
         only the Better Informatics server administrator(s).
       </p>
 
+      <Title order={2}>Cloudflare Turnstile</Title>
+      <p>
+        We use Cloudflare Turnstile on select pages (specifically the pages that
+        allow guest submissions) to protect the platform from automated spam and
+        abuse. Your interactions with Turnstile are governed by their privacy
+        policy, which can be found at{" "}
+        <a
+          href="https://www.cloudflare.com/en-gb/turnstile-privacy-policy/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          https://www.cloudflare.com/en-gb/turnstile-privacy-policy/
+        </a>
+        .
+      </p>
+
       <Title order={2}>Your data protection rights</Title>
       <p>
         Under data protection law, you have rights including:
@@ -296,6 +321,16 @@ export const PrivacyPolicyPage: React.FC = () => {
               rel="noopener noreferrer"
             >
               Updated privacy policy
+            </a>
+          </li>
+          <li>
+            2026-08-18:{" "}
+            <a
+              href="/static/privacy-policy-diff-2026-08-18.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Added sections on Cloudflare Turnstile
             </a>
           </li>
         </ul>
