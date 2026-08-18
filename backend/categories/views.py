@@ -151,6 +151,7 @@ def list_exams(request, slug):
                 "canView": ex.current_user_can_view(request),
                 "count_cuts": ex.counts.count_cuts,
                 "count_answered": ex.counts.count_answered,
+                "answered_bits": ex.counts.answered_bits,
                 "user_solved": ex.user_solved,
             }
             for ex in exams

@@ -1,13 +1,13 @@
 import { useRequest } from "ahooks";
 import {
   Anchor,
-  Badge,
   Box,
   Checkbox,
   Group,
   Stack,
   Text,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import React from "react";
 import examTypeClasses from "./exam-type-section.module.css";
@@ -22,6 +22,7 @@ import { clsx } from "clsx";
 import {
   IconChecklist,
   IconEyeOff,
+  IconFileCertificate,
   IconPencilCheck,
   IconScissors,
   IconTrash,
@@ -95,6 +96,24 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
     reload();
   }
 
+  const contiguousAnswered = (exam: CategoryExam) => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
+    return [...exam.answered_bits, "1"].reduce<
+      { bit: string; count: number; index: number }[]
+    >((acc, b, index) => {
+      if (acc.length === 0) {
+        return [{ bit: b, count: 1, index }];
+      }
+      if (b === acc[acc.length - 1].bit) {
+        acc[acc.length - 1].count += 1;
+        return acc;
+      } else {
+        acc.push({ bit: b, count: 1, index });
+        return acc;
+      }
+    }, []);
+  };
+
   return (
     <>
       {modals}
@@ -108,12 +127,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       </Group>
       <Box className={examTypeClasses.examTable}>
         {exams.map(exam => (
-          <Group
+          <Box
             key={exam.filename}
             className={clsx(examTypeClasses.examRow, fadeClasses.fadeInOrder)}
-            align="center"
-            wrap="nowrap"
-            gap="md"
           >
             <Checkbox
               checked={selected.has(exam.filename)}
@@ -126,39 +142,83 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               // Might be obsolete code below, unviewable exams should be
               // filtered already at this point.
               disabled={!exam.canView}
-              flex="0 0 auto"
+              style={{ alignSelf: "center" }}
             />
-            <Stack gap={0} flex={1} className={clsx(examTypeClasses.examLink)}>
-              {exam.canView ? (
-                <Anchor component={Link} to={`/exams/${exam.filename}`}>
-                  <Text size="md">{exam.displayname}</Text>
-                </Anchor>
-              ) : (
-                exam.displayname
-              )}
+            <Stack gap={0} className={clsx(examTypeClasses.examLink)}>
+              <Group gap="xs">
+                {exam.canView ? (
+                  <Anchor component={Link} to={`/exams/${exam.filename}`}>
+                    <Text size="md">{exam.displayname}</Text>
+                  </Anchor>
+                ) : (
+                  exam.displayname
+                )}
+                {exam.has_solution && (
+                  <StatusIcon
+                    tooltip="Official Solutions Available"
+                    icon={IconFileCertificate}
+                    color="blue"
+                  />
+                )}
+              </Group>
               {exam.remark && (
                 <Text c="dimmed" size="sm" mb="0.15em">
                   {exam.remark}
                 </Text>
               )}
             </Stack>
-            <Group gap={4} wrap="nowrap">
-              <Badge
-                className={examTypeClasses.badge}
-                title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
+            <Tooltip
+              label={`${exam.count_answered}/${exam.count_cuts} questions have been answered.`}
+            >
+              <Group
+                gap={4}
+                wrap="nowrap"
+                pos="relative"
+                justify="space-between"
               >
-                {exam.count_answered} / {exam.count_cuts}
-              </Badge>
-              {exam.has_solution && (
-                <Badge
-                  className={examTypeClasses.badge}
-                  title="Has an official solution."
-                  color="green"
+                <svg
+                  width="100"
+                  height="25"
+                  xmlns="http://www.w3.org/2000/svg"
+                  role="img"
+                  aria-label={`${exam.count_answered} out of ${exam.count_cuts} questions have
+                    been answered.`}
+                  className={examTypeClasses.answeredBar}
                 >
-                  Solution
-                </Badge>
-              )}
-            </Group>
+                  <rect
+                    x="0"
+                    y="0"
+                    width="100"
+                    height="10"
+                    fill="transparent"
+                  />
+                  {contiguousAnswered(exam).map(({ bit, count, index }) => (
+                    <rect
+                      x={((index * 100) / exam.answered_bits.length).toFixed(2)}
+                      y="10"
+                      width={(count * 100) / exam.answered_bits.length}
+                      height="5"
+                      fill={
+                        bit === "1"
+                          ? "var(--mantine-primary-color-filled)"
+                          : "var(--mantine-primary-color-light)"
+                      }
+                      key={index}
+                    />
+                  ))}
+                  <rect
+                    x="0"
+                    y="15"
+                    width="100"
+                    height="10"
+                    fill="transparent"
+                  />
+                </svg>
+                <Text aria-hidden size="sm" opacity={0.8}>
+                  {exam.count_answered}/{exam.count_cuts}
+                </Text>
+              </Group>
+            </Tooltip>
             {catAdmin && !exam.finished_cuts && (
               <ClaimButton exam={exam} reloadExams={reload} size="compact-sm" />
             )}
@@ -210,7 +270,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 />
               )}
             </Group>
-          </Group>
+          </Box>
         ))}
       </Box>
     </>
