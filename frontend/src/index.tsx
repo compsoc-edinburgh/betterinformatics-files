@@ -8,18 +8,27 @@ import { MantineProvider } from "@mantine/core";
 import { FaroErrorBoundary } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HCaptchaProvider } from "@hcaptcha/react-hcaptcha/hooks";
 
 const container = document.getElementById("root")!;
 const root = createRoot(container);
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const content = (
   <BrowserRouter>
     <QueryClientProvider client={queryClient}>
-      <MantineProvider defaultColorScheme="auto">
-        <App />
-      </MantineProvider>
+      <HCaptchaProvider sitekey={serverData.hcaptcha_sitekey} size="invisible">
+        <MantineProvider defaultColorScheme="auto">
+          <App />
+        </MantineProvider>
+      </HCaptchaProvider>
     </QueryClientProvider>
   </BrowserRouter>
 );

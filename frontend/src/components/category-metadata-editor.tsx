@@ -7,6 +7,7 @@ import {
   Group,
   NativeSelect,
   Stack,
+  TagsInput,
   Text,
   Textarea,
   TextInput,
@@ -368,9 +369,11 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         be the same course. Mergers and splits should be handled by creating a
         new category.
       </Text>
-      <UserSetEditor
-        users={formState.euclid_codes}
-        setUsers={u => setFormValue("euclid_codes", u)}
+      <TagsInput
+        label="EUCLID Code"
+        data={[]}
+        value={formState.euclid_codes}
+        onChange={code => setFormValue("euclid_codes", code)}
       />
       <Title order={4} mt="xl">
         Admins

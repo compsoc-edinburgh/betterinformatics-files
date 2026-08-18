@@ -1,0 +1,117 @@
+# Manually written on 2026/08/16
+
+import datetime
+
+from django.conf import settings
+from django.db import migrations
+import requests
+
+from pages.api import calculate_patch
+
+
+def create_page_slug(Page, title: str):
+    """
+    Create a valid and unique slug for the page title
+    :param Page: historical Page model from apps.get_model()
+    :param title: page title
+    """
+    oslug = "".join(
+        filter(
+            lambda x: x in settings.COMSOL_DOCUMENT_SLUG_CHARS,
+            title.lower().replace(" ", "_"),
+        )
+    )
+    if oslug == "":
+        oslug = "invalid_name"
+
+    def exists(aslug):
+        return Page.objects.filter(slug=aslug).exists()
+
+    slug = oslug
+    cnt = 0
+    while exists(slug):
+        slug = oslug + "-" + str(cnt)
+        cnt += 1
+
+    return slug
+
+
+def create_pages_for_categories(apps, schema_editor):
+    Page = apps.get_model('pages', 'Page')
+    PageAuthor = apps.get_model('pages', 'PageAuthor')
+    PageParent = apps.get_model('pages', 'PageParent')
+    PageRevision = apps.get_model('pages', 'PageRevision')
+    Category = apps.get_model('categories', 'Category')
+    TemporaryUser = apps.get_model('ediauth', 'TemporaryUser')
+
+    # Create temporary user
+    temp_user = TemporaryUser.objects.create()
+    temp_author = PageAuthor.objects.create(temp_user=temp_user)
+
+    for category in Category.objects.all():
+        if hasattr(category, 'page'):
+            continue
+
+        page = Page(
+            title=category.displayname,
+            slug=create_page_slug(Page, category.slug),
+            kind="guide",
+            category=category,
+            author=temp_author,
+            anonymised=True,
+            content="",
+        )
+        page.save()
+
+        PageParent.objects.create(parent=None, child=page, order=PageParent.objects.filter(parent=None).count())
+
+        content_patch = calculate_patch("", page.content)
+        title_patch = calculate_patch("", page.title)
+
+        PageRevision.objects.create(
+            page=page,
+            author=temp_author,
+            anonymised=True,
+            content_delta=content_patch,
+            title_delta=title_patch,
+            message="Created empty page",
+        )
+
+        if category.more_markdown_link:
+            r = requests.get(category.more_markdown_link)
+            new_content = r.text if r.status_code == 200 else ""
+            page.content = new_content
+            page.edited_at = datetime.datetime.now(datetime.UTC)
+            page.save()
+
+            # Create new revision
+            content_patch = calculate_patch(page.content, new_content)
+            PageRevision.objects.create(
+                page=page,
+                author=temp_author,
+                anonymised=True,
+                content_delta=content_patch,
+                title_delta="",
+                message="Imported from pre-existing file at " + category.more_markdown_link,
+            )
+
+def reverse_create_pages_for_categories(apps, schema_editor):
+    Category = apps.get_model('categories', 'Category')
+
+    for category in Category.objects.all():
+        if hasattr(category, 'page'):
+            category.page.delete()
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('pages', '0002_set_top_level_parents'),
+    ]
+
+    operations = [
+        migrations.RunPython(
+            create_pages_for_categories,
+            reverse_code=reverse_create_pages_for_categories,
+        )
+    ]

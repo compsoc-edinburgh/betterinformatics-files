@@ -56,6 +56,7 @@ COMSOL_AUTH_ACCEPTED_DOMAINS = "sms.ed.ac.uk"
 COMSOL_AUTH_ADMIN_UUNS = os.environ.get("ADMIN_UUNS", "").split(",")
 
 COMSOL_AUTH_BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
+COMSOL_AUTH_GUESTS_ALLOWED = os.environ.get("GUESTS_ALLOWED", "true").lower() == "true"
 
 # The public / private key path in the testing directory should only be
 # used for unit testing and nothing else. For production, the keys are
@@ -157,6 +158,9 @@ document_download_safe_extensions = (
     else document_download_safe_extensions.split(",")
 )
 
+HCAPTCHA_SITEKEY = os.environ.get("HCAPTCHA_SITEKEY", "")
+HCAPTCHA_SECRET = os.environ.get("HCAPTCHA_SECRET", "")
+
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
@@ -165,6 +169,7 @@ FRONTEND_SERVER_DATA = {
     "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", ""),
     "announcements": announcements,
     "document_download_safe_extensions": document_download_safe_extensions,
+    "hcaptcha_sitekey": os.environ.get("HCAPTCHA_SITEKEY", ""),
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
@@ -262,6 +267,7 @@ INSTALLED_APPS = [
     "ediauth",
     "util.apps.UtilConfig",
     "notifications.apps.NotificationsConfig",
+    "pages.apps.PagesConfig",
     "scoreboard.apps.ScoreboardConfig",
     "testing.apps.TestingConfig",
     "django_probes",

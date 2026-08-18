@@ -28,7 +28,7 @@ const BasicEditor: React.FC<Props> = ({
   onPaste,
   resize,
 }) => {
-  const preElRef = useRef<HTMLPreElement>(null);
+  const preElRef = useRef<HTMLDivElement>(null);
 
   (getSelectionRangeRef as any).current = () => {
     const textarea = textareaElRef.current;
@@ -83,9 +83,9 @@ const BasicEditor: React.FC<Props> = ({
       className={clsx(classes.wrapper, resize === "fill" && classes.fullHeight)}
     >
       {resize === "vertical" && (
-        <pre ref={preElRef} className={clsx(classes.common, classes.pre)}>
+        <div ref={preElRef} className={clsx(classes.common, classes.pre)}>
           {`${value}\n`}
-        </pre>
+        </div>
       )}
       <textarea
         value={value}

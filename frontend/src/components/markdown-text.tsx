@@ -27,6 +27,13 @@ const transformImageUri = (
   return `/api/image/get/${uri}/`;
 };
 
+export const slugifyHeading = (text: string) => {
+  return text
+    .toLowerCase()
+    .replace(/[^\w]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
 export type ComponentRenderer = (
   props: React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLElement>,
@@ -86,6 +93,7 @@ const addMarks = (
 
 const createComponents = (
   regex: RegExp | undefined,
+  addAnchors: boolean,
   languages?: Record<string, ComponentRenderer>,
 ): Components => ({
   table: ({ children }) => {
@@ -114,22 +122,46 @@ const createComponents = (
     return <p>{addMarks(children, regex)}</p>;
   },
   h1: ({ children }) => {
-    return <h1>{addMarks(children, regex)}</h1>;
+    const slug =
+      addAnchors && typeof children === "string"
+        ? slugifyHeading(children)
+        : undefined;
+    return <h1 id={slug}>{addMarks(children, regex)}</h1>;
   },
   h2: ({ children }) => {
-    return <h2>{addMarks(children, regex)}</h2>;
+    const slug =
+      addAnchors && typeof children === "string"
+        ? slugifyHeading(children)
+        : undefined;
+    return <h2 id={slug}>{addMarks(children, regex)}</h2>;
   },
   h3: ({ children }) => {
-    return <h3>{addMarks(children, regex)}</h3>;
+    const slug =
+      addAnchors && typeof children === "string"
+        ? slugifyHeading(children)
+        : undefined;
+    return <h3 id={slug}>{addMarks(children, regex)}</h3>;
   },
   h4: ({ children }) => {
-    return <h4>{addMarks(children, regex)}</h4>;
+    const slug =
+      addAnchors && typeof children === "string"
+        ? slugifyHeading(children)
+        : undefined;
+    return <h4 id={slug}>{addMarks(children, regex)}</h4>;
   },
   h5: ({ children }) => {
-    return <h5>{addMarks(children, regex)}</h5>;
+    const slug =
+      addAnchors && typeof children === "string"
+        ? slugifyHeading(children)
+        : undefined;
+    return <h5 id={slug}>{addMarks(children, regex)}</h5>;
   },
   h6: ({ children }) => {
-    return <h6>{addMarks(children, regex)}</h6>;
+    const slug =
+      addAnchors && typeof children === "string"
+        ? slugifyHeading(children)
+        : undefined;
+    return <h6 id={slug}>{addMarks(children, regex)}</h6>;
   },
   code({ node, className, children, ...props }) {
     const match = /language-(\w+)/.exec(className ?? "");
@@ -144,7 +176,6 @@ const createComponents = (
       <CodeBlock
         language={language}
         value={String(children).replace(/\n$/, "")}
-        {...props}
       />
     ) : (
       <code className={className} {...props}>
@@ -176,6 +207,10 @@ interface Props {
   languages?: Record<string, ComponentRenderer>;
   /** Map of pending image id → object URL for in-editor previews. */
   pendingImages?: Map<string, string>;
+  /**
+   * If true, where possible, the headings h1-h6 will have an ID tag with the slug.
+   */
+  addAnchors?: boolean;
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
@@ -202,6 +237,7 @@ const MarkdownText: React.FC<Props> = ({
   ignoreHtml,
   languages,
   pendingImages,
+  addAnchors = false,
 }) => {
   // Make sure we don't generate a RegExp with empty text, as that will match
   // everything (including the empty string) and can cause mayhem with
@@ -215,8 +251,8 @@ const MarkdownText: React.FC<Props> = ({
   );
 
   const renderers = useMemo(
-    () => createComponents(regex, languages),
-    [regex, languages],
+    () => createComponents(regex, addAnchors, languages),
+    [regex, addAnchors, languages],
   );
 
   return useMemo(() => {

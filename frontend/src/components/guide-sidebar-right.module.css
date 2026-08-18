@@ -1,0 +1,35 @@
+.dl {
+  width: 100%;
+  margin: 0;
+  line-height: 1rem;
+}
+
+.dl-data {
+  margin-inline-start: 0;
+  min-width: 100%;
+  width: 0;
+  word-break: break-all;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.dl-heading:not(:first-child) {
+  margin-top: var(--mantine-spacing-xs);
+}
+
+.editing-actions {
+  border-radius: var(--mantine-radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-xs);
+  transition: box-shadow 0.2s ease-in-out;
+  width: 100%;
+}
+
+.editing-actions.unsaved {
+  box-shadow:
+    0 0 0 calc(var(--mantine-spacing-xs) / 2) var(--mantine-color-body),
+    0 0 0 calc(var(--mantine-spacing-xs) / 2 + 2px) var(--mantine-color-error);
+}

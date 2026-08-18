@@ -56,7 +56,9 @@ const loadCategoryData = async () => {
   ] as const;
 };
 const addCategory = async (category: string) => {
-  await fetchPost("/api/category/add/", { category });
+  await fetchPost("/api/category/add/", {
+    category,
+  });
 };
 
 const mapToCategories = (

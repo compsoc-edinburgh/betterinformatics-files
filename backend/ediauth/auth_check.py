@@ -1,14 +1,77 @@
 from functools import wraps
 
+import requests as req
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
+from ediauth.models import TemporaryUser
 from util import func_cache, response
+from util.response import not_allowed
 
 
 def check_api_key(request):
     api_key = request.headers.get("X-COMMUNITY-SOLUTIONS-API-KEY")
     return bool(api_key and api_key == settings.API_KEY)
+
+
+# Wrapper for declaring that a view supports temporary user.
+def supports_temp_user(f):
+    @wraps(f)
+    def wrapper(request, *args, **kwargs):
+        temp_session_id = request.COOKIES.get("temp_session_id")
+
+        if request.user:
+            # If authenticated, remove temp session if it exists
+            request.temp_user = None
+            response = f(request, *args, **kwargs)
+            response.delete_cookie("temp_session_id")
+            return response
+
+        # If guest users are disabled, immediately fail
+        if settings.COMSOL_AUTH_GUESTS_ALLOWED is False:
+            return not_allowed()
+
+        # Before doing anything, check the required hcaptcha token
+        if not settings.TESTING:
+            hcaptcha_token = request.headers.get("X-HCaptcha-Token")
+            if not hcaptcha_token:
+                print("No hcaptcha token provided")
+                return not_allowed()
+
+            r = req.post(
+                "https://hcaptcha.com/siteverify",
+                data={
+                    "secret": settings.HCAPTCHA_SECRET,
+                    "response": hcaptcha_token,
+                },
+            )
+            if not r.json().get("success"):
+                print("Hcaptcha verification failed", r.json())
+                return not_allowed()
+
+        if (
+            temp_session_id
+            and TemporaryUser.objects.filter(session_id=temp_session_id).exists()
+        ):
+            temp_user = TemporaryUser.objects.get(session_id=temp_session_id)
+            request.temp_user = temp_user
+            return f(request, *args, **kwargs)
+        else:
+            # If temporary session couldn't be found or wasn't given, create new
+            temp_user = TemporaryUser.objects.create()
+            request.temp_user = temp_user
+            response = f(request, *args, **kwargs)
+            response.set_cookie(
+                "temp_session_id",
+                str(temp_user.session_id),
+                httponly=True,
+                secure=True,
+                max_age=60 * 60 * 24 * 90,  # 90 days
+                samesite="Strict",
+            )
+            return response
+
+    return wrapper
 
 
 def user_authenticated(request):

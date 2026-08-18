@@ -96,6 +96,9 @@ const DissertationDetailPage = lazy(
 const LoginPage = lazy(() => import("./pages/login-page"));
 const NotFoundPage = lazy(() => import("./pages/not-found-page"));
 const PrivacyPolicyPage = lazy(() => import("./pages/privacypolicy-page"));
+const GuidePage = lazy(() => import("./pages/guide-page"));
+const GuideArticlePage = lazy(() => import("./pages/guide-article-page"));
+const GuideHistoryPage = lazy(() => import("./pages/guide-history-page"));
 
 /**
  * To be used as a wrapper for <Route>s at the top level, and adds Faro
@@ -262,6 +265,7 @@ const App: React.FC = () => {
   const bottomHeaderNav = [
     { title: "Courses", href: "/" },
     { title: "Dissertations", href: "/dissertations" },
+    { title: "Guides", href: "/guide" },
     {
       title: "More",
       childItems: [
@@ -356,6 +360,10 @@ const App: React.FC = () => {
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/disclaimer" element={<DisclaimerPage />} />
                       <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                      <Route path="/guide/:slug?" element={<GuidePage />}>
+                        <Route path="edit?" element={<GuideArticlePage />} />
+                        <Route path="history" element={<GuideHistoryPage />} />
+                      </Route>
                       <Route element={<AuthenticatedRoutes />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/uploadpdf" element={<UploadPdfPage />} />
@@ -385,6 +393,10 @@ const App: React.FC = () => {
                         <Route
                           path="/exams/:filename/*"
                           element={<ExamPage />}
+                        />
+                        <Route
+                          path="/guide/:slug/history"
+                          element={<GuideHistoryPage />}
                         />
                         <Route path="/user/:username" element={<UserPage />} />
                         <Route path="/user/" element={<UserPage />} />

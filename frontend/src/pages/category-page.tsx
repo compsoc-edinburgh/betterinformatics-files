@@ -63,6 +63,8 @@ import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSear
 import { loadTestimonialsByCourse } from "../api/testimonials";
 import { TestimonialCard } from "../components/testimonial-card";
 import { CourseworkExamRatioChart } from "../components/Charts/CourseworkExamRatioChart";
+import { useGetPage, useListPages } from "../api/hooks/pages";
+import { PageArticleContent } from "../components/page-article-content";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -169,7 +171,15 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       .flat();
   }, [metaData, bi_courses_data]);
 
-  
+  const { data: pages } = useListPages({
+    category: metaData.slug,
+  });
+  const { data: page } = useGetPage(pages?.pages[0]?.slug ?? "", {
+    query: {
+      enabled: !!pages?.pages.length,
+    },
+  });
+
   const sessionString = bi_courses_data
   ? bi_courses_data.session.replace("-", "/")
   : "this year's";
@@ -180,6 +190,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
     const tabs = useCategoryTabs([
       { name: "Resources", id: "resources" },
+      { name: "Guide", id: "guide", disabled: !page },
       { name: "Testimonials", id: "testimonials", count: testimonials? testimonials.length : 0},
       { name: "Grade Stats", id: "statistics" },
     ]);
@@ -249,7 +260,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       <Button
                         leftSection={<IconEdit />}
                         component={Link}
-                        to="./edit"
+                        to={`../edit`}
                         color="dark"
                       >
                         Edit
@@ -267,11 +278,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   )}
                 </Flex>
                 <Group gap="xs">
-                  {metaData.euclid_codes.map((code, i) => (
+                  {metaData.euclid_codes.map(code => (
                     <EuclidCodeBadge
                       key={code}
                       code={code}
-                      badge_data={quickinfo_data[i]}
+                      badge_data={quickinfo_data.find(c => c?.code === code)}
                       loading={bi_courses_loading}
                       error={bi_courses_error}
                     />
@@ -370,7 +381,43 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           {testimonials.map((testimonial: Testimonial, index: number) => <TestimonialCard key={index} author_id={testimonial.author_id} author_display_name={testimonial.author_display_name} slug={testimonial.slug} testimonial={testimonial.testimonial} year_taken={testimonial.year_taken} approval_status={testimonial.approval_status}/>)}
                         </>
                        )
-                  : null}
+                  : tabs.currentTabId === "guide" ? (
+                    <Paper
+                      withBorder
+                      p={{ base: "sm", sm: "md" }}
+                      pos="relative"
+                    >
+                      {page && (
+                        <Group
+                          justify="flex-end"
+                          pos="absolute"
+                          right={0}
+                          top={0}
+                          px="xs"
+                          bdrs="sm"
+                          bg="var(--mantine-color-gray-light)"
+                        >
+                          <Anchor
+                            component={Link}
+                            to={`/guide/${page.slug}/history`}
+                            size="sm"
+                          >
+                            <Text c="dimmed" size="sm">
+                              {page.revision_count} revisions
+                            </Text>
+                          </Anchor>
+                          <Anchor
+                            component={Link}
+                            to={`/guide/${page.slug}/edit?from=category`}
+                            size="sm"
+                          >
+                            Edit
+                          </Anchor>
+                        </Group>
+                      )}
+                      {page && <PageArticleContent page={page} />}
+                    </Paper>
+                  ) : null}
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   {metaData.experts.includes(user.username) && (
