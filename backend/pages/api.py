@@ -396,9 +396,12 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     page = get_object_or_404(Page, slug=slug)
     author = get_page_author(request)
 
-    # Only admins and owners can change the slug
+    # Only admins and owners can change the slug or update parents
     if (
-        slug != data.slug
+        (
+            slug != data.slug
+            or set(data.parents) != set(parent.slug for parent in page.parents.all())
+        )
         and not auth_check.has_admin_rights(request)
         and page.author != author
     ):

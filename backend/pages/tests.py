@@ -21,6 +21,8 @@ MATRIX = {
         "set_category": True,
         "change_slug": True,
         "change_slug_owned": True,
+        "update_parents": True,
+        "update_parents_owned": True,
         "view_revisions": True,
         "redact_revision": True,
         "view_redacted_revisions": True,
@@ -38,6 +40,8 @@ MATRIX = {
         "set_category": False,
         "change_slug": False,
         "change_slug_owned": True,
+        "update_parents": False,
+        "update_parents_owned": True,
         "view_revisions": True,
         "redact_revision": False,
         "view_redacted_revisions": False,
@@ -55,6 +59,8 @@ MATRIX = {
         "set_category": False,
         "change_slug": False,
         "change_slug_owned": True,
+        "update_parents": False,
+        "update_parents_owned": True,
         "view_revisions": False,
         "redact_revision": False,
         "view_redacted_revisions": False,
@@ -125,6 +131,10 @@ class TestPermissions(ComsolTest):
             self.change_slug(allowed, owned=False)
         if action == "change_slug_owned":
             self.change_slug(allowed, owned=True)
+        if action == "update_parents":
+            self.update_parents(allowed, owned=False)
+        if action == "update_parents_owned":
+            self.update_parents(allowed, owned=True)
         if action == "view_revisions":
             self.view_revisions(allowed)
         if action == "redact_revision":
@@ -315,8 +325,8 @@ class TestPermissions(ComsolTest):
             content="",
         )
 
-        # Manually construct cookies and use self.client.delete instead of
-        # self.delete because temp user needs the session cookie to match that
+        # Manually construct cookies and use self.client.put instead of
+        # self.put because temp user needs the session cookie to match that
         # of the page author if owned=True
         if self.user is None and owned:
             self.client.cookies = SimpleCookie(
@@ -345,6 +355,62 @@ class TestPermissions(ComsolTest):
         content_type = "application/json"
         response = self.client.put(
             f"/api/page/{p.slug}",
+            body,
+            content_type=content_type,
+        )
+        self.assertEqual(response.status_code, 200 if allowed else 403)
+
+    def update_parents(self, allowed, owned=False):
+        author = self.create_page_author(self.user if owned else self.users[1])
+        p1 = Page.objects.create(
+            kind="guide",
+            title="Test Guide 1",
+            slug="test-guide-1",
+            category=None,
+            author=author,
+            anonymised=False,
+            content="",
+        )
+        p2 = Page.objects.create(
+            kind="guide",
+            title="Test Guide 2",
+            slug="test-guide-2",
+            category=None,
+            author=author,
+            anonymised=False,
+            content="",
+        )
+
+        # Manually construct cookies and use self.client.put instead of
+        # self.put because temp user needs the session cookie to match that
+        # of the page author if owned=True
+        if self.user is None and owned:
+            self.client.cookies = SimpleCookie(
+                {"temp_session_id": str(p1.author.temp_user.session_id)}
+            )
+        if self.user:
+            self.client.cookies = SimpleCookie({"access_token": get_token(self.user)})
+        elif self.user is None and owned:
+            self.client.cookies = SimpleCookie(
+                {"temp_session_id": str(p1.author.temp_user.session_id)}
+            )
+        else:
+            self.client.cookies = SimpleCookie()
+
+        body = json.dumps(
+            {
+                "slug": p1.slug,
+                "title": p1.title,
+                "category": None,
+                "parents": [p2.slug],
+                "content": "",
+                "revision_message": "Update parents",
+                "is_anonymous": False,
+            }
+        )
+        content_type = "application/json"
+        response = self.client.put(
+            f"/api/page/{p1.slug}",
             body,
             content_type=content_type,
         )
