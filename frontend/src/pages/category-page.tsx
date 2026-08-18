@@ -620,7 +620,7 @@ const CategoryPage: React.FC = () => {
     <Container
       size="xl"
       mb="xl"
-      p={{ base: "xs", sm: "md" }}
+      px={{ base: "xs", sm: "md" }}
       key={
         slug
       } /* we need key to make sure all state is reset when slug changes due to navigation */
