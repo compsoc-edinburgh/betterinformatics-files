@@ -729,13 +729,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hcaptcha/react-hcaptcha@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@hcaptcha/react-hcaptcha@npm:2.1.0"
-  checksum: 10c0/301ded131f1a8c0e6be77ebb0f0a58aecda84caef22bb0b5b29ec92c105e8f7f612873a8335b6c79c4dd24da9e23c405c945103822da994b56a81180705a83c4
-  languageName: node
-  linkType: hard
-
 "@humanfs/core@npm:^0.19.1":
   version: 0.19.1
   resolution: "@humanfs/core@npm:0.19.1"
@@ -883,6 +876,16 @@ __metadata:
   peerDependencies:
     react: ^19.2.0
   checksum: 10c0/63189c4e2c67f296822dc6e844152cf2521878ba7aed1b6a99b4c34662b2f97f4f43d46a84772a38e5fbbf478c42ac76066bcde2089b71d9051eee734f44b4c1
+  languageName: node
+  linkType: hard
+
+"@marsidev/react-turnstile@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@marsidev/react-turnstile@npm:1.6.0"
+  peerDependencies:
+    react: ^17.0.2 || ^18.0.0 || ^19.0
+    react-dom: ^17.0.2 || ^18.0.0 || ^19.0
+  checksum: 10c0/2d9c9f337d723ae13feff7d5e6c707ef03ab83a600853305c5ea4bc175ec1fd441f2a61342285b54014ed4afc6a16a06b2e109095d0369f2160653599c644363
   languageName: node
   linkType: hard
 
@@ -4551,11 +4554,11 @@ __metadata:
     "@eslint/js": "npm:^9.38.0"
     "@grafana/faro-react": "npm:^2.4.0"
     "@grafana/faro-web-tracing": "npm:^2.8.2"
-    "@hcaptcha/react-hcaptcha": "npm:^2.1.0"
     "@mantine/colors-generator": "npm:^9.1.0"
     "@mantine/core": "npm:^9.1.0"
     "@mantine/form": "npm:^9.1.0"
     "@mantine/hooks": "npm:^9.1.0"
+    "@marsidev/react-turnstile": "npm:^1.6.0"
     "@opentelemetry/api": "npm:^1.9.1"
     "@rolldown/plugin-babel": "npm:^0.2.3"
     "@tabler/icons-react": "npm:^3.0.0"

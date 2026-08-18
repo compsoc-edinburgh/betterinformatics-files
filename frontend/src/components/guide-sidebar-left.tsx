@@ -13,7 +13,7 @@ import {
   TreeNodeData,
   RenderTreeNodePayload,
 } from "@mantine/core";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useCreatePage, useListPages } from "../api/hooks/pages";
 import { NavLink, useMatch, useNavigate } from "react-router-dom";
 import {
@@ -23,9 +23,10 @@ import {
 } from "@tabler/icons-react";
 import style from "./guide-sidebar-left.module.css";
 import { clsx } from "clsx";
-import { useHCaptcha } from "@hcaptcha/react-hcaptcha/hooks";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { useUser } from "../auth";
 import { Kind } from "../api/model";
+import serverData from "../utils/server-data";
 
 const LeafNode: React.FC<RenderTreeNodePayload> = ({
   node,
@@ -113,17 +114,7 @@ export const GuideSideBarLeft: React.FC = () => {
   const [newPageKind, setNewPageKind] = useState<Kind>("guide");
   const [newPageAnonymous, setNewPageAnonymous] = useState(false);
 
-  // Immediately solve hcaptcha when modal opens
-  const { ready: captchaReady, token, executeInstance } = useHCaptcha();
-  const [verifying, setVerifying] = useState(true);
-  useEffect(() => {
-    if (!captchaReady) return;
-    if (!isOpen) return;
-    void executeInstance().then(token => {
-      if (!token) return;
-      setVerifying(false);
-    });
-  }, [isOpen, captchaReady, executeInstance]);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const {
     mutate: createPage,
@@ -143,7 +134,7 @@ export const GuideSideBarLeft: React.FC = () => {
     request: {
       method: "POST",
       headers: {
-        "X-HCaptcha-Token": token ?? "",
+        "X-Turnstile-Token": turnstileToken ?? "",
       },
     },
   });
@@ -187,6 +178,13 @@ export const GuideSideBarLeft: React.FC = () => {
                 }
               />
             )}
+            <Turnstile
+              siteKey={serverData.turnstile_sitekey}
+              onSuccess={setTurnstileToken}
+              options={{
+                action: "create_page",
+              }}
+            />
             <Button
               disabled={createIsPending || newPageName.trim() === ""}
               onClick={() =>
@@ -201,7 +199,7 @@ export const GuideSideBarLeft: React.FC = () => {
                 })
               }
               leftSection={<IconPlus />}
-              loading={createIsPending || verifying}
+              loading={createIsPending || !turnstileToken}
             >
               Add
             </Button>

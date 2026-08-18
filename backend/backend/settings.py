@@ -158,8 +158,8 @@ document_download_safe_extensions = (
     else document_download_safe_extensions.split(",")
 )
 
-HCAPTCHA_SITEKEY = os.environ.get("HCAPTCHA_SITEKEY", "")
-HCAPTCHA_SECRET = os.environ.get("HCAPTCHA_SECRET", "")
+TURNSTILE_SITEKEY = os.environ.get("TURNSTILE_SITEKEY", "")
+TURNSTILE_SECRET = os.environ.get("TURNSTILE_SECRET", "")
 
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
@@ -169,7 +169,7 @@ FRONTEND_SERVER_DATA = {
     "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", ""),
     "announcements": announcements,
     "document_download_safe_extensions": document_download_safe_extensions,
-    "hcaptcha_sitekey": os.environ.get("HCAPTCHA_SITEKEY", ""),
+    "turnstile_sitekey": os.environ.get("TURNSTILE_SITEKEY", ""),
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
@@ -214,25 +214,20 @@ CONTENT_SECURITY_POLICY = {
             "'unsafe-eval'",
             "https://analytics.betterinformatics.com/api/",
             # Captchas
-            "https://hcaptcha.com",
-            "https://*.hcaptcha.com",
+            "https://challenges.cloudflare.com",
             *allowed_script_sources,
         ],
         "style-src": [
             "'self'",
             "'unsafe-inline'",
             "https://fonts.googleapis.com",
-            # Captchas
-            "https://hcaptcha.com",
-            "https://*.hcaptcha.com",
         ],
         "font-src": ["'self'", "data:", "https://fonts.gstatic.com"],
         "frame-src": [
             "'self'",
             "https://minio.on.tardis.ac:80",
             # Captchas
-            "https://hcaptcha.com",
-            "https://*.hcaptcha.com",
+            "https://challenges.cloudflare.com",
         ],
         "connect-src": [
             "'self'",
@@ -245,9 +240,6 @@ CONTENT_SECURITY_POLICY = {
             "https://betterinformatics.com/courses.json",
             # Allow self hosted tracking
             "https://analytics.betterinformatics.com/api/",
-            # Captchas
-            "https://hcaptcha.com",
-            "https://*.hcaptcha.com",
         ],
         "img-src": [
             "'self'",

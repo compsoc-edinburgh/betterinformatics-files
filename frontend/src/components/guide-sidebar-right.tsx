@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Anchor,
   Button,
@@ -41,7 +41,6 @@ export const GuideSidebarRight: React.FC<{
   isMutating: boolean;
   error: ErrorSchema | null;
   captchaReady: boolean;
-  captchaExecute: () => Promise<string | undefined>;
 }> = ({
   page,
   toc,
@@ -55,7 +54,6 @@ export const GuideSidebarRight: React.FC<{
   isMutating,
   error,
   captchaReady,
-  captchaExecute,
 }) => {
   const user = useUser();
 
@@ -66,17 +64,6 @@ export const GuideSidebarRight: React.FC<{
     canEdit &&
     (user.isAdmin || user.username === page.author.username);
   const [removeConfirm, modals] = useRemoveConfirm();
-
-  // Start verifying immediately when editing starts
-  const [verifying, setVerifying] = React.useState(true);
-  useEffect(() => {
-    if (!editing) return;
-    if (!captchaReady) return;
-    void captchaExecute().then(token => {
-      if (!token) return;
-      setVerifying(false);
-    });
-  }, [editing, captchaReady, captchaExecute]);
 
   return (
     <Stack
@@ -126,7 +113,7 @@ export const GuideSidebarRight: React.FC<{
             <Button
               size="compact-sm"
               variant="filled"
-              loading={isMutating || verifying}
+              loading={isMutating || !captchaReady}
               type="submit"
               disabled={!hasUnsavedChanges || isMutating}
             >
