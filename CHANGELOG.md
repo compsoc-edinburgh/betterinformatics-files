@@ -1,5 +1,14 @@
 # Changelog
 
+## v2026.08.18
+
+- Show the exam list as rows instead of a grid ([\#126](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/126)) ([\#127](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/127))
+- For admins: show last login date on user profiles ([\#125](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/125))
+- Guide Pages: preparing for the Better Informatics merger ([\#124](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/124))
+- Fix footer uwu being broken :3 ([\#123](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/123))
+- Modernisation of Dissertation backend endpoints ([\#122](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/122))
+- Preliminary preparation for course testimonials feature ([\#115](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/115))
+
 ## v2026.08.01
 
 (This release is based on upstream v2026.07.p1)
