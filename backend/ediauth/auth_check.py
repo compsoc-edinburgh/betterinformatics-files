@@ -27,6 +27,10 @@ def supports_temp_user(f):
             response.delete_cookie("temp_session_id")
             return response
 
+        # If guest users are disabled, immediately fail
+        if settings.COMSOL_AUTH_GUESTS_ALLOWED is False:
+            return not_allowed()
+
         # Before doing anything, check the required hcaptcha token
         if not settings.TESTING:
             hcaptcha_token = request.headers.get("X-HCaptcha-Token")

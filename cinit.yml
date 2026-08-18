@@ -128,6 +128,8 @@ programs:
 
       - ALLOWED_HOMEORGS: ethz.ch
 
+      - GUESTS_ALLOWED:
+
       - RUNTIME_JWT_PUBLIC_KEY:
       - prometheus_multiproc_dir: /dev/shm
 

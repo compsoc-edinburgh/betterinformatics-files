@@ -56,6 +56,7 @@ COMSOL_AUTH_ACCEPTED_DOMAINS = "sms.ed.ac.uk"
 COMSOL_AUTH_ADMIN_UUNS = os.environ.get("ADMIN_UUNS", "").split(",")
 
 COMSOL_AUTH_BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
+COMSOL_AUTH_GUESTS_ALLOWED = os.environ.get("GUESTS_ALLOWED", "true").lower() == "true"
 
 # The public / private key path in the testing directory should only be
 # used for unit testing and nothing else. For production, the keys are
