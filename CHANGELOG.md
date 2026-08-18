@@ -1,5 +1,15 @@
 # Changelog
 
+## v2026.08.18-1
+
+- Add merge\_group to CI to trigger on merge trains ([\#135](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/135))
+- Fix the link hitbox in the exam list being thinner than row ([\#134](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/134))
+- Extract out all category page tabs into components for modularity ([\#133](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/133))
+- Fix claim button changing exam list layout above 4 columns ([\#132](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/132))
+- Fix inconisistent spacing between boxes on category page ([\#131](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/131))
+- Remove redundant 'Useful Links' box from category page ([\#130](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/130))
+- Hotfix: Replace HCaptcha with Cloudflare Turnstile ([\#129](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/129))
+
 ## v2026.08.18
 
 - Show the exam list as rows instead of a grid ([\#126](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/126)) ([\#127](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/127))
