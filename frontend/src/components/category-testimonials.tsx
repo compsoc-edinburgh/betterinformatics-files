@@ -1,4 +1,4 @@
-import { Stack } from "@mantine/core";
+import { Stack, Text } from "@mantine/core";
 import { Testimonial } from "../interfaces";
 import { TestimonialCard } from "./testimonial-card";
 
@@ -18,6 +18,11 @@ export const CategoryTestimonials: React.FC<{
           approval_status={testimonial.approval_status}
         />
       ))}
+      {testimonials.length === 0 && (
+        <Text c="dimmed" size="sm">
+          Come back in a few weeks - we're cooking something up here...
+        </Text>
+      )}
     </Stack>
   );
 };
