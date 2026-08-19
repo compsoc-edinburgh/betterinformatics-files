@@ -1,17 +1,33 @@
 import React from "react";
 import { DocumentSchema } from "../api/model";
-import { Box, Title, Text, Anchor, Flex, Stack } from "@mantine/core";
+import {
+  Box,
+  Title,
+  Text,
+  Anchor,
+  Stack,
+  Group,
+  Button,
+  Tooltip,
+} from "@mantine/core";
 import documentTypeClasses from "./document-type-section.module.css";
 import fadeClasses from "../utils/fade-in-order.module.css";
 import { clsx } from "clsx";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { Link } from "react-router-dom";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
+import { useUpdateDocument } from "../api/hooks/documents";
 
 export const DocumentTypeSection: React.FC<{
   type: string | null;
   documents: readonly DocumentSchema[];
-}> = ({ type, documents }) => {
+  refetch: () => void;
+}> = ({ type, documents, refetch }) => {
+  const { mutate: likeDocument } = useUpdateDocument({
+    mutation: {
+      onSuccess: refetch,
+    },
+  });
   return (
     <>
       {type && (
@@ -46,21 +62,33 @@ export const DocumentTypeSection: React.FC<{
             ) : (
               <div />
             )}
-            {document.liked ? (
-              <Flex align="center" color="red">
-                <IconHeartFilled color="red" />
-                <Text fw={700} c="red" ml="0.3em">
-                  {document.like_count}
-                </Text>
-              </Flex>
-            ) : (
-              <Flex align="center">
-                <IconHeart />
-                <Text fw={700} ml="0.3em">
-                  {document.like_count}
-                </Text>
-              </Flex>
-            )}
+            <Tooltip
+              label={document.liked ? "Remove your mark" : "Mark as liked"}
+            >
+              <Button
+                variant="transparent"
+                c={
+                  document.liked
+                    ? "var(--mantine-color-red-filled)"
+                    : "currentcolor"
+                }
+                onClick={() =>
+                  likeDocument({
+                    slug: document.slug,
+                    data: {
+                      liked: !document.liked,
+                    },
+                  })
+                }
+                justify="flex-end"
+                pl={0}
+              >
+                <Group gap="xs" wrap="nowrap">
+                  {document.like_count?.toString()}
+                  {document.liked ? <IconHeartFilled /> : <IconHeart />}
+                </Group>
+              </Button>
+            </Tooltip>
           </Box>
         ))}
       </Box>

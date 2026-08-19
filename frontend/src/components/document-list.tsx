@@ -6,10 +6,8 @@ import {
   Title,
   useComputedColorScheme,
 } from "@mantine/core";
-import React, { Fragment, useMemo } from "react";
+import React, { useMemo } from "react";
 import CreateDocumentForm from "./create-document-modal";
-import Grid from "./grid";
-import DocumentCard from "./document-card";
 import { IconPlus } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import ShimmerButton from "./shimmer-button";
@@ -98,6 +96,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
                 key={type}
                 type={type === "Documents" ? null : type}
                 documents={splitDocs[type]}
+                refetch={() => void documents.refetch()}
               />
             ),
         )}
