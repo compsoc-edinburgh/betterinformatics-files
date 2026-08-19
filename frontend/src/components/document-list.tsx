@@ -6,16 +6,15 @@ import {
   Title,
   useComputedColorScheme,
 } from "@mantine/core";
-import React, { Fragment, useMemo } from "react";
+import React, { useMemo } from "react";
 import CreateDocumentForm from "./create-document-modal";
-import Grid from "./grid";
-import DocumentCard from "./document-card";
 import { IconPlus } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import ShimmerButton from "./shimmer-button";
 import { useListDocuments, useListDocumentTypes } from "../api/hooks/documents";
 import type { DocumentListSchema } from "../api/model/documentListSchema";
 import type { DocumentSchema } from "../api/model/documentSchema";
+import { DocumentTypeSection } from "./document-type-section";
 
 interface Props {
   slug: string;
@@ -93,27 +92,22 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
         docTypes.data.value.map(
           type =>
             splitDocs?.[type] && (
-              <Fragment key={type}>
-                {type !== "Documents" && (
-                  <Title order={3} mt="xl" mb="lg">
-                    {type}
-                  </Title>
-                )}
-                <Grid>
-                  {splitDocs[type].map(document => (
-                    <DocumentCard key={document.slug} document={document} />
-                  ))}
-                </Grid>
-              </Fragment>
+              <DocumentTypeSection
+                key={type}
+                type={type === "Documents" ? null : type}
+                documents={splitDocs[type]}
+                refetch={() => void documents.refetch()}
+              />
             ),
         )}
-      {splitDocs && Object.values(splitDocs).every(docs => docs.length === 0) && (
-        <Alert variant="light" color="compsocMain">
-          No community documents yet. Upload your own to share! Cheatsheets,
-          study notes, code implementations of algorithms, Anki decks, and more
-          are all welcome.
-        </Alert>
-      )}
+      {splitDocs &&
+        Object.values(splitDocs).every(docs => docs.length === 0) && (
+          <Alert variant="light" color="compsocMain">
+            No community documents yet. Upload your own to share! Cheatsheets,
+            study notes, code implementations of algorithms, Anki decks, and
+            more are all welcome.
+          </Alert>
+        )}
     </>
   );
 };
