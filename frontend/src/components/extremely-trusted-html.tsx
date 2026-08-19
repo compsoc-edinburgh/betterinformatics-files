@@ -69,6 +69,11 @@ const sequence = (
   index ??= 0;
   nodes ??= [];
 
+  if (index >= fns.length) {
+    cb();
+    return nodes;
+  }
+
   nodes.push(
     fns[index](() => {
       index ??= 0;
