@@ -54,7 +54,13 @@ export const DocumentTypeSection: React.FC<{
               </Text>
             </Group>
             {document.edittime ? (
-              <Text c="dimmed" component="span" size="xs" ta="right">
+              <Text
+                c="dimmed"
+                component="span"
+                size="xs"
+                ta="right"
+                display={{ base: "none", sm: "block" }}
+              >
                 Last updated {formatDistanceToNow(new Date(document.edittime))}{" "}
                 ago
               </Text>
