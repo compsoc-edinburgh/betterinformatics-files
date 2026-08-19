@@ -80,12 +80,12 @@ def create_pages_for_categories(apps, schema_editor):
         if category.more_markdown_link:
             r = requests.get(category.more_markdown_link)
             new_content = r.text if r.status_code == 200 else ""
+            content_patch = calculate_patch(page.content, new_content)
             page.content = new_content
             page.edited_at = datetime.datetime.now(datetime.UTC)
             page.save()
 
             # Create new revision
-            content_patch = calculate_patch(page.content, new_content)
             PageRevision.objects.create(
                 page=page,
                 author=temp_author,
