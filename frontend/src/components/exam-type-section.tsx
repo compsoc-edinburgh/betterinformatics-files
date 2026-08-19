@@ -279,7 +279,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   );
 };
 
-export const EmptySection: React.FC = () => {
+export const EmptyExamSection: React.FC = () => {
   return (
     <Box className={examTypeClasses.examTable}>
       <Box

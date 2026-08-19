@@ -20,7 +20,7 @@ import {
   filterMatches,
   mapExamsToExamType,
 } from "../utils/category-utils";
-import ExamTypeSection, { EmptySection } from "./exam-type-section";
+import ExamTypeSection, { EmptyExamSection } from "./exam-type-section";
 import { UploadPdfForm } from "./upload-pdf-card";
 import { IconDownload, IconPlus, IconSearch } from "@tabler/icons-react";
 import ShimmerButton from "./shimmer-button";
@@ -132,7 +132,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
             />
           ),
       )}
-      {viewableExams?.length === 0 && <EmptySection />}
+      {viewableExams?.length === 0 && <EmptyExamSection />}
 
       <Modal
         opened={formIsOpen}
