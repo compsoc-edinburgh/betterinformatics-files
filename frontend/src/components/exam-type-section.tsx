@@ -279,4 +279,18 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   );
 };
 
+export const EmptySection: React.FC = () => {
+  return (
+    <Box className={examTypeClasses.examTable}>
+      <Box
+        className={clsx(examTypeClasses.emptyExamRow, fadeClasses.fadeInOrder)}
+      >
+        <Text c="dimmed" size="sm">
+          No exams available to view.
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
 export default ExamTypeSection;
