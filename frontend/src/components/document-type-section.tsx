@@ -5,7 +5,6 @@ import {
   Title,
   Text,
   Anchor,
-  Stack,
   Group,
   Button,
   Tooltip,
@@ -44,16 +43,16 @@ export const DocumentTypeSection: React.FC<{
               fadeClasses.fadeInOrder,
             )}
           >
-            <Stack gap={0} className={documentTypeClasses.documentLink}>
+            <Group gap="xs" className={documentTypeClasses.documentLink}>
               <Anchor component={Link} to={`/document/${document.slug}`}>
                 <Text size="md">{document.display_name}</Text>
               </Anchor>
               <Text c="dimmed">
                 {document.anonymised
-                  ? "Anonymous"
-                  : `@${document.author.username}`}
+                  ? "(Anonymous)"
+                  : `(@${document.author.username})`}
               </Text>
-            </Stack>
+            </Group>
             {document.edittime ? (
               <Text c="dimmed" component="span" size="xs" ta="right">
                 Last updated {formatDistanceToNow(new Date(document.edittime))}{" "}
