@@ -1,6 +1,6 @@
 .document-table {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: 1fr auto auto;
   column-gap: var(--mantine-spacing-sm);
 
   /* Appear flush with the outer edge of Paper. Use the same breakpoints. */
@@ -63,9 +63,10 @@
 }
 
 .document-link {
+  position: relative;
   padding: calc(var(--mantine-spacing-xs) / 2) 0;
 
-  &:hover {
+  & a:hover {
     text-decoration: none;
   }
 

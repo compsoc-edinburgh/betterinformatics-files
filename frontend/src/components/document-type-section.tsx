@@ -1,6 +1,6 @@
 import React from "react";
 import { DocumentSchema } from "../api/model";
-import { Box, Title, Text, Anchor, Flex } from "@mantine/core";
+import { Box, Title, Text, Anchor, Flex, Stack } from "@mantine/core";
 import documentTypeClasses from "./document-type-section.module.css";
 import fadeClasses from "../utils/fade-in-order.module.css";
 import { clsx } from "clsx";
@@ -28,31 +28,23 @@ export const DocumentTypeSection: React.FC<{
               fadeClasses.fadeInOrder,
             )}
           >
-            <Anchor
-              component={Link}
-              to={`/document/${document.slug}`}
-              className={documentTypeClasses.documentLink}
-            >
-              <Text size="md">{document.display_name}</Text>
-            </Anchor>
+            <Stack gap={0} className={documentTypeClasses.documentLink}>
+              <Anchor component={Link} to={`/document/${document.slug}`}>
+                <Text size="md">{document.display_name}</Text>
+              </Anchor>
+              <Text c="dimmed">
+                {document.anonymised
+                  ? "Anonymous"
+                  : `@${document.author.username}`}
+              </Text>
+            </Stack>
             {document.edittime ? (
-              <Text c="dimmed" component="span" size="xs">
+              <Text c="dimmed" component="span" size="xs" ta="right">
                 Last updated {formatDistanceToNow(new Date(document.edittime))}{" "}
                 ago
               </Text>
             ) : (
               <div />
-            )}
-            {document.anonymised ? (
-              <Text c="dimmed">Anonymous</Text>
-            ) : (
-              <Anchor
-                component={Link}
-                to={`/user/${document.author.username}`}
-                c="dimmed"
-              >
-                @{document.author.username}
-              </Anchor>
             )}
             {document.liked ? (
               <Flex align="center" color="red">
