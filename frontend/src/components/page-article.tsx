@@ -298,7 +298,7 @@ export const PageArticle: React.FC<{
             </List>
           </>
         )}
-        {!editing && !user?.isAdmin && (
+        {editing && !user?.isAdmin && (
           <Turnstile
             siteKey={serverData.turnstile_sitekey}
             onSuccess={setTurnstileToken}

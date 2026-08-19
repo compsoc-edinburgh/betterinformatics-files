@@ -6,7 +6,8 @@
   font-family: "Fira Code", monospace;
   font-size: 0.875rem;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
   width: 100%;
   box-sizing: border-box;
   padding: 0;
@@ -20,6 +21,7 @@
   background: transparent;
   resize: none;
   border: none;
+  scrollbar-width: none;
   &:focus {
     outline: none;
   }
@@ -32,4 +34,9 @@
 
 .fullHeight {
   height: 100%;
+}
+
+.textarea.fullHeight {
+  overflow: auto;
+  scrollbar-width: auto;
 }

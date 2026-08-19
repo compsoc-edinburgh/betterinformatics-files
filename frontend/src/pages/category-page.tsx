@@ -136,11 +136,14 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const { data: pages } = useListPages({
     category: metaData.slug,
   });
-  const { data: page } = useGetPage(pages?.pages[0]?.slug ?? "", {
-    query: {
-      enabled: !!pages?.pages.length,
+  const { data: page, isError: pageIsError } = useGetPage(
+    pages?.pages[0]?.slug ?? "",
+    {
+      query: {
+        enabled: !!pages?.pages.length,
+      },
     },
-  });
+  );
 
   const sessionString = bi_courses_data
     ? bi_courses_data.session.replace("-", "/")
@@ -152,7 +155,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
   const tabs = useCategoryTabs([
     { name: "Resources", id: "resources" },
-    { name: "Guide", id: "guide", disabled: !page },
+    { name: "Guide", id: "guide", disabled: pageIsError },
     {
       name: "Testimonials",
       id: "testimonials",
