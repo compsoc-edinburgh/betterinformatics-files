@@ -1,21 +1,16 @@
 import React from "react";
 import { DocumentSchema } from "../api/model";
-import {
-  Box,
-  Title,
-  Text,
-  Anchor,
-  Group,
-  Button,
-  Tooltip,
-} from "@mantine/core";
-import documentTypeClasses from "./document-type-section.module.css";
-import fadeClasses from "../utils/fade-in-order.module.css";
-import { clsx } from "clsx";
+import { Title, Text, Anchor, Group, Button, Tooltip } from "@mantine/core";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { Link } from "react-router-dom";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import { useUpdateDocument } from "../api/hooks/documents";
+import {
+  ResourceList,
+  ResourceListEmptyRow,
+  ResourceListRow,
+  ResourceListTitle,
+} from "./resource-list";
 
 export const DocumentTypeSection: React.FC<{
   type: string | null;
@@ -34,16 +29,10 @@ export const DocumentTypeSection: React.FC<{
           {type}
         </Title>
       )}
-      <Box className={documentTypeClasses.documentTable}>
+      <ResourceList columns="1fr auto auto">
         {documents.map(document => (
-          <Box
-            key={document.slug}
-            className={clsx(
-              documentTypeClasses.documentRow,
-              fadeClasses.fadeInOrder,
-            )}
-          >
-            <Group gap="xs" className={documentTypeClasses.documentLink}>
+          <ResourceListRow key={document.slug}>
+            <ResourceListTitle direction="row" gap="xs">
               <Anchor component={Link} to={`/document/${document.slug}`}>
                 <Text size="md">{document.display_name}</Text>
               </Anchor>
@@ -52,7 +41,7 @@ export const DocumentTypeSection: React.FC<{
                   ? "(Anonymous)"
                   : `(@${document.author.username})`}
               </Text>
-            </Group>
+            </ResourceListTitle>
             {document.edittime ? (
               <Text
                 c="dimmed"
@@ -94,29 +83,22 @@ export const DocumentTypeSection: React.FC<{
                 </Group>
               </Button>
             </Tooltip>
-          </Box>
+          </ResourceListRow>
         ))}
-      </Box>
+      </ResourceList>
     </>
   );
 };
 
 export const EmptyDocumentSection: React.FC = () => {
   return (
-    <Box className={documentTypeClasses.documentTable}>
-      <Box
-        className={clsx(
-          documentTypeClasses.emptyDocumentRow,
-          fadeClasses.fadeInOrder,
-        )}
-      >
-        <Text c="dimmed" size="sm">
-          No documents found. Upload your own to share! We welcome cheatsheets,
-          study notes, algorithm implementations, Anki decks, and more. If you
-          would like to write more freestyle, consider also adding to the course
-          guide.
-        </Text>
-      </Box>
-    </Box>
+    <ResourceList columns="1fr">
+      <ResourceListEmptyRow>
+        No documents found. Upload your own to share! We welcome cheatsheets,
+        study notes, algorithm implementations, Anki decks, and more. If you
+        would like to write more freestyle, consider also adding to the course
+        guide.
+      </ResourceListEmptyRow>
+    </ResourceList>
   );
 };

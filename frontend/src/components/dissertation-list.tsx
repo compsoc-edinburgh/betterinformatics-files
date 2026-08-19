@@ -12,15 +12,18 @@ import {
   Progress,
   Notification,
   Stack,
-  Box,
 } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { Link } from "react-router-dom";
 import { useListDissertations } from "../api/hooks/dissertations";
-import fadeClasses from "../utils/fade-in-order.module.css";
-import dissListClasses from "./dissertation-list.module.css";
-import { clsx } from "clsx";
+import {
+  ResourceList,
+  ResourceListEmptyRow,
+  ResourceListHeader,
+  ResourceListRow,
+  ResourceListTitle,
+} from "./resource-list";
 
 interface Props {
   slug?: string;
@@ -32,24 +35,11 @@ interface Props {
 
 const EmptySection: React.FC<{ flush?: boolean }> = ({ flush }) => {
   return (
-    <Box
-      className={clsx(
-        dissListClasses.dissTable,
-        flush && dissListClasses.flush,
-      )}
-    >
-      <Box
-        className={clsx(
-          dissListClasses.emptyDissRow,
-          flush && dissListClasses.flush,
-          fadeClasses.fadeInOrder,
-        )}
-      >
-        <Text c="dimmed" size="sm">
-          No relevant dissertations found :(
-        </Text>
-      </Box>
-    </Box>
+    <ResourceList columns="1fr" flush={flush}>
+      <ResourceListEmptyRow>
+        No relevant dissertations found :(
+      </ResourceListEmptyRow>
+    </ResourceList>
   );
 };
 
@@ -90,15 +80,8 @@ export const DissertationList: React.FC<Props> = ({
   const rows = useMemo(() => {
     return dissertations
       ? dissertations.map(dissertation => (
-          <Box
-            key={dissertation.id}
-            className={clsx(
-              dissListClasses.dissRow,
-              flush && dissListClasses.flush,
-              fadeClasses.fadeInOrder,
-            )}
-          >
-            <Stack className={dissListClasses.dissLink} gap={0}>
+          <ResourceListRow key={dissertation.id}>
+            <ResourceListTitle direction="column">
               <Anchor
                 h="100%"
                 display="block"
@@ -110,7 +93,7 @@ export const DissertationList: React.FC<Props> = ({
               <Text size="sm" c="dimmed">
                 {dissertation.year} {dissertation.study_level} Dissertation
               </Text>
-            </Stack>
+            </ResourceListTitle>
             {showRelevance && (
               <Stack gap={0} align="flex-start">
                 {dissertation.relevant_categories.map((category, index) => (
@@ -142,10 +125,10 @@ export const DissertationList: React.FC<Props> = ({
                 </Text>
               ))}
             </Stack>
-          </Box>
+          </ResourceListRow>
         ))
       : [];
-  }, [dissertations, flush, showRelevance]);
+  }, [dissertations, showRelevance]);
 
   return (
     <>
@@ -205,26 +188,16 @@ export const DissertationList: React.FC<Props> = ({
           (dissertations?.length === 0 ? (
             <EmptySection flush={flush} />
           ) : (
-            <Box
-              className={clsx(
-                dissListClasses.dissTable,
-                flush && dissListClasses.flush,
-              )}
-            >
+            <ResourceList columns="1fr auto auto" flush={flush}>
               {withHeader && (
-                <Box
-                  className={clsx(
-                    dissListClasses.dissHeader,
-                    flush && dissListClasses.flush,
-                  )}
-                >
+                <ResourceListHeader>
                   <Text size="sm">Title</Text>
                   {showRelevance && <Text size="sm">Relevance</Text>}
                   <Text size="sm">Supervisors</Text>
-                </Box>
+                </ResourceListHeader>
               )}
               {rows}
-            </Box>
+            </ResourceList>
           ))}
       </div>
     </>

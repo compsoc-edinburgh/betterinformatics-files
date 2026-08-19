@@ -1,0 +1,166 @@
+.list {
+  display: grid;
+  grid-template-columns: var(--resource-list-columns);
+  column-gap: var(--mantine-spacing-sm);
+
+  &.flush {
+    /* flush with the outer edge of Paper. Same breakpoints. */
+    width: calc(100% + 2 * var(--mantine-spacing-sm));
+    margin-left: calc(-1 * var(--mantine-spacing-sm));
+
+    @mixin larger-than $mantine-breakpoint-sm {
+      width: calc(100% + 2 * var(--mantine-spacing-md));
+      margin-left: calc(-1 * var(--mantine-spacing-md));
+    }
+
+    & .header-row {
+      padding-left: var(--mantine-spacing-sm);
+      padding-right: var(--mantine-spacing-sm);
+
+      @mixin larger-than $mantine-breakpoint-sm {
+        padding-left: var(--mantine-spacing-md);
+        padding-right: var(--mantine-spacing-md);
+      }
+    }
+
+    & .empty-row {
+      padding-left: var(--mantine-spacing-sm);
+      padding-right: var(--mantine-spacing-sm);
+
+      @mixin larger-than $mantine-breakpoint-sm {
+        padding-left: var(--mantine-spacing-md);
+        padding-right: var(--mantine-spacing-md);
+      }
+    }
+
+    & .row > :first-child {
+      padding-left: var(--mantine-spacing-sm);
+
+      @mixin larger-than $mantine-breakpoint-sm {
+        padding-left: var(--mantine-spacing-md);
+      }
+    }
+
+    & .row > :last-child {
+      padding-right: var(--mantine-spacing-sm);
+
+      @mixin larger-than $mantine-breakpoint-sm {
+        padding-right: var(--mantine-spacing-md);
+      }
+    }
+  }
+
+  /* border if not flush */
+  &:not(.flush) {
+    background: var(--mantine-color-body);
+    border-left: calc(0.0625rem * var(--mantine-scale)) solid
+      var(--mantine-color-gray-3);
+    border-right: calc(0.0625rem * var(--mantine-scale)) solid
+      var(--mantine-color-gray-3);
+
+    @mixin dark {
+      border-left-color: var(--mantine-color-dark-4);
+      border-right-color: var(--mantine-color-dark-4);
+    }
+
+    .row {
+      padding-left: var(--mantine-spacing-sm);
+      padding-right: var(--mantine-spacing-sm);
+    }
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: center;
+
+  border-bottom: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-3);
+
+  &:first-child {
+    border-top: calc(0.0625rem * var(--mantine-scale)) solid
+      var(--mantine-color-gray-3);
+  }
+
+  &:hover {
+    background-color: var(--mantine-color-gray-light-hover);
+  }
+
+  &:active {
+    background-color: var(--mantine-color-gray-light);
+  }
+
+  @mixin dark {
+    border-bottom-color: var(--mantine-color-dark-4);
+
+    &:first-child {
+      border-top-color: var(--mantine-color-dark-4);
+    }
+  }
+}
+
+.header-row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-xs);
+
+  border-top: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-3);
+  border-bottom: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-3);
+
+  & p {
+    font-weight: var(--mantine-font-weight-bold);
+  }
+
+  @mixin dark {
+    border-top-color: var(--mantine-color-dark-4);
+    border-bottom-color: var(--mantine-color-dark-4);
+  }
+}
+
+.empty-row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  padding: calc(var(--mantine-spacing-xs) / 2) 0;
+
+  border-top: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-3);
+  border-bottom: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-3);
+
+  @mixin dark {
+    border-top-color: var(--mantine-color-dark-4);
+    border-bottom-color: var(--mantine-color-dark-4);
+  }
+}
+
+.title {
+  position: relative;
+  padding: calc(var(--mantine-spacing-xs) / 2) 0;
+
+  & a:hover {
+    text-decoration: none;
+  }
+
+  /* Make the entire row clickable by expanding the a element larger */
+  & a::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.raise-content {
+  /* Make content in the row (e.g. official solutions) go above the link */
+  & :not(a) {
+    z-index: 1;
+  }
+}
