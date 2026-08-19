@@ -100,3 +100,23 @@ export const DocumentTypeSection: React.FC<{
     </>
   );
 };
+
+export const EmptyDocumentSection: React.FC = () => {
+  return (
+    <Box className={documentTypeClasses.documentTable}>
+      <Box
+        className={clsx(
+          documentTypeClasses.emptyDocumentRow,
+          fadeClasses.fadeInOrder,
+        )}
+      >
+        <Text c="dimmed" size="sm">
+          No documents found. Upload your own to share! We welcome cheatsheets,
+          study notes, algorithm implementations, Anki decks, and more. If you
+          would like to write more freestyle, consider also adding to the course
+          guide.
+        </Text>
+      </Box>
+    </Box>
+  );
+};

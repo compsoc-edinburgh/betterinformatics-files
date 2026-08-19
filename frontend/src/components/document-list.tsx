@@ -14,7 +14,10 @@ import ShimmerButton from "./shimmer-button";
 import { useListDocuments, useListDocumentTypes } from "../api/hooks/documents";
 import type { DocumentListSchema } from "../api/model/documentListSchema";
 import type { DocumentSchema } from "../api/model/documentSchema";
-import { DocumentTypeSection } from "./document-type-section";
+import {
+  DocumentTypeSection,
+  EmptyDocumentSection,
+} from "./document-type-section";
 
 interface Props {
   slug: string;
@@ -102,11 +105,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
         )}
       {splitDocs &&
         Object.values(splitDocs).every(docs => docs.length === 0) && (
-          <Alert variant="light" color="compsocMain">
-            No community documents yet. Upload your own to share! Cheatsheets,
-            study notes, code implementations of algorithms, Anki decks, and
-            more are all welcome.
-          </Alert>
+          <EmptyDocumentSection />
         )}
     </>
   );
