@@ -2,7 +2,7 @@
   padding: 1.2em;
 }
 
-.fullScreen {
+.fullscreen {
   flex-grow: 1;
 }
 
@@ -35,13 +35,16 @@
 }
 
 .shadowOnFocus {
-  transition: linear 100ms box-shadow, linear 50ms outline-width;
+  transition:
+    linear 100ms box-shadow,
+    linear 50ms outline-width;
   outline-width: 0;
   outline-style: solid;
   outline-color: var(--mantine-primary-color-filled);
   outline-offset: 2px;
 
-  &:hover, &:focus-within {
+  &:hover,
+  &:focus-within {
     box-shadow: var(--mantine-shadow-xs);
   }
 
@@ -49,7 +52,6 @@
     outline-width: 2px;
   }
 }
-
 
 .borderStyle {
   border-width: 0.1em;

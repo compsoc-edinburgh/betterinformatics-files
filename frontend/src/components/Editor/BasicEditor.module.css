@@ -3,6 +3,8 @@
 }
 
 .common {
+  font-family: "Fira Code", monospace;
+  font-size: 0.875rem;
   white-space: pre-wrap;
   word-wrap: break-word;
   width: 100%;
