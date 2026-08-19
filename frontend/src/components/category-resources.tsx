@@ -50,7 +50,12 @@ export const CategoryResources: React.FC<{
         supervisor, or understanding what kind of novel work is being done in
         this area.
       </Text>
-      <DissertationList slug={metaData.slug} disableSearch />
+      <DissertationList
+        slug={metaData.slug}
+        disableSearch
+        flush
+        showRelevance={false}
+      />
       <Flex justify="flex-end" mt="md">
         <Anchor component={Link} to="/dissertations" fz="sm" c="blue">
           <Group gap="sm">

@@ -1,24 +1,13 @@
 import { useRequest } from "ahooks";
-import {
-  Anchor,
-  Box,
-  Checkbox,
-  Group,
-  Stack,
-  Text,
-  Title,
-  Tooltip,
-} from "@mantine/core";
+import { Anchor, Checkbox, Group, Text, Title, Tooltip } from "@mantine/core";
 import React from "react";
 import examTypeClasses from "./exam-type-section.module.css";
-import fadeClasses from "../utils/fade-in-order.module.css";
 import { Link } from "react-router-dom";
 import { useUser } from "../auth";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
-import { clsx } from "clsx";
 import {
   IconChecklist,
   IconEyeOff,
@@ -34,6 +23,12 @@ import {
   unmarkExamUserSolved,
 } from "../api/hooks";
 import { StatusIcon } from "./status-icon";
+import {
+  ResourceList,
+  ResourceListEmptyRow,
+  ResourceListRow,
+  ResourceListTitle,
+} from "./resource-list";
 
 interface ExamTypeCardProps {
   examtype: string;
@@ -125,12 +120,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
         />
         <Title order={3}>{examtype}</Title>
       </Group>
-      <Box className={examTypeClasses.examTable}>
+      <ResourceList columns="auto 1fr auto auto auto">
         {exams.map(exam => (
-          <Box
-            key={exam.filename}
-            className={clsx(examTypeClasses.examRow, fadeClasses.fadeInOrder)}
-          >
+          <ResourceListRow key={exam.filename}>
             <Checkbox
               checked={selected.has(exam.filename)}
               // Toggle the selection state in the parent component.
@@ -144,7 +136,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               disabled={!exam.canView}
               style={{ alignSelf: "center" }}
             />
-            <Stack gap={0} className={clsx(examTypeClasses.examLink)}>
+            <ResourceListTitle direction="column" childNonLinksNeedMouseEvents>
               <Group gap="xs">
                 {exam.canView ? (
                   <Anchor component={Link} to={`/exams/${exam.filename}`}>
@@ -166,7 +158,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   {exam.remark}
                 </Text>
               )}
-            </Stack>
+            </ResourceListTitle>
             {catAdmin && !exam.finished_cuts ? (
               <ClaimButton exam={exam} reloadExams={reload} size="compact-sm" />
             ) : (
@@ -272,10 +264,18 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 />
               )}
             </Group>
-          </Box>
+          </ResourceListRow>
         ))}
-      </Box>
+      </ResourceList>
     </>
+  );
+};
+
+export const EmptyExamSection: React.FC = () => {
+  return (
+    <ResourceList columns="1fr">
+      <ResourceListEmptyRow>No exams available to view.</ResourceListEmptyRow>
+    </ResourceList>
   );
 };
 

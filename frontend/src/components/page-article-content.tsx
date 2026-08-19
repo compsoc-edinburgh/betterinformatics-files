@@ -17,7 +17,7 @@ export const PageArticleContent: React.FC<{
         <MarkdownText
           value={
             page.content.trim() ||
-            "*Nothing here yet. Perhaps you want to add some? Click 'edit'!*"
+            "*Nothing here yet. But everyone can write here! Click 'edit'!*"
           }
           addAnchors={true}
           localLinkBase="https://betterinformatics.com"

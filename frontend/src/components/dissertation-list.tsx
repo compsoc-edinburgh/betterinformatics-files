@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
   Text,
-  Table,
   TextInput,
   Group,
   Anchor,
@@ -18,13 +17,39 @@ import { IconSearch } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { Link } from "react-router-dom";
 import { useListDissertations } from "../api/hooks/dissertations";
+import {
+  ResourceList,
+  ResourceListEmptyRow,
+  ResourceListHeader,
+  ResourceListRow,
+  ResourceListTitle,
+} from "./resource-list";
 
 interface Props {
   slug?: string;
   disableSearch?: boolean;
+  flush?: boolean;
+  withHeader?: boolean;
+  showRelevance?: boolean;
 }
 
-export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
+const EmptySection: React.FC<{ flush?: boolean }> = ({ flush }) => {
+  return (
+    <ResourceList columns="1fr" flush={flush}>
+      <ResourceListEmptyRow>
+        No relevant dissertations found :(
+      </ResourceListEmptyRow>
+    </ResourceList>
+  );
+};
+
+export const DissertationList: React.FC<Props> = ({
+  slug,
+  disableSearch,
+  flush = false,
+  withHeader = true,
+  showRelevance = true,
+}) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
   const [searchField, setSearchField] = useState<string | null>("title");
@@ -55,8 +80,8 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
   const rows = useMemo(() => {
     return dissertations
       ? dissertations.map(dissertation => (
-          <Table.Tr key={dissertation.id}>
-            <Table.Td height="1px">
+          <ResourceListRow key={dissertation.id}>
+            <ResourceListTitle direction="column">
               <Anchor
                 h="100%"
                 display="block"
@@ -64,12 +89,12 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
                 to={`/dissertations/${dissertation.id}`}
               >
                 <Text>{dissertation.title}</Text>
-                <Text size="sm" c="dimmed">
-                  {dissertation.year} {dissertation.study_level} Dissertation
-                </Text>
               </Anchor>
-            </Table.Td>
-            <Table.Td valign="top">
+              <Text size="sm" c="dimmed">
+                {dissertation.year} {dissertation.study_level} Dissertation
+              </Text>
+            </ResourceListTitle>
+            {showRelevance && (
               <Stack gap={0} align="flex-start">
                 {dissertation.relevant_categories.map((category, index) => (
                   <Text fz="sm" key={index}>
@@ -92,18 +117,18 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
                     .join(", ")}
                 </Text>
               </Stack>
-            </Table.Td>
-            <Table.Td valign="top">
+            )}
+            <Stack gap={0}>
               {dissertation.supervisors.split(",").map((supervisor, index) => (
                 <Text fz="sm" key={index}>
                   {supervisor.trim()}
                 </Text>
               ))}
-            </Table.Td>
-          </Table.Tr>
+            </Stack>
+          </ResourceListRow>
         ))
       : [];
-  }, [dissertations]);
+  }, [dissertations, showRelevance]);
 
   return (
     <>
@@ -161,24 +186,18 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
         {!loadingDebounced &&
           !isError &&
           (dissertations?.length === 0 ? (
-            <Text>No dissertations found. :(</Text>
+            <EmptySection flush={flush} />
           ) : (
-            <Table
-              style={{ backgroundColor: "var(--mantine-color-body)" }}
-              striped={false}
-              highlightOnHover={false}
-              withTableBorder
-              withColumnBorders
-            >
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Title</Table.Th>
-                  <Table.Th w="320">Relevance</Table.Th>
-                  <Table.Th w="160">Supervisors</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>{rows}</Table.Tbody>
-            </Table>
+            <ResourceList columns="1fr auto auto" flush={flush}>
+              {withHeader && (
+                <ResourceListHeader>
+                  <Text size="sm">Title</Text>
+                  {showRelevance && <Text size="sm">Relevance</Text>}
+                  <Text size="sm">Supervisors</Text>
+                </ResourceListHeader>
+              )}
+              {rows}
+            </ResourceList>
           ))}
       </div>
     </>

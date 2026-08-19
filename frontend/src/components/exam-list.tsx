@@ -20,7 +20,7 @@ import {
   filterMatches,
   mapExamsToExamType,
 } from "../utils/category-utils";
-import ExamTypeSection from "./exam-type-section";
+import ExamTypeSection, { EmptyExamSection } from "./exam-type-section";
 import { UploadPdfForm } from "./upload-pdf-card";
 import { IconDownload, IconPlus, IconSearch } from "@tabler/icons-react";
 import ShimmerButton from "./shimmer-button";
@@ -132,11 +132,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
             />
           ),
       )}
-      {viewableExams?.length === 0 && (
-        <Alert variant="light" color="compsocMain">
-          No exams available to view.
-        </Alert>
-      )}
+      {viewableExams?.length === 0 && <EmptyExamSection />}
 
       <Modal
         opened={formIsOpen}
