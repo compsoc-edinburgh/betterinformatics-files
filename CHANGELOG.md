@@ -1,5 +1,14 @@
 # Changelog
 
+## v2026.08.19
+
+- Further ground work for upcoming testimonials feature ([\#143](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/143)), ([\#145](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/145))
+- Bugfixes for guide pages feature introduced in v2026.08.18 ([\#138](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/138)), ([\#141](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/141)), ([\#142](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/142))
+- Community Documents and Dissertations list look similar to exams now ([\#139](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/139)), ([\#140](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/140))
+- Editor changes: fullscreen fixed, monospace fonts preferred ([\#137](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/137))
+- Backend preparations for more detailed grade statistics ([\#144](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/144)), ([\#146](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/146))
+
+
 ## v2026.08.18-1
 
 - Hotfix for the link hitbox in the exam list being thinner than row ([\#134](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/134))
