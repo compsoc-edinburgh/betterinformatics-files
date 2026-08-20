@@ -296,6 +296,7 @@ class TestCourseStats(ComsolTest):
             {
                 "mean_mark": 80.0,
                 "std_deviation": 8.0,
+                "student_count": 100,
                 "percentiles": '{"25": 20, "50": 60, "75": 40, "90": 95}',
             },
         )
@@ -305,6 +306,7 @@ class TestCourseStats(ComsolTest):
         self.assertEqual(res_course["course_name"], "Test Course")
         self.assertEqual(res_course["mean_mark"], 80.0)
         self.assertEqual(res_course["std_deviation"], 8.0)
+        self.assertEqual(res_course["student_count"], 100)
         self.assertEqual(
             res_course["percentiles"], {"25": 20, "50": 60, "75": 40, "90": 95}
         )

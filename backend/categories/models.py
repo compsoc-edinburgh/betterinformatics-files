@@ -105,6 +105,7 @@ class CourseStats(models.Model):
     course_name = models.CharField(max_length=256)
     mean_mark = models.FloatField(null=True)
     std_deviation = models.FloatField(null=True)
+    student_count = models.IntegerField(null=True)
     academic_year = models.CharField(max_length=10)  # e.g. "2023-24"
     course_organiser = models.CharField(max_length=256, null=True)
     percentiles = models.JSONField()

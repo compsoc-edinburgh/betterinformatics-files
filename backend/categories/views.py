@@ -546,6 +546,7 @@ def get_course_stats(request, slug):
             "course_code": stat.course_code.code,
             "mean_mark": stat.mean_mark,
             "std_deviation": stat.std_deviation,
+            "student_count": stat.student_count,
             "academic_year": stat.academic_year,
             "course_organiser": stat.course_organiser,
             "percentiles": stat.percentiles,
@@ -565,6 +566,7 @@ def add_course_stats(request, code, academic_year):
     course_name = request.POST.get("course_name")
     mean_mark = request.POST.get("mean_mark")
     std_deviation = request.POST.get("std_deviation")
+    student_count = request.POST.get("student_count")
     course_organiser = request.POST.get("course_organiser")
     percentiles = request.POST.get("percentiles")
 
@@ -604,6 +606,7 @@ def add_course_stats(request, code, academic_year):
         course_name=course_name,
         mean_mark=mean_mark,
         std_deviation=std_deviation,
+        student_count=student_count,
         academic_year=academic_year,
         course_organiser=course_organiser,
         percentiles=percentiles,
@@ -622,6 +625,7 @@ def update_course_stats(request, code, academic_year):
     course_name = request.POST.get("course_name")
     mean_mark = request.POST.get("mean_mark")
     std_deviation = request.POST.get("std_deviation")
+    student_count = request.POST.get("student_count")
     course_organiser = request.POST.get("course_organiser")
     percentiles = request.POST.get("percentiles")
 
@@ -637,6 +641,8 @@ def update_course_stats(request, code, academic_year):
         stats.std_deviation = std_deviation
     if course_organiser is not None:
         stats.course_organiser = course_organiser
+    if student_count is not None:
+        stats.student_count = student_count
     if percentiles is not None:
         try:
             stats.percentiles = json.loads(percentiles)
