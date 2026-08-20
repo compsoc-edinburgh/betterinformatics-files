@@ -90,7 +90,7 @@ class EuclidCode(models.Model):
     # show to users which courses on DRPS the category corresponds to, and
     # for admins, automatically analyse which courses are missing as categories.
     code = models.CharField(max_length=12, unique=True)
-    category = models.ForeignKey(
+    category: models.ForeignKey[Category | None] = models.ForeignKey(
         "Category", related_name="euclid_codes", on_delete=models.CASCADE, null=True
     )
 

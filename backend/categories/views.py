@@ -474,11 +474,20 @@ def add_euclid_code(request, slug):
         return response.not_possible("Code too long")
 
     # Check if code is already assigned to another category, if so return the name of it
-    if cat.euclid_codes.filter(code=code).exists():
+    euclid_code = EuclidCode.objects.filter(code=code).first()
+    if euclid_code and euclid_code.category and euclid_code.category != cat:
         return response.not_possible(
-            f"Code already assigned to category {cat.euclid_codes.get(code=code).category.displayname}"
+            f"Code already assigned to category {euclid_code.category.displayname}"
         )
-    cat.euclid_codes.create(code=code)
+
+    if euclid_code and not euclid_code.category:
+        # Still not taken
+        euclid_code.category = cat
+        euclid_code.save()
+
+    if not euclid_code:
+        cat.euclid_codes.create(code=code, category=cat)
+
     return response.success()
 
 
@@ -487,7 +496,7 @@ def add_euclid_code(request, slug):
 def remove_euclid_code(request, slug):
     cat = get_object_or_404(Category, slug=slug)
     code = request.POST["code"].upper()
-    cat.euclid_codes.filter(code=code).delete()
+    cat.euclid_codes.filter(code=code).update(category=None)
     return response.success()
 
 
@@ -500,7 +509,11 @@ def get_category_from_euclid_code(request):
 
 @response.request_get()
 def list_euclid_codes(request):
-    codes = EuclidCode.objects.all()
+    codes = (
+        EuclidCode.objects.all()
+        .filter(category__isnull=False)
+        .select_related("category")
+    )
     res = [
         {
             "code": code.code,
