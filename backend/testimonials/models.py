@@ -1,27 +1,29 @@
 from django.db import models
 from django.db.models import Q, UniqueConstraint
+from django.utils import timezone
 
 
-# Create your models here.
 class ApprovalStatus(models.IntegerChoices):
-    APPROVED = 0, "Approved"
-    PENDING = 1, "Pending"
-    REJECTED = 2, "Rejected"
+    APPROVED = (0, "Approved")
+    PENDING = (1, "Pending")
+    REJECTED = (2, "Rejected")
 
 
 class Testimonial(models.Model):
     id = models.AutoField(primary_key=True)
-    author = models.ForeignKey("auth.User", on_delete=models.CASCADE, default="")
-    category = models.ForeignKey(  # Link Testimonial to a Category
+    author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    category = models.ForeignKey(
         "categories.Category",
-        on_delete=models.CASCADE,  # Delete testimonials if category is deleted
+        on_delete=models.CASCADE,
     )
-    testimonial = models.TextField()
+    text = models.TextField()
     year_taken = models.IntegerField()
     approval_status = models.IntegerField(
         choices=ApprovalStatus.choices,
         default=ApprovalStatus.PENDING,
     )
+    created_at = models.DateTimeField(default=timezone.now)
+    edited_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         # Only one row with (author, course) where approval_status is APPROVED or PENDING can exist.

@@ -23,7 +23,7 @@ def testimonial_metadata(request, slug: str):
             "author_id": testimonial.author.username,
             "author_display_name": testimonial.author.profile.display_username,
             "slug": testimonial.category.slug,
-            "testimonial": testimonial.testimonial,
+            "testimonial": testimonial.text,
             "year_taken": testimonial.year_taken,
             "approval_status": testimonial.approval_status,
         }
