@@ -520,14 +520,14 @@ def get_course_stats(request, slug):
         return response.success(value=[])
 
     # Get course stats for all Euclid codes associated with this category
-    stats = CourseStats.objects.filter(course_code__in=euclid_codes).order_by(
-        "course_code", "academic_year"
+    stats = CourseStats.objects.filter(course_code__code__in=euclid_codes).order_by(
+        "course_code__code", "academic_year"
     )
 
     res = [
         {
             "course_name": stat.course_name,
-            "course_code": stat.course_code,
+            "course_code": stat.course_code.code,
             "mean_mark": stat.mean_mark,
             "std_deviation": stat.std_deviation,
             "academic_year": stat.academic_year,
