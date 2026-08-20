@@ -1,5 +1,18 @@
 # Changelog
 
+## v2026.08.19
+
+- Add optional student\_count field to CourseStats ([\#146](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/146))
+- Add date to testimonials, and clean up fields declarations ([\#145](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/145))
+- Implement API endpoints for adding/updating/removing grade stats ([\#144](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/144))
+- Add a placeholder text when category has no testimonials ([\#143](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/143))
+- Fix create\_page\_for\_categories migration having 0 content delta ([\#142](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/142))
+- Fix ExtremelyTrustedHTML breaking when no script tags exist ([\#141](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/141))
+- Improve styles when a category has no content ([\#140](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/140))
+- Show community documents as list instead of grid ([\#139](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/139))
+- Minor bugfixes for the new guide pages feature ([\#138](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/138))
+- Fix fullscreen editor, use monospace fonts ([\#137](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/137))
+
 ## v2026.08.18-1
 
 - Hotfix for the link hitbox in the exam list being thinner than row ([\#134](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/134))
