@@ -89,26 +89,28 @@ class EuclidCode(models.Model):
     # shadow courses (same course offered to UG/PG etc). This is used to both
     # show to users which courses on DRPS the category corresponds to, and
     # for admins, automatically analyse which courses are missing as categories.
-    code = models.CharField(max_length=12)
-    category = models.ForeignKey(
-        "Category", related_name="euclid_codes", on_delete=models.CASCADE
+    code = models.CharField(max_length=12, unique=True)
+    category: models.ForeignKey[Category | None] = models.ForeignKey(
+        "Category", related_name="euclid_codes", on_delete=models.CASCADE, null=True
     )
+
+    # Reverse type hints
+    stats: models.QuerySet["CourseStats"]  # disambiguate by academic_year
 
 
 class CourseStats(models.Model):
+    course_code: models.ForeignKey[EuclidCode] = models.ForeignKey(
+        "EuclidCode", related_name="stats", on_delete=models.CASCADE
+    )
     course_name = models.CharField(max_length=256)
-    course_code = models.CharField(max_length=12, db_index=True)
-    mean_mark = models.FloatField(null=True, blank=True)  # Can be null for N/A values
-    std_deviation = models.FloatField(
-        null=True, blank=True
-    )  # Can be null for N/A values
+    mean_mark = models.FloatField(null=True)
+    std_deviation = models.FloatField(null=True)
     academic_year = models.CharField(max_length=10)  # e.g. "2023-24"
-    course_organiser = models.CharField(
-        max_length=256, null=True, blank=True
-    )  # Course Organiser name
+    course_organiser = models.CharField(max_length=256, null=True)
+    percentiles = models.JSONField()
 
     class Meta:
         ordering = ["course_code", "academic_year"]
 
     def __str__(self):
-        return f"{self.course_code} ({self.academic_year}): {self.mean_mark}"
+        return f"{self.course_code.code} ({self.academic_year}): {self.mean_mark}"
