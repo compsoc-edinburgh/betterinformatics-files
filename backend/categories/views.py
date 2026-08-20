@@ -1,3 +1,6 @@
+import json
+import re
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
@@ -532,8 +535,114 @@ def get_course_stats(request, slug):
             "std_deviation": stat.std_deviation,
             "academic_year": stat.academic_year,
             "course_organiser": stat.course_organiser,
+            "percentiles": stat.percentiles,
         }
         for stat in stats
     ]
 
     return response.success(value=res)
+
+
+@response.request_post()
+@auth_check.require_admin
+def add_course_stats(request, code, academic_year):
+    euclid_code = get_object_or_404(EuclidCode, code=code)
+
+    # Extract data from request
+    course_name = request.POST.get("course_name")
+    mean_mark = request.POST.get("mean_mark")
+    std_deviation = request.POST.get("std_deviation")
+    course_organiser = request.POST.get("course_organiser")
+    percentiles = request.POST.get("percentiles")
+
+    # Course name must be specified
+    if not course_name:
+        return response.not_possible("Course name must be specified")
+
+    # Any of mean, std, and percentiles must be specified
+    if not any([mean_mark, std_deviation, percentiles]):
+        return response.not_possible(
+            "At least one of mean_mark, std_deviation, or percentiles must be specified"
+        )
+
+    if not percentiles:
+        percentiles = {}
+    else:
+        try:
+            percentiles = json.loads(percentiles)
+        except json.JSONDecodeError:
+            return response.not_possible("Percentiles must be a valid JSON object")
+
+    if CourseStats.objects.filter(
+        course_code=euclid_code, academic_year=academic_year
+    ).exists():
+        return response.not_possible(
+            f"Course stats for {code} in {academic_year} exists - use update"
+        )
+
+    # Check academic year format
+    regex = re.compile(r"^\d{4}-\d{2}$")
+    if not regex.match(academic_year):
+        return response.not_possible("Academic year must be in the format YYYY-YY")
+
+    # Create new CourseStats entry
+    stats = CourseStats(
+        course_code=euclid_code,
+        course_name=course_name,
+        mean_mark=mean_mark,
+        std_deviation=std_deviation,
+        academic_year=academic_year,
+        course_organiser=course_organiser,
+        percentiles=percentiles,
+    )
+    stats.save()
+
+    return response.success()
+
+
+@response.request_patch()
+@auth_check.require_admin
+def update_course_stats(request, code, academic_year):
+    euclid_code = get_object_or_404(EuclidCode, code=code)
+
+    # Extract data from request
+    course_name = request.POST.get("course_name")
+    mean_mark = request.POST.get("mean_mark")
+    std_deviation = request.POST.get("std_deviation")
+    course_organiser = request.POST.get("course_organiser")
+    percentiles = request.POST.get("percentiles")
+
+    stats = get_object_or_404(
+        CourseStats, course_code=euclid_code, academic_year=academic_year
+    )
+
+    if course_name is not None:
+        stats.course_name = course_name
+    if mean_mark is not None:
+        stats.mean_mark = mean_mark
+    if std_deviation is not None:
+        stats.std_deviation = std_deviation
+    if course_organiser is not None:
+        stats.course_organiser = course_organiser
+    if percentiles is not None:
+        try:
+            stats.percentiles = json.loads(percentiles)
+        except json.JSONDecodeError:
+            return response.not_possible("Percentiles must be a valid JSON object")
+
+    stats.save()
+
+    return response.success()
+
+
+@response.request_delete()
+@auth_check.require_admin
+def delete_course_stats(request, code, academic_year):
+    euclid_code = get_object_or_404(EuclidCode, code=code)
+
+    stats = get_object_or_404(
+        CourseStats, course_code=euclid_code, academic_year=academic_year
+    )
+    stats.delete()
+
+    return response.success()

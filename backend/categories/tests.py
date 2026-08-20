@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from categories.models import Category, MetaCategory
+from categories.models import Category, EuclidCode, MetaCategory
 from testing.tests import ComsolTest, ComsolTestExamsData
 
 
@@ -250,6 +250,82 @@ class TestMetaCategories(ComsolTest):
                 "order": 9,
             },
         )
+
+
+class TestCourseStats(ComsolTest):
+    def mySetUp(self):
+        self.cat1 = Category(displayname="Test 1", slug="test1")
+        self.cat1.save()
+
+        self.euclid_code = EuclidCode(code="INFR10000", category=self.cat1)
+        self.euclid_code.save()
+
+    def test_add_course_stats(self):
+        self.post(
+            "/api/category/addstats/INFR10000/2023-24/",
+            {
+                "course_name": "Test Course",
+                "mean_mark": 75.0,
+                "std_deviation": 10.0,
+                "percentiles": '{"50": 60, "75": 80, "90": 95}',
+                "course_organiser": "Dr. Test",
+            },
+        )
+        res = self.get("/api/category/stats/test1/")["value"]
+        res_course = next((c for c in res if c["course_code"] == "INFR10000"), None)
+        self.assertEqual(res_course["academic_year"], "2023-24")
+        self.assertEqual(res_course["course_name"], "Test Course")
+        self.assertEqual(res_course["mean_mark"], 75.0)
+        self.assertEqual(res_course["std_deviation"], 10.0)
+        self.assertEqual(res_course["percentiles"], {"50": 60, "75": 80, "90": 95})
+        self.assertEqual(res_course["course_organiser"], "Dr. Test")
+
+    def test_update_course_stats(self):
+        self.post(
+            "/api/category/addstats/INFR10000/2023-24/",
+            {
+                "course_name": "Test Course",
+                "mean_mark": 75.0,
+                "std_deviation": 10.0,
+                "percentiles": '{"50": 60, "75": 80, "90": 95}',
+                "course_organiser": "Dr. Test",
+            },
+        )
+        self.patch(
+            "/api/category/updatestats/INFR10000/2023-24/",
+            {
+                "mean_mark": 80.0,
+                "std_deviation": 8.0,
+                "percentiles": '{"25": 20, "50": 60, "75": 40, "90": 95}',
+            },
+        )
+        res = self.get("/api/category/stats/test1/")["value"]
+        res_course = next((c for c in res if c["course_code"] == "INFR10000"), None)
+        self.assertEqual(res_course["academic_year"], "2023-24")
+        self.assertEqual(res_course["course_name"], "Test Course")
+        self.assertEqual(res_course["mean_mark"], 80.0)
+        self.assertEqual(res_course["std_deviation"], 8.0)
+        self.assertEqual(
+            res_course["percentiles"], {"25": 20, "50": 60, "75": 40, "90": 95}
+        )
+        self.assertEqual(res_course["course_organiser"], "Dr. Test")
+
+    def test_delete_course_stats(self):
+        self.post(
+            "/api/category/addstats/INFR10000/2023-24/",
+            {
+                "course_name": "Test Course",
+                "mean_mark": 75.0,
+                "std_deviation": 10.0,
+                "percentiles": '{"50": 60, "75": 80, "90": 95}',
+                "course_organiser": "Dr. Test",
+            },
+        )
+        self.delete(
+            "/api/category/deletestats/INFR10000/2023-24/",
+        )
+        res = self.get("/api/category/stats/test1/")["value"]
+        self.assertEqual(len(res), 0)
 
 
 # TODO: test whether the counts returned in list_exams and withmeta are correct

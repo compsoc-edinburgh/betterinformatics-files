@@ -42,4 +42,19 @@ urlpatterns = [
     ),
     path("listeuclidcodes/", views.list_euclid_codes, name="listeuclidcodes"),
     path("stats/<slug:slug>/", views.get_course_stats, name="course_stats"),
+    path(
+        "addstats/<str:code>/<str:academic_year>/",
+        views.add_course_stats,
+        name="add_course_stats",
+    ),
+    path(
+        "updatestats/<str:code>/<str:academic_year>/",
+        views.update_course_stats,
+        name="update_course_stats",
+    ),
+    path(
+        "deletestats/<str:code>/<str:academic_year>/",
+        views.delete_course_stats,
+        name="delete_course_stats",
+    ),
 ]
