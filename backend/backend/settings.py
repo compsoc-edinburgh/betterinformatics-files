@@ -16,6 +16,7 @@ import os
 import sys
 
 import yaml
+from csp.constants import NONCE
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -213,6 +214,8 @@ CONTENT_SECURITY_POLICY = {
             "'self'",
             "'unsafe-eval'",
             "https://analytics.betterinformatics.com/api/",
+            # Allow nonce-based inline scripts for guide pages
+            NONCE,
             # Captchas
             "https://challenges.cloudflare.com",
             *allowed_script_sources,

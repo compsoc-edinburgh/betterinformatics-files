@@ -188,6 +188,13 @@ def list_pages(
 def get_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
 
+    # If static_html, add the CSP nonce to any inline scripts in the content
+    if page.kind == Page.Kind.STATIC_HTML:
+        nonce = request.csp_nonce
+        page.content = page.content.replace(
+            "<script>", f'<script nonce="{nonce}">'
+        ).replace("<script ", f'<script nonce="{nonce}" ')
+
     return PageResponse(
         title=page.title,
         slug=page.slug,
