@@ -1,4 +1,3 @@
-
 .fadeInOrder {
   /* Browser support for sibling-index is limited, only try staggering fade-in
   if the browser says it supports it. */
@@ -8,13 +7,14 @@
     @media screen and (prefers-reduced-motion: no-preference) {
       opacity: 0;
       transform: translateY(5px);
-      animation: fade-in-below 100ms linear calc(sibling-index() * 25ms) forwards;
+      animation: fade-in-below 100ms linear calc(sibling-index() * 25ms)
+        forwards;
     }
 
     @keyframes fade-in-below {
       100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(var(--fade-in-order-override, 0px));
       }
     }
   }
