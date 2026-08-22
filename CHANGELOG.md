@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Fix interactions between fade-in-order and focus-outline ([\#150](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/150))
+- Allow duplicate course stats differentiated by source name/date ([\#149](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/149))
+- Add nonce-based CSP exception to trusted guide pages ([\#148](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/148))
+
 ## v2026.08.19
 
 - Further ground work for upcoming testimonials feature ([\#143](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/143)), ([\#145](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/145))
