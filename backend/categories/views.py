@@ -537,7 +537,7 @@ def get_course_stats(request, slug):
 
     # Get course stats for all Euclid codes associated with this category
     stats = CourseStats.objects.filter(course_code__code__in=euclid_codes).order_by(
-        "course_code__code", "academic_year"
+        "course_code__code", "academic_year", "source_date"
     )
 
     res = [
@@ -548,6 +548,8 @@ def get_course_stats(request, slug):
             "std_deviation": stat.std_deviation,
             "student_count": stat.student_count,
             "academic_year": stat.academic_year,
+            "source_name": stat.source_name,
+            "source_date": stat.source_date.isoformat() if stat.source_date else None,
             "course_organiser": stat.course_organiser,
             "percentiles": stat.percentiles,
         }
@@ -569,10 +571,15 @@ def add_course_stats(request, code, academic_year):
     student_count = request.POST.get("student_count")
     course_organiser = request.POST.get("course_organiser")
     percentiles = request.POST.get("percentiles")
+    source_name = request.POST.get("source_name")
+    source_date = request.POST.get("source_date")
 
     # Course name must be specified
     if not course_name:
         return response.not_possible("Course name must be specified")
+
+    if not source_name or not source_date:
+        return response.not_possible("Source name and date must be specified")
 
     # Any of mean, std, and percentiles must be specified
     if not any([mean_mark, std_deviation, percentiles]):
@@ -589,10 +596,13 @@ def add_course_stats(request, code, academic_year):
             return response.not_possible("Percentiles must be a valid JSON object")
 
     if CourseStats.objects.filter(
-        course_code=euclid_code, academic_year=academic_year
+        course_code=euclid_code,
+        academic_year=academic_year,
+        source_name=source_name,
+        source_date=source_date,
     ).exists():
         return response.not_possible(
-            f"Course stats for {code} in {academic_year} exists - use update"
+            f"Course stats for {code} in {academic_year} exists from this source - use update or change source name/date"
         )
 
     # Check academic year format
@@ -610,6 +620,8 @@ def add_course_stats(request, code, academic_year):
         academic_year=academic_year,
         course_organiser=course_organiser,
         percentiles=percentiles,
+        source_name=source_name,
+        source_date=source_date,
     )
     stats.save()
 
@@ -628,9 +640,15 @@ def update_course_stats(request, code, academic_year):
     student_count = request.POST.get("student_count")
     course_organiser = request.POST.get("course_organiser")
     percentiles = request.POST.get("percentiles")
+    source_name = request.POST.get("source_name")
+    source_date = request.POST.get("source_date")
 
     stats = get_object_or_404(
-        CourseStats, course_code=euclid_code, academic_year=academic_year
+        CourseStats,
+        course_code=euclid_code,
+        academic_year=academic_year,
+        source_name=source_name,
+        source_date=source_date,
     )
 
     if course_name is not None:
@@ -659,8 +677,15 @@ def update_course_stats(request, code, academic_year):
 def delete_course_stats(request, code, academic_year):
     euclid_code = get_object_or_404(EuclidCode, code=code)
 
+    source_name = request.GET.get("source_name")
+    source_date = request.GET.get("source_date")
+
     stats = get_object_or_404(
-        CourseStats, course_code=euclid_code, academic_year=academic_year
+        CourseStats,
+        course_code=euclid_code,
+        academic_year=academic_year,
+        source_name=source_name,
+        source_date=source_date,
     )
     stats.delete()
 

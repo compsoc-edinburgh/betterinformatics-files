@@ -269,6 +269,8 @@ class TestCourseStats(ComsolTest):
                 "std_deviation": 10.0,
                 "percentiles": '{"50": 60, "75": 80, "90": 95}',
                 "course_organiser": "Dr. Test",
+                "source_name": "ABC/test",
+                "source_date": "2023-06-01",
             },
         )
         res = self.get("/api/category/stats/test1/")["value"]
@@ -279,6 +281,8 @@ class TestCourseStats(ComsolTest):
         self.assertEqual(res_course["std_deviation"], 10.0)
         self.assertEqual(res_course["percentiles"], {"50": 60, "75": 80, "90": 95})
         self.assertEqual(res_course["course_organiser"], "Dr. Test")
+        self.assertEqual(res_course["source_name"], "ABC/test")
+        self.assertEqual(res_course["source_date"], "2023-06-01")
 
     def test_update_course_stats(self):
         self.post(
@@ -289,6 +293,8 @@ class TestCourseStats(ComsolTest):
                 "std_deviation": 10.0,
                 "percentiles": '{"50": 60, "75": 80, "90": 95}',
                 "course_organiser": "Dr. Test",
+                "source_name": "ABC/test",
+                "source_date": "2023-06-01",
             },
         )
         self.patch(
@@ -298,6 +304,8 @@ class TestCourseStats(ComsolTest):
                 "std_deviation": 8.0,
                 "student_count": 100,
                 "percentiles": '{"25": 20, "50": 60, "75": 40, "90": 95}',
+                "source_name": "ABC/test",
+                "source_date": "2023-06-01",
             },
         )
         res = self.get("/api/category/stats/test1/")["value"]
@@ -311,6 +319,8 @@ class TestCourseStats(ComsolTest):
             res_course["percentiles"], {"25": 20, "50": 60, "75": 40, "90": 95}
         )
         self.assertEqual(res_course["course_organiser"], "Dr. Test")
+        self.assertEqual(res_course["source_name"], "ABC/test")
+        self.assertEqual(res_course["source_date"], "2023-06-01")
 
     def test_delete_course_stats(self):
         self.post(
@@ -321,10 +331,13 @@ class TestCourseStats(ComsolTest):
                 "std_deviation": 10.0,
                 "percentiles": '{"50": 60, "75": 80, "90": 95}',
                 "course_organiser": "Dr. Test",
+                "source_name": "ABC/test",
+                "source_date": "2023-06-01",
             },
         )
+
         self.delete(
-            "/api/category/deletestats/INFR10000/2023-24/",
+            "/api/category/deletestats/INFR10000/2023-24/?source_name=ABC/test&source_date=2023-06-01",
         )
         res = self.get("/api/category/stats/test1/")["value"]
         self.assertEqual(len(res), 0)

@@ -109,9 +109,19 @@ class CourseStats(models.Model):
     academic_year = models.CharField(max_length=10)  # e.g. "2023-24"
     course_organiser = models.CharField(max_length=256, null=True)
     percentiles = models.JSONField()
+    source_name = models.CharField(max_length=256)
+    source_date = models.DateField()
 
     class Meta:
-        ordering = ["course_code", "academic_year"]
+        ordering = ["course_code__code", "academic_year", "source_date"]
+
+        constraints = [
+            # 4-tuple of (course_code, academic_year, source_name, source_date) must be unique
+            models.UniqueConstraint(
+                fields=["course_code", "academic_year", "source_name", "source_date"],
+                name="unique_course_stats",
+            )
+        ]
 
     def __str__(self):
         return f"{self.course_code.code} ({self.academic_year}): {self.mean_mark}"
