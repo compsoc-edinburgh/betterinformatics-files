@@ -233,7 +233,7 @@ export const CategoryGradeStatChart: React.FC<
       });
 
       // For all other course codes, downplay them and their stddev series in
-      // 1 second
+      // 0.1 second
       codes.forEach(code => {
         if (code !== nearestCode && !hoverTimeouts.current[code]) {
           hoverTimeouts.current[code] = setTimeout(() => {
@@ -245,12 +245,12 @@ export const CategoryGradeStatChart: React.FC<
               type: "downplay",
               seriesName: `${code}-stddev`,
             });
-          }, 10);
+          }, 100);
         }
       });
     });
     chart.getZr().on("mouseout", () => {
-      // All series downplay after 1 second
+      // All series downplay after 0.1 second
       codes.forEach(code => {
         hoverTimeouts.current[code] ??= setTimeout(() => {
           chart.dispatchAction({
@@ -261,7 +261,7 @@ export const CategoryGradeStatChart: React.FC<
             type: "downplay",
             seriesName: `${code}-stddev`,
           });
-        }, 10);
+        }, 100);
       });
     });
   }, [scheme, chartRef, codes, combinedData]);
@@ -562,7 +562,6 @@ export const CategoryGradeStatChart: React.FC<
                   },
                   style: customStyle,
                   emphasis: {
-                    disabled: true,
                     style: emphasisStyle,
                   },
                 },
