@@ -289,7 +289,11 @@ export const PageArticle: React.FC<{
                 <List.Item key={page.slug}>
                   <Anchor
                     component={Link}
-                    to={`/category/${page.category?.slug}/guide`}
+                    to={
+                      user?.loggedin
+                        ? `/category/${page.category?.slug}/guide`
+                        : `/guide/${page.slug}`
+                    }
                   >
                     {page.category?.displayname}
                   </Anchor>
