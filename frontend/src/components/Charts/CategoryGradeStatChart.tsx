@@ -77,6 +77,11 @@ export const CategoryGradeStatChart: React.FC<
 
   const [chartRef, setChartRef] = useState<EChartsReactRef | null>(null);
 
+  // We keep a timeout for each series to delay the downplay action, so that the
+  // stddev line doesn't disappear immediately when the mouse leaves the main
+  // line. Important, since without this, stddev will flicker very quickly.
+  const hoverTimeouts = useRef<Record<string, NodeJS.Timeout | undefined>>({});
+
   // When switching light/dark, toggle the same in the chart
   const scheme = useComputedColorScheme();
   useEffect(() => {
@@ -88,7 +93,111 @@ export const CategoryGradeStatChart: React.FC<
     } else {
       chart.setTheme("default");
     }
-  }, [scheme, chartRef]);
+
+    chart.getZr().on("mousemove", e => {
+      // Get the pixel position of the mouse event
+      const pixelPoint = [e.offsetX, e.offsetY];
+      // Get on grid
+      const gridPoint = chart.convertFromPixel({ seriesIndex: 0 }, pixelPoint);
+
+      // Get nearest x-axis value (academic year) from the grid point
+      const xValue = gridPoint[0];
+      const nearestYearIndex = Math.round(xValue);
+
+      // Get nearest course code based on the y-axis value
+      const yValue = gridPoint[1];
+      let [nearestCodeIndex] = codes.reduce(
+        (acc, code, index) => {
+          const seriesData = combinedData.map(
+            d => d.course_code[code]?.mean_mark,
+          );
+          const seriesYValue = seriesData[nearestYearIndex];
+          if (seriesYValue !== null && seriesYValue !== undefined) {
+            const distance = Math.abs(seriesYValue - yValue);
+            if (distance < acc[1]) {
+              return [index, distance];
+            }
+          }
+          return acc;
+        },
+        [-1, Infinity],
+      );
+
+      // Override if previously hovered code still exists on this year
+      // Determine previously hovered code by if there is a single item without
+      // a timer entry
+      if (
+        Object.values(hoverTimeouts.current).filter(Boolean).length ===
+        codes.length - 1
+      ) {
+        const lastHoveredIndex = codes.findIndex(
+          code => !hoverTimeouts.current[code],
+        );
+        if (lastHoveredIndex !== -1) {
+          const lastHoveredCode = codes[lastHoveredIndex];
+          const seriesData = combinedData.map(
+            d => d.course_code[lastHoveredCode]?.mean_mark,
+          );
+          const seriesYValue = seriesData[nearestYearIndex];
+          if (seriesYValue !== null && seriesYValue !== undefined) {
+            nearestCodeIndex = lastHoveredIndex;
+          }
+        }
+      }
+
+      if (nearestCodeIndex === -1) return;
+
+      const nearestCode = codes[nearestCodeIndex];
+
+      if (hoverTimeouts.current[nearestCode]) {
+        clearTimeout(hoverTimeouts.current[nearestCode]);
+        hoverTimeouts.current[nearestCode] = undefined;
+      }
+
+      // Highlight the nearest course code series
+      chart.dispatchAction({
+        type: "highlight",
+        seriesName: nearestCode,
+      });
+      // And its stddev series
+      chart.dispatchAction({
+        type: "highlight",
+        seriesName: `${nearestCode}-stddev`,
+      });
+
+      // For all other course codes, downplay them and their stddev series in
+      // 1 second
+      codes.forEach(code => {
+        if (code !== nearestCode && !hoverTimeouts.current[code]) {
+          hoverTimeouts.current[code] = setTimeout(() => {
+            chart.dispatchAction({
+              type: "downplay",
+              seriesName: code,
+            });
+            chart.dispatchAction({
+              type: "downplay",
+              seriesName: `${code}-stddev`,
+            });
+          }, 10);
+        }
+      });
+    });
+    chart.getZr().on("mouseout", () => {
+      // All series downplay after 1 second
+      codes.forEach(code => {
+        hoverTimeouts.current[code] ??= setTimeout(() => {
+          chart.dispatchAction({
+            type: "downplay",
+            seriesName: code,
+          });
+          chart.dispatchAction({
+            type: "downplay",
+            seriesName: `${code}-stddev`,
+          });
+        }, 10);
+      });
+    });
+  }, [scheme, chartRef, codes, combinedData]);
 
   const chartOption = useMemo(() => {
     return {
@@ -145,19 +254,20 @@ export const CategoryGradeStatChart: React.FC<
           if (!Array.isArray(params)) params = [params];
           // Position at nearest x-axis item
           const xIndex = params[0].dataIndex;
+          const cursorY = point[1] + 30;
 
           const gridX = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, 0);
           if (gridX === undefined) {
-            return { left: point[0], bottom: 30 }; // Fallback to cursor position
+            return { left: point[0], top: cursorY }; // Fallback to cursor position
           }
 
           const gridXEnd = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
           if (gridXEnd === undefined) {
-            return { left: point[0], bottom: 30 }; // Fallback to cursor position
+            return { left: point[0], top: cursorY }; // Fallback to cursor position
           }
           const gridW = gridXEnd - gridX;
 
@@ -166,7 +276,7 @@ export const CategoryGradeStatChart: React.FC<
             (xIndex / (sortedYears.length - 1)) * gridW -
             size.contentSize[0] / 2;
 
-          return { left: xPos, bottom: 30 };
+          return { left: xPos, top: cursorY }; // Follows cursor vertically
         },
         formatter: params => {
           if (!Array.isArray(params)) params = [params];
@@ -215,7 +325,8 @@ export const CategoryGradeStatChart: React.FC<
         ...codes.map((code, ix) => ({
           name: code,
           type: "line",
-          triggerEvent: "line",
+          silent: true,
+          triggerEvent: false,
           data: combinedData.map(d => {
             const value = [
               d.academic_year,
@@ -252,6 +363,9 @@ export const CategoryGradeStatChart: React.FC<
                 "1.0",
               ),
             },
+            label: {
+              opacity: 1,
+            },
           },
           label: {
             formatter: (params => {
@@ -273,6 +387,8 @@ export const CategoryGradeStatChart: React.FC<
               "0.3",
               "0.8",
             ),
+            opacity: 0.2,
+            silent: true,
           },
           labelLine: {
             show: true,
@@ -309,11 +425,12 @@ export const CategoryGradeStatChart: React.FC<
               d.course_code[code]?.mean_mark === null ||
               d.course_code[code]?.mean_mark === undefined
             ) {
-              return [d.academic_year, null, null];
+              return [d.academic_year, null, null, null];
             }
 
             const value = [
               d.academic_year,
+              d.course_code[code].mean_mark,
               d.course_code[code].mean_mark -
                 (d.course_code[code].std_deviation ?? 0),
               d.course_code[code].mean_mark +
@@ -326,17 +443,21 @@ export const CategoryGradeStatChart: React.FC<
             _params: CustomSeriesRenderItemParams,
             api: CustomSeriesRenderItemAPI,
           ) => {
+            const centerSpacing = 2;
             const xValue = api.value(0);
-            const yLow = api.value(1) as number | null;
-            const yHigh = api.value(2) as number | null;
-            // Show as error bars with one vertical and two horizontal lines
-            if (yLow === null || yHigh === null) {
-              return null; // No error bar if no data
+            const yValue = api.value(1) as number | null;
+            const yLow = api.value(2) as number | null;
+            const yHigh = api.value(3) as number | null;
+
+            if (yValue === null || yLow === null || yHigh === null) {
+              return null; // No error bar if any value is null
             }
+
             const xCoord = api.coord([xValue, 0])[0];
             const yLowCoord = api.coord([0, yLow])[1];
+            const yLowMidCoord = api.coord([0, yValue - centerSpacing])[1];
             const yHighCoord = api.coord([0, yHigh])[1];
-            const errorBarWidth = 10;
+            const yHighMidCoord = api.coord([0, yValue + centerSpacing])[1];
 
             // We can't replicate the behaviour of .style() with other funcs:
             // https://github.com/apache/echarts/issues/16514
@@ -362,36 +483,25 @@ export const CategoryGradeStatChart: React.FC<
                     x1: xCoord,
                     y1: yLowCoord,
                     x2: xCoord,
-                    y2: yHighCoord,
+                    y2: yLowMidCoord,
                   },
                   style: customStyle,
                   emphasis: {
+                    disabled: true,
                     style: emphasisStyle,
                   },
                 },
                 {
                   type: "line",
                   shape: {
-                    x1: xCoord - errorBarWidth / 2,
-                    y1: yLowCoord,
-                    x2: xCoord + errorBarWidth / 2,
-                    y2: yLowCoord,
-                  },
-                  style: customStyle,
-                  emphasis: {
-                    style: emphasisStyle,
-                  },
-                },
-                {
-                  type: "line",
-                  shape: {
-                    x1: xCoord - errorBarWidth / 2,
-                    y1: yHighCoord,
-                    x2: xCoord + errorBarWidth / 2,
+                    x1: xCoord,
+                    y1: yHighMidCoord,
+                    x2: xCoord,
                     y2: yHighCoord,
                   },
                   style: customStyle,
                   emphasis: {
+                    disabled: true,
                     style: emphasisStyle,
                   },
                 },
@@ -403,53 +513,11 @@ export const CategoryGradeStatChart: React.FC<
     } as EChartsOption;
   }, [sortedYears, codes, combinedData, colors, chartRef]);
 
-  // We keep a timeout for each series to delay the downplay action, so that the
-  // stddev line doesn't disappear immediately when the mouse leaves the main
-  // line. Important, since without this, stddev will flicker very quickly.
-  const hoverTimeouts = useRef<Record<string, NodeJS.Timeout | undefined>>({});
-
-  // Trigger highlight and downplay via events
-  const handleEvents = useMemo(
-    () =>
-      ({
-        mouseover: (params, chart) => {
-          const code = (params as DefaultLabelFormatterCallbackParams)
-            .seriesName;
-          if (code && !code.endsWith("-stddev")) {
-            if (hoverTimeouts.current[code]) {
-              clearTimeout(hoverTimeouts.current[code]);
-            }
-            chart.dispatchAction({
-              type: "highlight",
-              seriesName: `${code}-stddev`,
-            });
-          }
-        },
-        mouseout: (params, chart) => {
-          const code = (params as DefaultLabelFormatterCallbackParams)
-            .seriesName;
-          if (code && !code.endsWith("-stddev")) {
-            if (hoverTimeouts.current[code]) {
-              clearTimeout(hoverTimeouts.current[code]);
-            }
-            hoverTimeouts.current[code] = setTimeout(() => {
-              chart.dispatchAction({
-                type: "downplay",
-                seriesName: `${code}-stddev`,
-              });
-            }, 1000);
-          }
-        },
-      }) as EChartsEventsMap,
-    [],
-  );
-
   return (
     <EChartsCore
       {...props}
       echarts={echarts}
       option={chartOption}
-      onEvents={handleEvents}
       replaceMerge="series"
       ref={setChartRef}
     />
