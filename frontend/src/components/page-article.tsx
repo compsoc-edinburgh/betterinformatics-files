@@ -284,7 +284,7 @@ export const PageArticle: React.FC<{
                 Relevant Categories
               </Title>
             </Group>
-            <List>
+            <List className={style.categoriesList}>
               {childPagesWithCat.map(page => (
                 <List.Item key={page.slug}>
                   <Anchor

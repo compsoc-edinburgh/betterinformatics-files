@@ -65,3 +65,7 @@
     var(--mantine-h1-line-height) * var(--mantine-h1-font-size)
   );
 }
+
+.categories-list {
+  animation: fadeInUp 0.2s ease-in-out;
+}
