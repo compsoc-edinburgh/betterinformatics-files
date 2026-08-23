@@ -9,6 +9,7 @@ import type {
   TooltipComponentPositionCallbackParams,
   CustomSeriesRenderItemParams,
   CustomSeriesRenderItemAPI,
+  CustomSeriesRenderItemReturn,
 } from "echarts";
 import { LineChart, CustomChart } from "echarts/charts";
 import {
@@ -25,6 +26,12 @@ import EChartsCore, {
   EChartsReactRef,
 } from "react-echarts-library/core";
 
+// echarts doesn't export its custom element types >:(, so hack
+type CustomElementOption = Extract<
+  NonNullable<CustomSeriesRenderItemReturn>,
+  { type: "group" }
+>["children"][number];
+
 echarts.use([
   LineChart,
   CustomChart,
@@ -39,6 +46,9 @@ echarts.use([
 interface ChartCourseInstanceStats {
   mean_mark: number | null;
   std_deviation: number | null;
+  percentile_25: number | null;
+  percentile_50: number | null;
+  percentile_75: number | null;
   course_organiser: string | null;
   organiser_changed: boolean;
 }
@@ -311,7 +321,7 @@ export const CategoryGradeStatChart: React.FC<
           if (!Array.isArray(params)) params = [params];
           // Position at nearest x-axis item
           const xIndex = params[0].dataIndex;
-          const cursorY = point[1] + 30;
+          const cursorY = point[1] + 50;
 
           const gridX = chartRef
             ?.getEchartsInstance()
@@ -482,7 +492,7 @@ export const CategoryGradeStatChart: React.FC<
               d.course_code[code]?.mean_mark === null ||
               d.course_code[code]?.mean_mark === undefined
             ) {
-              return [d.academic_year, null, null, null];
+              return [d.academic_year, null, null, null, null, null, null];
             }
 
             const value = [
@@ -492,6 +502,9 @@ export const CategoryGradeStatChart: React.FC<
                 (d.course_code[code].std_deviation ?? 0),
               d.course_code[code].mean_mark +
                 (d.course_code[code].std_deviation ?? 0),
+              d.course_code[code].percentile_25,
+              d.course_code[code].percentile_50,
+              d.course_code[code].percentile_75,
             ];
 
             return value;
@@ -505,16 +518,10 @@ export const CategoryGradeStatChart: React.FC<
             const yValue = api.value(1) as number | null;
             const yLow = api.value(2) as number | null;
             const yHigh = api.value(3) as number | null;
-
-            if (yValue === null || yLow === null || yHigh === null) {
-              return null; // No error bar if any value is null
-            }
-
-            const xCoord = api.coord([xValue, 0])[0];
-            const yLowCoord = api.coord([0, yLow])[1];
-            const yLowMidCoord = api.coord([0, yValue - centerSpacing])[1];
-            const yHighCoord = api.coord([0, yHigh])[1];
-            const yHighMidCoord = api.coord([0, yValue + centerSpacing])[1];
+            const yPercentile25 = api.value(4) as number | null;
+            const yPercentile50 = api.value(5) as number | null;
+            const yPercentile75 = api.value(6) as number | null;
+            const percentileLength = 5;
 
             // We can't replicate the behaviour of .style() with other funcs:
             // https://github.com/apache/echarts/issues/16514
@@ -531,9 +538,20 @@ export const CategoryGradeStatChart: React.FC<
               ...customStyle,
               opacity: 1,
             };
-            return {
+
+            const returnVal = {
               type: "group",
-              children: [
+              children: [] as CustomElementOption[],
+            };
+
+            if (yValue !== null && yLow !== null && yHigh !== null) {
+              const xCoord = api.coord([xValue, 0])[0];
+              const yLowCoord = api.coord([0, yLow])[1];
+              const yLowMidCoord = api.coord([0, yValue - centerSpacing])[1];
+              const yHighCoord = api.coord([0, yHigh])[1];
+              const yHighMidCoord = api.coord([0, yValue + centerSpacing])[1];
+
+              returnVal.children = returnVal.children.concat([
                 {
                   type: "line",
                   shape: {
@@ -558,12 +576,38 @@ export const CategoryGradeStatChart: React.FC<
                   },
                   style: customStyle,
                   emphasis: {
-                    disabled: true,
                     style: emphasisStyle,
                   },
                 },
-              ],
-            };
+              ]);
+            }
+
+            // Optionally, if percentile lines exist, add them
+            for (const percentile of [
+              yPercentile25,
+              yPercentile50,
+              yPercentile75,
+            ]) {
+              if (percentile !== null) {
+                const xCoord = api.coord([xValue, 0])[0];
+                const yPercentileCoord = api.coord([0, percentile])[1];
+                returnVal.children.push({
+                  type: "line",
+                  shape: {
+                    x1: xCoord,
+                    y1: yPercentileCoord,
+                    x2: xCoord + percentileLength,
+                    y2: yPercentileCoord,
+                  },
+                  style: customStyle,
+                  emphasis: {
+                    style: emphasisStyle,
+                  },
+                });
+              }
+            }
+
+            return returnVal;
           },
         })),
       ],

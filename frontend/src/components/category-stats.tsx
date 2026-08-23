@@ -67,6 +67,9 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             std_deviation: stat.std_deviation
               ? Number(stat.std_deviation.toFixed(1))
               : null,
+            percentile_25: stat.percentiles["25"],
+            percentile_50: stat.percentiles["50"],
+            percentile_75: stat.percentiles["75"],
             course_organiser: stat.course_organiser,
             organiser_changed:
               yearGroups[sortedYears[sortedYears.indexOf(year) - 1]]?.[code]
