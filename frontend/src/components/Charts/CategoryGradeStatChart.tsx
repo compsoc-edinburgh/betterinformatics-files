@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useComputedColorScheme, useMantineTheme } from "@mantine/core";
 import type {
   EChartsOption,
-  DefaultLabelFormatterCallbackParams,
   LabelFormatterCallback,
   LabelLayoutOptionCallbackParams,
   TooltipComponentOption,
@@ -23,7 +22,6 @@ import { LabelLayout } from "echarts/features";
 import { CanvasRenderer } from "echarts/renderers";
 import EChartsCore, {
   EChartsCoreProps,
-  EChartsEventsMap,
   EChartsReactRef,
 } from "react-echarts-library/core";
 
@@ -103,29 +101,85 @@ export const CategoryGradeStatChart: React.FC<
       // Get nearest x-axis value (academic year) from the grid point
       const xValue = gridPoint[0];
       const nearestYearIndex = Math.round(xValue);
+      const secondNearestYearIndex =
+        xValue < nearestYearIndex ? nearestYearIndex + 1 : nearestYearIndex - 1;
 
       // Get nearest course code based on the y-axis value
       const yValue = gridPoint[1];
-      let [nearestCodeIndex] = codes.reduce(
-        (acc, code, index) => {
+      const results = codes.reduce(
+        (indices, code, index) => {
           const seriesData = combinedData.map(
             d => d.course_code[code]?.mean_mark,
           );
           const seriesYValue = seriesData[nearestYearIndex];
-          if (seriesYValue !== null && seriesYValue !== undefined) {
-            const distance = Math.abs(seriesYValue - yValue);
-            if (distance < acc[1]) {
-              return [index, distance];
-            }
+          const seriesSecondYValue =
+            secondNearestYearIndex >= 0 &&
+            secondNearestYearIndex < seriesData.length
+              ? seriesData[secondNearestYearIndex]
+              : null;
+
+          const distance =
+            seriesYValue === null || seriesYValue === undefined
+              ? Infinity
+              : Math.abs(seriesYValue - yValue);
+          const secondDistance =
+            seriesSecondYValue === null || seriesSecondYValue === undefined
+              ? Infinity
+              : Math.abs(seriesSecondYValue - yValue);
+
+          if (distance < indices[0]) {
+            indices[0] = distance;
+            indices[2] = index;
           }
-          return acc;
+          if (secondDistance < indices[1]) {
+            indices[1] = secondDistance;
+            indices[3] = index;
+          }
+          return indices;
         },
-        [-1, Infinity],
+        [Infinity, Infinity, -1, -1],
       );
+      let nearestCodeIndex = results[2];
+      const nearestCodeIndexOnSecondNearestColumn = results[3];
+
+      // const nearestPointsCodes = combinedData
+      //   .map(d => {
+      //     const codeValues = Object.entries(d.course_code).map(([code, stats]) => ({
+      //       year_index: sortedYears.indexOf(d.academic_year) ,
+      //       code,
+      //       mean_mark: stats?.mean_mark ?? null,
+      //     }));
+      //     return codeValues;
+      //   })
+      //   .flat()
+      //   .filter(d => d.mean_mark !== null)
+      //   .sort((a, b) => Math.abs(a.mean_mark - yValue) - Math.abs(b.mean_mark - yValue))
+      //   .slice(0, 2)
+      //   .map(d => d.code);
+      // const sortedCodesByProximity = codes.toSorted((a, b) => {
+      //   const seriesDataA = combinedData.map(
+      //     d => d.course_code[a]?.mean_mark,
+      //   );
+      //   const seriesDataB = combinedData.map(
+      //     d => d.course_code[b]?.mean_mark,
+      //   );
+      //   const seriesYValueA = seriesDataA[nearestYearIndex];
+      //   const seriesYValueB = seriesDataB[nearestYearIndex];
+      //   return (
+      //     (seriesYValueA === null || seriesYValueA === undefined
+      //       ? Infinity
+      //       : Math.abs(seriesYValueA - yValue)) -
+      //     (seriesYValueB === null || seriesYValueB === undefined
+      //       ? Infinity
+      //       : Math.abs(seriesYValueB - yValue))
+      //   );
+      // });
+      // let nearestCodeIndex = codes.findIndex(code => code === nearestPointsCodes[0]);
 
       // Override if previously hovered code still exists on this year
       // Determine previously hovered code by if there is a single item without
       // a timer entry
+      // And do not override if two closest points agree on a different course
       if (
         Object.values(hoverTimeouts.current).filter(Boolean).length ===
         codes.length - 1
@@ -133,7 +187,10 @@ export const CategoryGradeStatChart: React.FC<
         const lastHoveredIndex = codes.findIndex(
           code => !hoverTimeouts.current[code],
         );
-        if (lastHoveredIndex !== -1) {
+        if (
+          lastHoveredIndex !== -1 &&
+          nearestCodeIndex !== nearestCodeIndexOnSecondNearestColumn
+        ) {
           const lastHoveredCode = codes[lastHoveredIndex];
           const seriesData = combinedData.map(
             d => d.course_code[lastHoveredCode]?.mean_mark,
