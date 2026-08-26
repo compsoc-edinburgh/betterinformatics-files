@@ -594,6 +594,14 @@ def add_course_stats(request, code, academic_year):
     else:
         try:
             percentiles = json.loads(percentiles)
+            if not isinstance(percentiles, dict):
+                return response.not_possible("Percentiles must be a JSON object")
+            # Check all keys are numeric string
+            for key in percentiles.keys():
+                if not key.isdigit():
+                    return response.not_possible(
+                        "Percentiles keys must be numeric strings"
+                    )
         except json.JSONDecodeError:
             return response.not_possible("Percentiles must be a valid JSON object")
 
@@ -667,6 +675,14 @@ def update_course_stats(request, code, academic_year):
     if percentiles is not None:
         try:
             stats.percentiles = json.loads(percentiles)
+            if not isinstance(stats.percentiles, dict):
+                return response.not_possible("Percentiles must be a JSON object")
+            # Check all keys are numeric strings
+            for key in stats.percentiles.keys():
+                if not key.isdigit():
+                    return response.not_possible(
+                        "Percentiles keys must be numeric strings"
+                    )
         except json.JSONDecodeError:
             return response.not_possible("Percentiles must be a valid JSON object")
 
