@@ -38,14 +38,42 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
     const allCourseCodes = new Set<string>();
 
     stats.forEach(stat => {
+      yearGroups[stat.academic_year] ??= {};
+
       // Mutable reference
-      const yearStat = yearGroups[stat.academic_year];
-      if (!yearStat) {
-        yearGroups[stat.academic_year] = {
-          [stat.course_code]: stat,
-        };
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const yearGroup = yearGroups[stat.academic_year]!;
+      const existingStat = yearGroup[stat.course_code];
+
+      // collect a representative stat for every year-course pair, and extras
+      if (!existingStat) {
+        yearGroup[stat.course_code] = stat;
       } else {
-        yearStat[stat.course_code] = stat;
+        // If we already have a stat for this year-course pair, choose the one
+        // with the earliest source_date while having 25/50/75 percentiles and mean;
+        // if that doesn't exist, choose earliest with mean.
+        const existingHasMean = existingStat.mean_mark !== null;
+        const existingHasPercentiles = ["25", "50", "75"].every(
+          p => existingStat.percentiles[p],
+        );
+        const statHasMean = stat.mean_mark !== null;
+        const statHasPercentiles = ["25", "50", "75"].every(
+          p => stat.percentiles[p],
+        );
+        if (
+          (!existingHasMean && statHasMean) ||
+          (existingHasMean &&
+            statHasMean &&
+            !existingHasPercentiles &&
+            statHasPercentiles) ||
+          (existingHasMean &&
+            statHasMean &&
+            existingHasPercentiles &&
+            statHasPercentiles &&
+            stat.source_date < existingStat.source_date)
+        ) {
+          yearGroup[stat.course_code] = stat;
+        }
       }
       allCourseCodes.add(stat.course_code);
     });
@@ -67,15 +95,13 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             std_deviation: stat.std_deviation
               ? Number(stat.std_deviation.toFixed(1))
               : null,
-            percentile_25: stat.percentiles["25"],
-            percentile_50: stat.percentiles["50"],
-            percentile_75: stat.percentiles["75"],
             course_organiser: stat.course_organiser,
             organiser_changed:
               yearGroups[sortedYears[sortedYears.indexOf(year) - 1]]?.[code]
                 ?.course_organiser !== stat.course_organiser ||
               yearGroups[sortedYears[sortedYears.indexOf(year) - 1]]?.[code]
                 ?.mean_mark === null,
+            percentiles: stat.percentiles,
           };
         }
       });

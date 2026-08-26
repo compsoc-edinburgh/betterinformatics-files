@@ -46,11 +46,17 @@ echarts.use([
 interface ChartCourseInstanceStats {
   mean_mark: number | null;
   std_deviation: number | null;
-  percentile_25: number | null;
-  percentile_50: number | null;
-  percentile_75: number | null;
+  percentiles: Percentiles;
   course_organiser: string | null;
   organiser_changed: boolean;
+}
+
+interface Percentiles {
+  "5"?: number;
+  "25"?: number;
+  "50"?: number;
+  "75"?: number;
+  "95"?: number;
 }
 
 export interface ChartCourseStats {
@@ -487,41 +493,21 @@ export const CategoryGradeStatChart: React.FC<
         ...codes.map((code, _ix) => ({
           name: `${code}-stddev`,
           type: "custom",
-          data: combinedData.map(d => {
-            if (
-              d.course_code[code]?.mean_mark === null ||
-              d.course_code[code]?.mean_mark === undefined
-            ) {
-              return [d.academic_year, null, null, null, null, null, null];
-            }
-
-            const value = [
-              d.academic_year,
-              d.course_code[code].mean_mark,
-              d.course_code[code].mean_mark -
-                (d.course_code[code].std_deviation ?? 0),
-              d.course_code[code].mean_mark +
-                (d.course_code[code].std_deviation ?? 0),
-              d.course_code[code].percentile_25,
-              d.course_code[code].percentile_50,
-              d.course_code[code].percentile_75,
-            ];
-
-            return value;
-          }),
+          data: combinedData.map(d => [d.academic_year]),
           renderItem: (
             _params: CustomSeriesRenderItemParams,
             api: CustomSeriesRenderItemAPI,
           ) => {
-            const centerSpacing = 2;
             const xValue = api.value(0);
-            const yValue = api.value(1) as number | null;
-            const yLow = api.value(2) as number | null;
-            const yHigh = api.value(3) as number | null;
-            const yPercentile25 = api.value(4) as number | null;
-            const yPercentile50 = api.value(5) as number | null;
-            const yPercentile75 = api.value(6) as number | null;
-            const percentileLength = 5;
+            // lookup directly from data since string JSON can't be passed
+            // through data -> renderItem
+            const yPercentiles =
+              combinedData[_params.dataIndex]?.course_code[code]?.percentiles;
+            if (!yPercentiles) {
+              return null;
+            }
+
+            const percentileLength = 10;
 
             // We can't replicate the behaviour of .style() with other funcs:
             // https://github.com/apache/echarts/issues/16514
@@ -544,58 +530,22 @@ export const CategoryGradeStatChart: React.FC<
               children: [] as CustomElementOption[],
             };
 
-            if (yValue !== null && yLow !== null && yHigh !== null) {
-              const xCoord = api.coord([xValue, 0])[0];
-              const yLowCoord = api.coord([0, yLow])[1];
-              const yLowMidCoord = api.coord([0, yValue - centerSpacing])[1];
-              const yHighCoord = api.coord([0, yHigh])[1];
-              const yHighMidCoord = api.coord([0, yValue + centerSpacing])[1];
-
-              returnVal.children = returnVal.children.concat([
-                {
-                  type: "line",
-                  shape: {
-                    x1: xCoord,
-                    y1: yLowCoord,
-                    x2: xCoord,
-                    y2: yLowMidCoord,
-                  },
-                  style: customStyle,
-                  emphasis: {
-                    style: emphasisStyle,
-                  },
-                },
-                {
-                  type: "line",
-                  shape: {
-                    x1: xCoord,
-                    y1: yHighMidCoord,
-                    x2: xCoord,
-                    y2: yHighCoord,
-                  },
-                  style: customStyle,
-                  emphasis: {
-                    style: emphasisStyle,
-                  },
-                },
-              ]);
-            }
-
             // Optionally, if percentile lines exist, add them
-            for (const percentile of [
-              yPercentile25,
-              yPercentile50,
-              yPercentile75,
-            ]) {
+            for (const [key, percentile] of Object.entries(yPercentiles)) {
               if (percentile !== null) {
                 const xCoord = api.coord([xValue, 0])[0];
                 const yPercentileCoord = api.coord([0, percentile])[1];
+                let len = percentileLength;
+                // shorter for 5th and 95th percentiles
+                if (key === "5" || key === "95") {
+                  len = percentileLength / 3;
+                }
                 returnVal.children.push({
                   type: "line",
                   shape: {
-                    x1: xCoord,
+                    x1: xCoord - len / 2,
                     y1: yPercentileCoord,
-                    x2: xCoord + percentileLength,
+                    x2: xCoord + len / 2,
                     y2: yPercentileCoord,
                   },
                   style: customStyle,

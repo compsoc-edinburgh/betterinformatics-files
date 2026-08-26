@@ -209,7 +209,9 @@ export interface CourseStats {
   std_deviation: number | null;
   academic_year: string;
   course_organiser: string | null;
-  percentiles: Record<string, number>;
+  percentiles: Record<string, number | undefined>;
+  source_name: string;
+  source_date: string; // YYYY-MM-DD
 }
 
 export type CategoryMetaDataAny =
