@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 from answers.models import ExamUserSolved
 from categories.models import Category, CourseStats, EuclidCode, MetaCategory
@@ -561,6 +562,7 @@ def get_course_stats(request, slug):
 
 @response.request_post()
 @auth_check.require_admin
+@csrf_exempt
 def add_course_stats(request, code, academic_year):
     euclid_code = get_object_or_404(EuclidCode, code=code)
 
@@ -630,6 +632,7 @@ def add_course_stats(request, code, academic_year):
 
 @response.request_patch()
 @auth_check.require_admin
+@csrf_exempt
 def update_course_stats(request, code, academic_year):
     euclid_code = get_object_or_404(EuclidCode, code=code)
 
@@ -674,6 +677,7 @@ def update_course_stats(request, code, academic_year):
 
 @response.request_delete()
 @auth_check.require_admin
+@csrf_exempt
 def delete_course_stats(request, code, academic_year):
     euclid_code = get_object_or_404(EuclidCode, code=code)
 
