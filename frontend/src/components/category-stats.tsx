@@ -138,9 +138,12 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
         No grade statistics are available for this category. This may be
         because:
         <ul>
-          <li>The category doesn't have any associated Euclid codes</li>
-          <li>Course data hasn't been loaded for the associated courses</li>
-          <li>Statistics are not available for the courses in this category</li>
+          <li>No statistics are available for this course</li>
+          <li>
+            Better Informatics isn't aware of the correct EUCLID codes for this
+            course
+          </li>
+          <li>Or your network is quite slow and data is still pending</li>
         </ul>
       </Alert>
     );
@@ -153,11 +156,13 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
           Course Grades Over Time
         </Title>
         <Text size="sm" c="dimmed" mb="md">
-          Hover over data points to see mean marks, standard deviation, and
-          course organiser information. Labels are added where course organisers
-          have changed.
+          The chart shows the mean marks (μ) of each course variant over time.
+          Hover over the lines to see the 1 standard deviation (σ) range as
+          shaded areas. Depending on data availability, we also show percentile
+          data as horizontal bars. 3 horizontal bars show the 25/50/75th
+          percentiles, while 5 show the 5/25/50/75/95th percentiles.
         </Text>
-        <Paper withBorder p="md">
+        <Paper withBorder p="md" mb="md">
           <CategoryGradeStatChart
             sortedYears={sortedYears}
             codes={codes}
@@ -165,6 +170,15 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             style={{ height: 400 }}
           />
         </Paper>
+        <Text size="sm" c="dimmed" mb="md">
+          Source(s):{" "}
+          {Array.from(new Set(stats.map(stat => stat.source_name))).join(", ")}
+        </Text>
+        <Text size="sm" c="dimmed" mb="md">
+          Where multiple statistics exist for a course variant in a given year,
+          (depending on when the stats were calculated), we show the earliest
+          complete one, to avoid resits skewing the data.
+        </Text>
       </Box>
 
       {stats.length > 0 && (
