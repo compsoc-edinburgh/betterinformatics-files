@@ -96,6 +96,10 @@ export const CategoryGradeStatChart: React.FC<
   // line. Important, since without this, stddev will flicker very quickly.
   const hoverTimeouts = useRef<Record<string, NodeJS.Timeout | undefined>>({});
 
+  const selected = useRef<boolean[]>(
+    new Array<boolean>(codes.length).fill(true),
+  );
+
   // When switching light/dark, toggle the same in the chart
   const scheme = useComputedColorScheme();
   useEffect(() => {
@@ -107,6 +111,14 @@ export const CategoryGradeStatChart: React.FC<
     } else {
       chart.setTheme("default");
     }
+
+    chart.on("legendselectchanged", (params: any) => {
+      const selectedCode = params.name;
+      const selectedIndex = codes.indexOf(selectedCode);
+      if (selectedIndex !== -1) {
+        selected.current[selectedIndex] = params.selected[selectedCode];
+      }
+    });
 
     chart.getZr().on("mousemove", e => {
       // Get the pixel position of the mouse event
@@ -124,6 +136,9 @@ export const CategoryGradeStatChart: React.FC<
       const yValue = gridPoint[1];
       const results = codes.reduce(
         (indices, code, index) => {
+          if (!selected.current[index]) {
+            return indices; // Skip if not selected
+          }
           const seriesData = combinedData.map(
             d => d.course_code[code]?.mean_mark,
           );
