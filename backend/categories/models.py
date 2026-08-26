@@ -107,7 +107,7 @@ class CourseStats(models.Model):
     std_deviation = models.FloatField(null=True)
     student_count = models.IntegerField(null=True)
     academic_year = models.CharField(max_length=10)  # e.g. "2023-24"
-    course_organiser = models.CharField(max_length=256, null=True)
+    course_organiser = models.CharField(max_length=256)
     percentiles = models.JSONField()
     source_name = models.CharField(max_length=256)
     source_date = models.DateField()
