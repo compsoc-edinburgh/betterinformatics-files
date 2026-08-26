@@ -25,6 +25,7 @@ import EChartsCore, {
   EChartsCoreProps,
   EChartsReactRef,
 } from "react-echarts-library/core";
+import { useMediaQuery } from "@mantine/hooks";
 
 // echarts doesn't export its custom element types >:(, so hack
 type CustomElementOption = Extract<
@@ -88,6 +89,7 @@ export const CategoryGradeStatChart: React.FC<
     ],
     [theme],
   );
+  const mobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   const [chartRef, setChartRef] = useState<EChartsReactRef | null>(null);
 
@@ -564,11 +566,11 @@ export const CategoryGradeStatChart: React.FC<
               "0.3",
               "0.8",
             ),
-            opacity: 1,
+            opacity: mobile ? 0 : 1,
             silent: true,
           },
           labelLine: {
-            show: true,
+            show: !mobile,
             length2: 5,
             smooth: true,
             lineStyle: {
@@ -665,7 +667,7 @@ export const CategoryGradeStatChart: React.FC<
         })),
       ],
     } as EChartsOption;
-  }, [sortedYears, codes, combinedData, colors, chartRef]);
+  }, [sortedYears, codes, combinedData, colors, chartRef, mobile]);
 
   return (
     <EChartsCore
