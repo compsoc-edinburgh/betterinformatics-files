@@ -237,6 +237,11 @@ export const CategoryGradeStatChart: React.FC<
         type: "highlight",
         seriesName: `${nearestCode}-stddev`,
       });
+      // And its area
+      chart.dispatchAction({
+        type: "highlight",
+        seriesName: `${nearestCode}-stddev-area`,
+      });
 
       // For all other course codes, downplay them and their stddev series in
       // 0.1 second
@@ -250,6 +255,10 @@ export const CategoryGradeStatChart: React.FC<
             chart.dispatchAction({
               type: "downplay",
               seriesName: `${code}-stddev`,
+            });
+            chart.dispatchAction({
+              type: "downplay",
+              seriesName: `${code}-stddev-area`,
             });
           }, 100);
         }
@@ -266,6 +275,10 @@ export const CategoryGradeStatChart: React.FC<
           chart.dispatchAction({
             type: "downplay",
             seriesName: `${code}-stddev`,
+          });
+          chart.dispatchAction({
+            type: "downplay",
+            seriesName: `${code}-stddev-area`,
           });
         }, 100);
       });
@@ -325,22 +338,23 @@ export const CategoryGradeStatChart: React.FC<
           size,
         ) => {
           if (!Array.isArray(params)) params = [params];
-          // Position at nearest x-axis item
+
+          // Position at nearest x-axis item, constant y-axis pos
           const xIndex = params[0].dataIndex;
-          const cursorY = point[1] + 50;
+          const cursorY = 20 - size.contentSize[1];
 
           const gridX = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, 0);
           if (gridX === undefined) {
-            return { left: point[0], top: cursorY }; // Fallback to cursor position
+            return { left: point[0], top: cursorY }; // Fallback to cursor X
           }
 
           const gridXEnd = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
           if (gridXEnd === undefined) {
-            return { left: point[0], top: cursorY }; // Fallback to cursor position
+            return { left: point[0], top: cursorY }; // Fallback to cursor X
           }
           const gridW = gridXEnd - gridX;
 
@@ -349,7 +363,7 @@ export const CategoryGradeStatChart: React.FC<
             (xIndex / (sortedYears.length - 1)) * gridW -
             size.contentSize[0] / 2;
 
-          return { left: xPos, top: cursorY }; // Follows cursor vertically
+          return { left: xPos, top: cursorY };
         },
         formatter: params => {
           if (!Array.isArray(params)) params = [params];
@@ -373,7 +387,11 @@ export const CategoryGradeStatChart: React.FC<
               return;
             }
             // Or if name ends with "-stddev" (for custom error bar series)
-            if (param.seriesName?.endsWith("-stddev")) {
+            if (
+              param.seriesName?.endsWith("-stddev") ||
+              param.seriesName?.endsWith("-stddev-area") ||
+              param.seriesName?.endsWith("-stddev-lower")
+            ) {
               return;
             }
             const code = param.seriesName;
@@ -381,12 +399,9 @@ export const CategoryGradeStatChart: React.FC<
             const stdDev = value[2];
             const organiser = value[3];
             const color = param.color as string;
-            tooltip += `<span><span style="color: ${color}">\u25CF</span> <strong>${code}</strong>: ${meanMark}%</span>`;
+            tooltip += `<span><span style="color: ${color}">\u25CF</span> <strong>${code}</strong>: μ ${meanMark}%, σ ${stdDev}%</span>`;
             if (organiser) {
               tooltip += `<span style="color:var(--mantine-color-dimmed)">CO: ${organiser}</span>`;
-            }
-            if (stdDev) {
-              tooltip += `<span style="color:var(--mantine-color-dimmed)">Standard Deviation: ±${stdDev}%</span>`;
             }
           });
           tooltip += "</div>";
@@ -394,6 +409,74 @@ export const CategoryGradeStatChart: React.FC<
         },
       } as TooltipComponentOption,
       series: [
+        // Lower standard deviation bound line
+        ...codes.map((code, _ix) => ({
+          name: `${code}-stddev-lower`,
+          type: "line",
+          silent: true,
+          triggerEvent: false,
+          stack: `${code}-stddev`,
+          data: combinedData.map(d => {
+            if (
+              d.course_code[code]?.mean_mark === null ||
+              d.course_code[code]?.mean_mark === undefined
+            ) {
+              return null;
+            }
+            return [
+              d.academic_year,
+              d.course_code[code].mean_mark -
+                (d.course_code[code].std_deviation ?? 0),
+            ];
+          }),
+          itemStyle: {
+            opacity: 0,
+          },
+          lineStyle: {
+            opacity: 0,
+          },
+          emphasis: {
+            disabled: true,
+          },
+        })),
+        ...codes.map((code, _ix) => ({
+          name: `${code}-stddev-area`,
+          type: "line",
+          silent: true,
+          triggerEvent: false,
+          stack: `${code}-stddev`,
+          stackStrategy: "all",
+          data: combinedData.map(d => {
+            if (
+              d.course_code[code]?.mean_mark === null ||
+              d.course_code[code]?.mean_mark === undefined
+            ) {
+              return null;
+            }
+            return [
+              d.academic_year,
+              2 * (d.course_code[code].std_deviation ?? 0),
+            ];
+          }),
+          itemStyle: {
+            opacity: 0,
+          },
+          lineStyle: {
+            opacity: 0,
+          },
+          areaStyle: {
+            opacity: 0,
+            color: colors[codes.indexOf(code) % colors.length].replace(
+              "0.3",
+              "0.8",
+            ),
+          },
+          emphasis: {
+            areaStyle: {
+              opacity: 0.2,
+            },
+          },
+        })),
         // Main line series for each course code
         ...codes.map((code, ix) => ({
           name: code,
@@ -421,20 +504,26 @@ export const CategoryGradeStatChart: React.FC<
               "0.3",
               "0.8",
             ),
+            opacity: 1,
           },
           itemStyle: {
             color: colors[codes.indexOf(code) % colors.length].replace(
               "0.3",
               "0.8",
             ),
+            opacity: 1,
           },
           emphasis: {
+            itemStyle: {
+              opacity: 1,
+            },
             lineStyle: {
-              width: 9,
+              width: 4,
               color: colors[codes.indexOf(code) % colors.length].replace(
                 "0.3",
                 "1.0",
               ),
+              opacity: 1,
             },
             label: {
               opacity: 1,
@@ -449,8 +538,8 @@ export const CategoryGradeStatChart: React.FC<
               // Show only if course organizer changed
               const organiser = value[3];
               const organiserChanged = value[4];
-              if (organiser && organiserChanged) {
-                return `CO: ${organiser}`;
+              if (organiser !== null && organiserChanged) {
+                return `${organiser}`;
               }
               return undefined;
             }) as LabelFormatterCallback,
@@ -460,7 +549,7 @@ export const CategoryGradeStatChart: React.FC<
               "0.3",
               "0.8",
             ),
-            opacity: 0.2,
+            opacity: 1,
             silent: true,
           },
           labelLine: {
