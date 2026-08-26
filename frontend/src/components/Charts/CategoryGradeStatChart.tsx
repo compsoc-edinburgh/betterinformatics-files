@@ -33,6 +33,12 @@ type CustomElementOption = Extract<
   { type: "group" }
 >["children"][number];
 
+// echarts doesn't expose this either :(
+interface LegendSelectChangedEvent {
+  name: string;
+  selected: Record<string, boolean>;
+}
+
 echarts.use([
   LineChart,
   CustomChart,
@@ -114,11 +120,12 @@ export const CategoryGradeStatChart: React.FC<
       chart.setTheme("default");
     }
 
-    chart.on("legendselectchanged", (params: any) => {
-      const selectedCode = params.name;
+    chart.on("legendselectchanged", params => {
+      const event = params as LegendSelectChangedEvent;
+      const selectedCode = event.name;
       const selectedIndex = codes.indexOf(selectedCode);
       if (selectedIndex !== -1) {
-        selected.current[selectedIndex] = params.selected[selectedCode];
+        selected.current[selectedIndex] = event.selected[selectedCode];
       }
     });
 
