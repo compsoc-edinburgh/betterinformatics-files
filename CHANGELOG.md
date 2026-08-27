@@ -1,28 +1,28 @@
 # Changelog
 
+## v2026.08.27
+
+- Add more granular grade statistics! ([\#149](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/149)), ([\#152](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/152))
+- Bugfixes: ([\#148](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/148)), ([\#150](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/150)), ([\#151](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/151))
+
 ## v2026.08.19
 
 - Further ground work for upcoming testimonials feature ([\#143](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/143)), ([\#145](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/145))
-- Bugfixes for guide pages feature introduced in v2026.08.18 ([\#138](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/138)), ([\#141](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/141)), ([\#142](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/142))
+- Bugfixes: ([\#137](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/137)), ([\#138](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/138)), ([\#141](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/141)), ([\#142](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/142))
 - Community Documents and Dissertations list look similar to exams now ([\#139](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/139)), ([\#140](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/140))
-- Editor changes: fullscreen fixed, monospace fonts preferred ([\#137](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/137))
 - Backend preparations for more detailed grade statistics ([\#144](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/144)), ([\#146](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/146))
-
 
 ## v2026.08.18-1
 
-- Hotfix for the link hitbox in the exam list being thinner than row ([\#134](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/134))
-- Hotfix for exam list layout breaking for admins ([\#132](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/132))
+- Visual bug hotfixes from v2026.08.18 ([\#130](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/130)), ([\#131](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/131)), ([\#132](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/132)), ([\#134](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/134))
 - Swap HCaptcha for Cloudflare Turnstile ([\#129](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/129))
-- Remove now-redundant 'Useful Links' box ([\#130](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/130))
 - Developer improvements: use merge trains ([\#135](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/135)), split large files ([\#133](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/133))
-- Fix inconisistent spacing between boxes on category page ([\#131](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/131))
 
 ## v2026.08.18
 
 - Show the exam list as rows instead of a grid ([\#126](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/126)) ([\#127](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/127))
 - For admins: show last login date on user profiles ([\#125](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/125))
-- Guide Pages: preparing for the Better Informatics merger ([\#124](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/124))
+- Guide Pages ([\#124](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/124))
 - Fix footer uwu being broken :3 ([\#123](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/123))
 - Modernisation of Dissertation backend endpoints ([\#122](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/122))
 - Preliminary preparation for course testimonials feature ([\#115](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/115))
