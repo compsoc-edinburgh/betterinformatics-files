@@ -164,8 +164,10 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
           The chart shows the mean marks (μ) of each course variant over time.
           Hover over the lines to see the 1 standard deviation (σ) range as
           shaded areas. Depending on data availability, we also show percentile
-          data as horizontal bars. Three horizontal bars show the 25/50/75th
-          percentiles, while five of them show the 5/25/50/75/95th percentiles.
+          data as horizontal bars. One in the center shows the 50th percentile
+          i.e. the median. If 25th/75th percentiles exist, we show them and
+          complete the full box plot. 5/95th percentiles get shown as simple
+          bars outside the box if they exist.
         </Text>
         <Paper withBorder p="md" mb="md">
           <CategoryGradeStatChart

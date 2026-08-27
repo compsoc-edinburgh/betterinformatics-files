@@ -257,10 +257,10 @@ export const CategoryGradeStatChart: React.FC<
         type: "highlight",
         seriesName: nearestCode,
       });
-      // And its stddev series
+      // And its percentiles series
       chart.dispatchAction({
         type: "highlight",
-        seriesName: `${nearestCode}-stddev`,
+        seriesName: `${nearestCode}-ptiles`,
       });
       // And its area
       chart.dispatchAction({
@@ -279,7 +279,7 @@ export const CategoryGradeStatChart: React.FC<
             });
             chart.dispatchAction({
               type: "downplay",
-              seriesName: `${code}-stddev`,
+              seriesName: `${code}-ptiles`,
             });
             chart.dispatchAction({
               type: "downplay",
@@ -299,7 +299,7 @@ export const CategoryGradeStatChart: React.FC<
           });
           chart.dispatchAction({
             type: "downplay",
-            seriesName: `${code}-stddev`,
+            seriesName: `${code}-ptiles`,
           });
           chart.dispatchAction({
             type: "downplay",
@@ -411,9 +411,9 @@ export const CategoryGradeStatChart: React.FC<
               // Skip if mean mark is not available
               return;
             }
-            // Or if name ends with "-stddev" (for custom error bar series)
+            // Or if name is one of the visual-only fluffs
             if (
-              param.seriesName?.endsWith("-stddev") ||
+              param.seriesName?.endsWith("-ptiles") ||
               param.seriesName?.endsWith("-stddev-area") ||
               param.seriesName?.endsWith("-stddev-lower")
             ) {
@@ -605,9 +605,9 @@ export const CategoryGradeStatChart: React.FC<
             };
           },
         })),
-        // Standard deviation series as custom error bars
+        // Percentiles
         ...codes.map((code, _ix) => ({
-          name: `${code}-stddev`,
+          name: `${code}-ptiles`,
           type: "custom",
           data: combinedData.map(d => [d.academic_year]),
           renderItem: (
@@ -646,30 +646,67 @@ export const CategoryGradeStatChart: React.FC<
               children: [] as CustomElementOption[],
             };
 
-            // Optionally, if percentile lines exist, add them
+            // Only if the corresponding entry exists, draw them
             for (const [key, percentile] of Object.entries(yPercentiles)) {
-              if (percentile !== null) {
-                const xCoord = api.coord([xValue, 0])[0];
-                const yPercentileCoord = api.coord([0, percentile])[1];
-                let len = percentileLength;
-                // shorter for 5th and 95th percentiles
-                if (key === "5" || key === "95") {
-                  len = percentileLength / 3;
-                }
-                returnVal.children.push({
-                  type: "line",
-                  shape: {
-                    x1: xCoord - len / 2,
-                    y1: yPercentileCoord,
-                    x2: xCoord + len / 2,
-                    y2: yPercentileCoord,
-                  },
-                  style: customStyle,
-                  emphasis: {
-                    style: emphasisStyle,
-                  },
-                });
+              if (percentile === null) continue;
+              if (!((100 - Number(key)).toString() in yPercentiles)) continue;
+
+              const xCoord = api.coord([xValue, 0])[0];
+              const yPercentileCoord = api.coord([0, percentile])[1];
+              let len = percentileLength;
+              // shorter for 5th and 95th percentiles
+              if (key === "5" || key === "95") {
+                len = percentileLength / 3;
               }
+              returnVal.children.push({
+                type: "line",
+                shape: {
+                  x1: xCoord - len / 2,
+                  y1: yPercentileCoord,
+                  x2: xCoord + len / 2,
+                  y2: yPercentileCoord,
+                },
+                style: customStyle,
+                emphasis: {
+                  style: emphasisStyle,
+                },
+              });
+            }
+
+            // If 25 and 50 percentiles exist, complete the full box
+            if (
+              yPercentiles["25"] !== undefined &&
+              yPercentiles["75"] !== undefined
+            ) {
+              const xCoord = api.coord([xValue, 0])[0];
+              const y25Coord = api.coord([0, yPercentiles["25"]])[1];
+              const y75Coord = api.coord([0, yPercentiles["75"]])[1];
+              returnVal.children.push({
+                type: "line",
+                shape: {
+                  x1: xCoord - percentileLength / 2,
+                  y1: y25Coord,
+                  x2: xCoord - percentileLength / 2,
+                  y2: y75Coord,
+                },
+                style: customStyle,
+                emphasis: {
+                  style: emphasisStyle,
+                },
+              });
+              returnVal.children.push({
+                type: "line",
+                shape: {
+                  x1: xCoord + percentileLength / 2,
+                  y1: y25Coord,
+                  x2: xCoord + percentileLength / 2,
+                  y2: y75Coord,
+                },
+                style: customStyle,
+                emphasis: {
+                  style: emphasisStyle,
+                },
+              });
             }
 
             return returnVal;
