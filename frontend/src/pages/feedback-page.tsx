@@ -50,7 +50,7 @@ const FeedbackForm: React.FC = () => {
     <Stack>
       {success && <Alert>Feedback was submitted successfully.</Alert>}
       <Text>
-        Please tell us what you think about BetterInformatics File Collection!
+        Please tell us what you think about Better Informatics File Collection!
         What do you like? What could we improve? Ideas for new features? Use the
         form below or write to{" "}
         <Anchor

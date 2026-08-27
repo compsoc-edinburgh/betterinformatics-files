@@ -40,7 +40,7 @@ const LoginPage: React.FC<{ isHome?: boolean }> = ({ isHome = false }) => {
                 </>
               )}
               <Text fw={500}>
-                BetterInformatics File Collection is a platform for students to
+                Better Informatics File Collection is a platform for students to
                 share notes, summaries, tips and recommendations for courses, as
                 well as a study platform to collaborate on answers to previous
                 exams.

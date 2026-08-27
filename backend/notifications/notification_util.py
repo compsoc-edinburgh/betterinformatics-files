@@ -122,13 +122,13 @@ def send_email_notification(
         return
 
     send_mail(
-        f"BetterInformatics: {title} / {data.display_name if isinstance(data, Document) else data.answer_section.exam.displayname}",
+        f"Better Informatics: {title} / {data.display_name if isinstance(data, Document) else data.answer_section.exam.displayname}",
         (
             f"Hello {receiver.profile.display_username}!\n"
             f"{message}\n\n"
             f"View it in context here: {get_absolute_notification_url(data)}"
         ),
-        f'"{sender.username} (via BetterInformatics)" <{settings.VERIF_CODE_FROM_EMAIL_ADDRESS}>',
+        f'"{sender.username} (via Better Informatics)" <{settings.VERIF_CODE_FROM_EMAIL_ADDRESS}>',
         [receiver.email],
         fail_silently=False,
     )

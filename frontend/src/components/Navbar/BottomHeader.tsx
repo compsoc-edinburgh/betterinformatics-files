@@ -41,7 +41,7 @@ const BottomHeader: React.FC<Props> = ({
               icon && (
                 <img
                   src={icon}
-                  alt="BetterInformatics Icon"
+                  alt="Better Informatics Icon"
                   className={classes.logo}
                 />
               )

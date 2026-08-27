@@ -168,12 +168,12 @@ const HomePage: React.FC = () => {
           </Container>
         ) : (
           <>
-            <Text lh={1}>Better&shy;Informatics</Text>
+            <Text lh={1}>Better Informatics</Text>
             <Title mb="sm">File Collection</Title>
           </>
         )}
         <Text fw={500}>
-          BetterInformatics File Collection is a platform for students to share
+          Better Informatics File Collection is a platform for students to share
           notes, summaries, tips and recommendations for courses, as well as a
           study platform to collaborate on answers to previous exams.
         </Text>

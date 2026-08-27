@@ -84,7 +84,7 @@ const CourseMetadataChecker: React.FC = () => {
     data: categories,
   } = useRequest(loadCategories);
 
-  // Course missing check from BetterInformatics courses.json
+  // Course missing check from Better Informatics courses.json
   const [biError, biLoading, biData] = useBICourseList();
   const {
     error: euclidListError,

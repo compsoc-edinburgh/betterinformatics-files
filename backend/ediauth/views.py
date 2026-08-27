@@ -88,11 +88,11 @@ def login(request: HttpRequest):
     _ip, _ = ipw.get_client_ip(request.META)
 
     send_mail(
-        "BetterInformatics: Your Verification Code is " + codeRow.code,
+        "Better Informatics: Your Verification Code is " + codeRow.code,
         (
-            f"Thank you for using BetterInformatics! \n\n"
+            f"Thank you for using Better Informatics! \n\n"
             f"There is a new sign-in request to access "
-            f"BetterInformatics File Collection (files.betterinformatics.com).\n\n"
+            f"Better Informatics File Collection (files.betterinformatics.com).\n\n"
             f"If this is you, please confirm your identity using the following "
             f"verification code when prompted:\n\n{codeRow.code}\n\n"
             f"If you did not request this verification, please ignore this email.\n"

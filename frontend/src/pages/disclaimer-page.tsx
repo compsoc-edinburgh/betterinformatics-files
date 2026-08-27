@@ -13,13 +13,13 @@ export const DisclaimerPage: React.FC = () => {
       </Title>
       <Title order={2}>Legal Disclaimer</Title>
       <p>
-        BetterInformatics File Collection is not affiliated with the University
+        Better Informatics File Collection is not affiliated with the University
         of Edinburgh, but is a student project run by volunteers within CompSoc,
         the UoE Technology society. The platform is neither endorsed nor
         supported by the University of Edinburgh School of Informatics.
       </p>
       <p>
-        BetterInformatics File Collection is a platform designed to facilitate
+        Better Informatics File Collection is a platform designed to facilitate
         collaborative learning by providing existing University of Edinburgh
         students with access to past papers and community-contributed answers.
         The past papers mirror those published on the Exam Papers Online, an
@@ -31,7 +31,7 @@ export const DisclaimerPage: React.FC = () => {
       </p>
       <p>
         We do not endorse any use of past papers outside of its intended purpose
-        of study aid for our users. BetterInformatics may ban access to the
+        of study aid for our users. Better Informatics may ban access to the
         service for users who do not respect these violate engage in any form of
         academic dishonesty.
       </p>
@@ -46,7 +46,7 @@ export const DisclaimerPage: React.FC = () => {
       <p>
         If you are a member of the University of Edinburgh staff and would like
         to request the removal of a past paper or any of its community-provided
-        answers from BetterInformatics File Collection, please contact us at{" "}
+        answers from Better Informatics File Collection, please contact us at{" "}
         <a href={`mailto:${serverData.email_address}`}>
           {serverData.email_address}
         </a>
@@ -56,15 +56,15 @@ export const DisclaimerPage: React.FC = () => {
 
       <Title order={2}>License and Copyright</Title>
       <p>
-        The past papers available on BetterInformatics File Collection belong to
-        the University of Edinburgh.
+        The past papers available on Better Informatics File Collection belong
+        to the University of Edinburgh.
       </p>
       <p>
         The community-provided answers are licensed under the Creative Commons
         Attribution-NonCommercial-ShareAlike 4.0 International License.
       </p>
       <p>
-        The source code for BetterInformatics File Colletion is a fork of ETH
+        The source code for Better Informatics File Colletion is a fork of ETH
         Zurich Community Solutions, both of which are available under the GNU
         GPL v3 license.
       </p>

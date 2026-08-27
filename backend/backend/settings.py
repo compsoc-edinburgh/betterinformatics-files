@@ -236,7 +236,7 @@ CONTENT_SECURITY_POLICY = {
             "'self'",
             "https://" + s3_host + ":" + s3_port,
             "http://" + s3_host + ":" + s3_port,
-            # Allow fetch()-ing and rendering Markdown files from BetterInformatics
+            # Allow fetch()-ing and rendering Markdown files from Better Informatics
             # (assumption being that they are relatively safe -- if they contain XSS,
             # the Markdown renderer should prevent it from being executed)
             "https://raw.githubusercontent.com/compsoc-edinburgh/betterinformatics/master/_sections/",

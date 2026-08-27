@@ -30,7 +30,7 @@ class Category(models.Model):
 
     # HTTP link to a markdown file (optional frontmatter ignored) with more
     # useful information about the category (this will be queried by the
-    # frontend to display a rendered version) -- use for BetterInformatics link
+    # frontend to display a rendered version) -- use for Better Informatics link
     more_markdown_link = models.CharField(max_length=512, default="")
 
     relevant_dissertations: models.QuerySet[
