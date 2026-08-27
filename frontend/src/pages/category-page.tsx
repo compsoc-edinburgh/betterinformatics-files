@@ -384,7 +384,7 @@ const CategoryPage: React.FC = () => {
     >
       {error && <Alert color="red">{error.message}</Alert>}
       {loading && <LoadingOverlay visible={loading} />}
-      {data && (
+      {data?.slug === slug && (
         <UserContext.Provider
           value={
             user
