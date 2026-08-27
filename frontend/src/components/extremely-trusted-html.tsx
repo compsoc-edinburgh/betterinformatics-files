@@ -41,6 +41,13 @@ const runScript = (script: HTMLScriptElement, cb: () => void): Node => {
   } else {
     newScript.textContent = script.textContent;
   }
+  // Keep nonce and integrity attributes if present
+  if (script.nonce) {
+    newScript.nonce = script.nonce;
+  }
+  if (script.integrity) {
+    newScript.integrity = script.integrity;
+  }
   document.head.appendChild(newScript);
   script.parentNode?.removeChild(script);
 
