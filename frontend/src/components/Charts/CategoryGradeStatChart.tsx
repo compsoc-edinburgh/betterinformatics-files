@@ -3,13 +3,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useComputedColorScheme, useMantineTheme } from "@mantine/core";
 import type {
   EChartsOption,
-  DefaultLabelFormatterCallbackParams,
   LabelFormatterCallback,
   LabelLayoutOptionCallbackParams,
   TooltipComponentOption,
   TooltipComponentPositionCallbackParams,
   CustomSeriesRenderItemParams,
   CustomSeriesRenderItemAPI,
+  CustomSeriesRenderItemReturn,
 } from "echarts";
 import { LineChart, CustomChart } from "echarts/charts";
 import {
@@ -23,9 +23,21 @@ import { LabelLayout } from "echarts/features";
 import { CanvasRenderer } from "echarts/renderers";
 import EChartsCore, {
   EChartsCoreProps,
-  EChartsEventsMap,
   EChartsReactRef,
 } from "react-echarts-library/core";
+import { useMediaQuery } from "@mantine/hooks";
+
+// echarts doesn't export its custom element types >:(, so hack
+type CustomElementOption = Extract<
+  NonNullable<CustomSeriesRenderItemReturn>,
+  { type: "group" }
+>["children"][number];
+
+// echarts doesn't expose this either :(
+interface LegendSelectChangedEvent {
+  name: string;
+  selected: Record<string, boolean>;
+}
 
 echarts.use([
   LineChart,
@@ -39,10 +51,20 @@ echarts.use([
 ]);
 
 interface ChartCourseInstanceStats {
+  course_name: string;
   mean_mark: number | null;
   std_deviation: number | null;
+  percentiles: Percentiles;
   course_organiser: string | null;
   organiser_changed: boolean;
+}
+
+interface Percentiles {
+  "5"?: number;
+  "25"?: number;
+  "50"?: number;
+  "75"?: number;
+  "95"?: number;
 }
 
 export interface ChartCourseStats {
@@ -74,8 +96,18 @@ export const CategoryGradeStatChart: React.FC<
     ],
     [theme],
   );
+  const mobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   const [chartRef, setChartRef] = useState<EChartsReactRef | null>(null);
+
+  // We keep a timeout for each series to delay the downplay action, so that the
+  // stddev line doesn't disappear immediately when the mouse leaves the main
+  // line. Important, since without this, stddev will flicker very quickly.
+  const hoverTimeouts = useRef<Record<string, NodeJS.Timeout | undefined>>({});
+
+  const selected = useRef<boolean[]>(
+    new Array<boolean>(codes.length).fill(true),
+  );
 
   // When switching light/dark, toggle the same in the chart
   const scheme = useComputedColorScheme();
@@ -88,7 +120,195 @@ export const CategoryGradeStatChart: React.FC<
     } else {
       chart.setTheme("default");
     }
-  }, [scheme, chartRef]);
+
+    chart.on("legendselectchanged", params => {
+      const event = params as LegendSelectChangedEvent;
+      const selectedCode = event.name;
+      const selectedIndex = codes.indexOf(selectedCode);
+      if (selectedIndex !== -1) {
+        selected.current[selectedIndex] = event.selected[selectedCode];
+      }
+    });
+
+    chart.getZr().on("mousemove", e => {
+      // Get the pixel position of the mouse event
+      const pixelPoint = [e.offsetX, e.offsetY];
+      // Get on grid
+      const gridPoint = chart.convertFromPixel({ seriesIndex: 0 }, pixelPoint);
+
+      // Get nearest x-axis value (academic year) from the grid point
+      const xValue = gridPoint[0];
+      const nearestYearIndex = Math.round(xValue);
+      const secondNearestYearIndex =
+        xValue < nearestYearIndex ? nearestYearIndex + 1 : nearestYearIndex - 1;
+
+      // Get nearest course code based on the y-axis value
+      const yValue = gridPoint[1];
+      const results = codes.reduce(
+        (indices, code, index) => {
+          if (!selected.current[index]) {
+            return indices; // Skip if not selected
+          }
+          const seriesData = combinedData.map(
+            d => d.course_code[code]?.mean_mark,
+          );
+          const seriesYValue = seriesData[nearestYearIndex];
+          const seriesSecondYValue =
+            secondNearestYearIndex >= 0 &&
+            secondNearestYearIndex < seriesData.length
+              ? seriesData[secondNearestYearIndex]
+              : null;
+
+          const distance =
+            seriesYValue === null || seriesYValue === undefined
+              ? Infinity
+              : Math.abs(seriesYValue - yValue);
+          const secondDistance =
+            seriesSecondYValue === null || seriesSecondYValue === undefined
+              ? Infinity
+              : Math.abs(seriesSecondYValue - yValue);
+
+          if (distance < indices[0]) {
+            indices[0] = distance;
+            indices[2] = index;
+          }
+          if (secondDistance < indices[1]) {
+            indices[1] = secondDistance;
+            indices[3] = index;
+          }
+          return indices;
+        },
+        [Infinity, Infinity, -1, -1],
+      );
+      let nearestCodeIndex = results[2];
+      const nearestCodeIndexOnSecondNearestColumn = results[3];
+
+      // const nearestPointsCodes = combinedData
+      //   .map(d => {
+      //     const codeValues = Object.entries(d.course_code).map(([code, stats]) => ({
+      //       year_index: sortedYears.indexOf(d.academic_year) ,
+      //       code,
+      //       mean_mark: stats?.mean_mark ?? null,
+      //     }));
+      //     return codeValues;
+      //   })
+      //   .flat()
+      //   .filter(d => d.mean_mark !== null)
+      //   .sort((a, b) => Math.abs(a.mean_mark - yValue) - Math.abs(b.mean_mark - yValue))
+      //   .slice(0, 2)
+      //   .map(d => d.code);
+      // const sortedCodesByProximity = codes.toSorted((a, b) => {
+      //   const seriesDataA = combinedData.map(
+      //     d => d.course_code[a]?.mean_mark,
+      //   );
+      //   const seriesDataB = combinedData.map(
+      //     d => d.course_code[b]?.mean_mark,
+      //   );
+      //   const seriesYValueA = seriesDataA[nearestYearIndex];
+      //   const seriesYValueB = seriesDataB[nearestYearIndex];
+      //   return (
+      //     (seriesYValueA === null || seriesYValueA === undefined
+      //       ? Infinity
+      //       : Math.abs(seriesYValueA - yValue)) -
+      //     (seriesYValueB === null || seriesYValueB === undefined
+      //       ? Infinity
+      //       : Math.abs(seriesYValueB - yValue))
+      //   );
+      // });
+      // let nearestCodeIndex = codes.findIndex(code => code === nearestPointsCodes[0]);
+
+      // Override if previously hovered code still exists on this year
+      // Determine previously hovered code by if there is a single item without
+      // a timer entry
+      // And do not override if two closest points agree on a different course
+      if (
+        Object.values(hoverTimeouts.current).filter(Boolean).length ===
+        codes.length - 1
+      ) {
+        const lastHoveredIndex = codes.findIndex(
+          code => !hoverTimeouts.current[code],
+        );
+        if (
+          lastHoveredIndex !== -1 &&
+          nearestCodeIndex !== nearestCodeIndexOnSecondNearestColumn
+        ) {
+          const lastHoveredCode = codes[lastHoveredIndex];
+          const seriesData = combinedData.map(
+            d => d.course_code[lastHoveredCode]?.mean_mark,
+          );
+          const seriesYValue = seriesData[nearestYearIndex];
+          if (seriesYValue !== null && seriesYValue !== undefined) {
+            nearestCodeIndex = lastHoveredIndex;
+          }
+        }
+      }
+
+      if (nearestCodeIndex === -1) return;
+
+      const nearestCode = codes[nearestCodeIndex];
+
+      if (hoverTimeouts.current[nearestCode]) {
+        clearTimeout(hoverTimeouts.current[nearestCode]);
+        hoverTimeouts.current[nearestCode] = undefined;
+      }
+
+      // Highlight the nearest course code series
+      chart.dispatchAction({
+        type: "highlight",
+        seriesName: nearestCode,
+      });
+      // And its percentiles series
+      chart.dispatchAction({
+        type: "highlight",
+        seriesName: `${nearestCode}-ptiles`,
+      });
+      // And its area
+      chart.dispatchAction({
+        type: "highlight",
+        seriesName: `${nearestCode}-stddev-area`,
+      });
+
+      // For all other course codes, downplay them and their stddev series in
+      // 0.1 second
+      codes.forEach(code => {
+        if (code !== nearestCode && !hoverTimeouts.current[code]) {
+          hoverTimeouts.current[code] = setTimeout(() => {
+            chart.dispatchAction({
+              type: "downplay",
+              seriesName: code,
+            });
+            chart.dispatchAction({
+              type: "downplay",
+              seriesName: `${code}-ptiles`,
+            });
+            chart.dispatchAction({
+              type: "downplay",
+              seriesName: `${code}-stddev-area`,
+            });
+          }, 100);
+        }
+      });
+    });
+    chart.getZr().on("mouseout", () => {
+      // All series downplay after 0.1 second
+      codes.forEach(code => {
+        hoverTimeouts.current[code] ??= setTimeout(() => {
+          chart.dispatchAction({
+            type: "downplay",
+            seriesName: code,
+          });
+          chart.dispatchAction({
+            type: "downplay",
+            seriesName: `${code}-ptiles`,
+          });
+          chart.dispatchAction({
+            type: "downplay",
+            seriesName: `${code}-stddev-area`,
+          });
+        }, 100);
+      });
+    });
+  }, [scheme, chartRef, codes, combinedData]);
 
   const chartOption = useMemo(() => {
     return {
@@ -143,21 +363,23 @@ export const CategoryGradeStatChart: React.FC<
           size,
         ) => {
           if (!Array.isArray(params)) params = [params];
-          // Position at nearest x-axis item
+
+          // Position at nearest x-axis item, constant y-axis pos
           const xIndex = params[0].dataIndex;
+          const cursorY = 20 - size.contentSize[1];
 
           const gridX = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, 0);
           if (gridX === undefined) {
-            return { left: point[0], bottom: 30 }; // Fallback to cursor position
+            return { left: point[0], top: cursorY }; // Fallback to cursor X
           }
 
           const gridXEnd = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
           if (gridXEnd === undefined) {
-            return { left: point[0], bottom: 30 }; // Fallback to cursor position
+            return { left: point[0], top: cursorY }; // Fallback to cursor X
           }
           const gridW = gridXEnd - gridX;
 
@@ -166,7 +388,7 @@ export const CategoryGradeStatChart: React.FC<
             (xIndex / (sortedYears.length - 1)) * gridW -
             size.contentSize[0] / 2;
 
-          return { left: xPos, bottom: 30 };
+          return { left: xPos, top: cursorY };
         },
         formatter: params => {
           if (!Array.isArray(params)) params = [params];
@@ -189,21 +411,23 @@ export const CategoryGradeStatChart: React.FC<
               // Skip if mean mark is not available
               return;
             }
-            // Or if name ends with "-stddev" (for custom error bar series)
-            if (param.seriesName?.endsWith("-stddev")) {
+            // Or if name is one of the visual-only fluffs
+            if (
+              param.seriesName?.endsWith("-ptiles") ||
+              param.seriesName?.endsWith("-stddev-area") ||
+              param.seriesName?.endsWith("-stddev-lower")
+            ) {
               return;
             }
             const code = param.seriesName;
+            const name = value[5];
             const meanMark = value[1];
             const stdDev = value[2];
             const organiser = value[3];
             const color = param.color as string;
-            tooltip += `<span><span style="color: ${color}">\u25CF</span> <strong>${code}</strong>: ${meanMark}%</span>`;
+            tooltip += `<span><span style="color: ${color}">\u25CF</span> <strong>${code}</strong>: μ ${meanMark}%, σ ${stdDev}%</span>`;
             if (organiser) {
-              tooltip += `<span style="color:var(--mantine-color-dimmed)">CO: ${organiser}</span>`;
-            }
-            if (stdDev) {
-              tooltip += `<span style="color:var(--mantine-color-dimmed)">Standard Deviation: ±${stdDev}%</span>`;
+              tooltip += `<span style="color:var(--mantine-color-dimmed)">${name}</span>`;
             }
           });
           tooltip += "</div>";
@@ -211,11 +435,80 @@ export const CategoryGradeStatChart: React.FC<
         },
       } as TooltipComponentOption,
       series: [
+        // Lower standard deviation bound line
+        ...codes.map((code, _ix) => ({
+          name: `${code}-stddev-lower`,
+          type: "line",
+          silent: true,
+          triggerEvent: false,
+          stack: `${code}-stddev`,
+          data: combinedData.map(d => {
+            if (
+              d.course_code[code]?.mean_mark === null ||
+              d.course_code[code]?.mean_mark === undefined
+            ) {
+              return null;
+            }
+            return [
+              d.academic_year,
+              d.course_code[code].mean_mark -
+                (d.course_code[code].std_deviation ?? 0),
+            ];
+          }),
+          itemStyle: {
+            opacity: 0,
+          },
+          lineStyle: {
+            opacity: 0,
+          },
+          emphasis: {
+            disabled: true,
+          },
+        })),
+        ...codes.map((code, _ix) => ({
+          name: `${code}-stddev-area`,
+          type: "line",
+          silent: true,
+          triggerEvent: false,
+          stack: `${code}-stddev`,
+          stackStrategy: "all",
+          data: combinedData.map(d => {
+            if (
+              d.course_code[code]?.mean_mark === null ||
+              d.course_code[code]?.mean_mark === undefined
+            ) {
+              return null;
+            }
+            return [
+              d.academic_year,
+              2 * (d.course_code[code].std_deviation ?? 0),
+            ];
+          }),
+          itemStyle: {
+            opacity: 0,
+          },
+          lineStyle: {
+            opacity: 0,
+          },
+          areaStyle: {
+            opacity: 0,
+            color: colors[codes.indexOf(code) % colors.length].replace(
+              "0.3",
+              "0.8",
+            ),
+          },
+          emphasis: {
+            areaStyle: {
+              opacity: 0.2,
+            },
+          },
+        })),
         // Main line series for each course code
         ...codes.map((code, ix) => ({
           name: code,
           type: "line",
-          triggerEvent: "line",
+          silent: true,
+          triggerEvent: false,
           data: combinedData.map(d => {
             const value = [
               d.academic_year,
@@ -223,6 +516,7 @@ export const CategoryGradeStatChart: React.FC<
               d.course_code[code]?.std_deviation,
               d.course_code[code]?.course_organiser,
               d.course_code[code]?.organiser_changed,
+              d.course_code[code]?.course_name,
             ];
             if (d.course_code[code]?.organiser_changed) {
               return {
@@ -237,20 +531,29 @@ export const CategoryGradeStatChart: React.FC<
               "0.3",
               "0.8",
             ),
+            opacity: 1,
           },
           itemStyle: {
             color: colors[codes.indexOf(code) % colors.length].replace(
               "0.3",
               "0.8",
             ),
+            opacity: 1,
           },
           emphasis: {
+            itemStyle: {
+              opacity: 1,
+            },
             lineStyle: {
-              width: 9,
+              width: 4,
               color: colors[codes.indexOf(code) % colors.length].replace(
                 "0.3",
                 "1.0",
               ),
+              opacity: 1,
+            },
+            label: {
+              opacity: 1,
             },
           },
           label: {
@@ -262,8 +565,8 @@ export const CategoryGradeStatChart: React.FC<
               // Show only if course organizer changed
               const organiser = value[3];
               const organiserChanged = value[4];
-              if (organiser && organiserChanged) {
-                return `CO: ${organiser}`;
+              if (organiser !== null && organiserChanged) {
+                return `${organiser}`;
               }
               return undefined;
             }) as LabelFormatterCallback,
@@ -273,9 +576,11 @@ export const CategoryGradeStatChart: React.FC<
               "0.3",
               "0.8",
             ),
+            opacity: mobile ? 0 : 1,
+            silent: true,
           },
           labelLine: {
-            show: true,
+            show: !mobile,
             length2: 5,
             smooth: true,
             lineStyle: {
@@ -300,43 +605,25 @@ export const CategoryGradeStatChart: React.FC<
             };
           },
         })),
-        // Standard deviation series as custom error bars
+        // Percentiles
         ...codes.map((code, _ix) => ({
-          name: `${code}-stddev`,
+          name: `${code}-ptiles`,
           type: "custom",
-          data: combinedData.map(d => {
-            if (
-              d.course_code[code]?.mean_mark === null ||
-              d.course_code[code]?.mean_mark === undefined
-            ) {
-              return [d.academic_year, null, null];
-            }
-
-            const value = [
-              d.academic_year,
-              d.course_code[code].mean_mark -
-                (d.course_code[code].std_deviation ?? 0),
-              d.course_code[code].mean_mark +
-                (d.course_code[code].std_deviation ?? 0),
-            ];
-
-            return value;
-          }),
+          data: combinedData.map(d => [d.academic_year]),
           renderItem: (
             _params: CustomSeriesRenderItemParams,
             api: CustomSeriesRenderItemAPI,
           ) => {
             const xValue = api.value(0);
-            const yLow = api.value(1) as number | null;
-            const yHigh = api.value(2) as number | null;
-            // Show as error bars with one vertical and two horizontal lines
-            if (yLow === null || yHigh === null) {
-              return null; // No error bar if no data
+            // lookup directly from data since string JSON can't be passed
+            // through data -> renderItem
+            const yPercentiles =
+              combinedData[_params.dataIndex]?.course_code[code]?.percentiles;
+            if (!yPercentiles) {
+              return null;
             }
-            const xCoord = api.coord([xValue, 0])[0];
-            const yLowCoord = api.coord([0, yLow])[1];
-            const yHighCoord = api.coord([0, yHigh])[1];
-            const errorBarWidth = 10;
+
+            const percentileLength = 10;
 
             // We can't replicate the behaviour of .style() with other funcs:
             // https://github.com/apache/echarts/issues/16514
@@ -353,103 +640,87 @@ export const CategoryGradeStatChart: React.FC<
               ...customStyle,
               opacity: 1,
             };
-            return {
+
+            const returnVal = {
               type: "group",
-              children: [
-                {
-                  type: "line",
-                  shape: {
-                    x1: xCoord,
-                    y1: yLowCoord,
-                    x2: xCoord,
-                    y2: yHighCoord,
-                  },
-                  style: customStyle,
-                  emphasis: {
-                    style: emphasisStyle,
-                  },
-                },
-                {
-                  type: "line",
-                  shape: {
-                    x1: xCoord - errorBarWidth / 2,
-                    y1: yLowCoord,
-                    x2: xCoord + errorBarWidth / 2,
-                    y2: yLowCoord,
-                  },
-                  style: customStyle,
-                  emphasis: {
-                    style: emphasisStyle,
-                  },
-                },
-                {
-                  type: "line",
-                  shape: {
-                    x1: xCoord - errorBarWidth / 2,
-                    y1: yHighCoord,
-                    x2: xCoord + errorBarWidth / 2,
-                    y2: yHighCoord,
-                  },
-                  style: customStyle,
-                  emphasis: {
-                    style: emphasisStyle,
-                  },
-                },
-              ],
+              children: [] as CustomElementOption[],
             };
+
+            // Only if the corresponding entry exists, draw them
+            for (const [key, percentile] of Object.entries(yPercentiles)) {
+              if (percentile === null) continue;
+              if (!((100 - Number(key)).toString() in yPercentiles)) continue;
+
+              const xCoord = api.coord([xValue, 0])[0];
+              const yPercentileCoord = api.coord([0, percentile])[1];
+              let len = percentileLength;
+              // shorter for 5th and 95th percentiles
+              if (key === "5" || key === "95") {
+                len = percentileLength / 3;
+              }
+              returnVal.children.push({
+                type: "line",
+                shape: {
+                  x1: xCoord - len / 2,
+                  y1: yPercentileCoord,
+                  x2: xCoord + len / 2,
+                  y2: yPercentileCoord,
+                },
+                style: customStyle,
+                emphasis: {
+                  style: emphasisStyle,
+                },
+              });
+            }
+
+            // If 25 and 50 percentiles exist, complete the full box
+            if (
+              yPercentiles["25"] !== undefined &&
+              yPercentiles["75"] !== undefined
+            ) {
+              const xCoord = api.coord([xValue, 0])[0];
+              const y25Coord = api.coord([0, yPercentiles["25"]])[1];
+              const y75Coord = api.coord([0, yPercentiles["75"]])[1];
+              returnVal.children.push({
+                type: "line",
+                shape: {
+                  x1: xCoord - percentileLength / 2,
+                  y1: y25Coord,
+                  x2: xCoord - percentileLength / 2,
+                  y2: y75Coord,
+                },
+                style: customStyle,
+                emphasis: {
+                  style: emphasisStyle,
+                },
+              });
+              returnVal.children.push({
+                type: "line",
+                shape: {
+                  x1: xCoord + percentileLength / 2,
+                  y1: y25Coord,
+                  x2: xCoord + percentileLength / 2,
+                  y2: y75Coord,
+                },
+                style: customStyle,
+                emphasis: {
+                  style: emphasisStyle,
+                },
+              });
+            }
+
+            return returnVal;
           },
         })),
       ],
     } as EChartsOption;
-  }, [sortedYears, codes, combinedData, colors, chartRef]);
-
-  // We keep a timeout for each series to delay the downplay action, so that the
-  // stddev line doesn't disappear immediately when the mouse leaves the main
-  // line. Important, since without this, stddev will flicker very quickly.
-  const hoverTimeouts = useRef<Record<string, NodeJS.Timeout | undefined>>({});
-
-  // Trigger highlight and downplay via events
-  const handleEvents = useMemo(
-    () =>
-      ({
-        mouseover: (params, chart) => {
-          const code = (params as DefaultLabelFormatterCallbackParams)
-            .seriesName;
-          if (code && !code.endsWith("-stddev")) {
-            if (hoverTimeouts.current[code]) {
-              clearTimeout(hoverTimeouts.current[code]);
-            }
-            chart.dispatchAction({
-              type: "highlight",
-              seriesName: `${code}-stddev`,
-            });
-          }
-        },
-        mouseout: (params, chart) => {
-          const code = (params as DefaultLabelFormatterCallbackParams)
-            .seriesName;
-          if (code && !code.endsWith("-stddev")) {
-            if (hoverTimeouts.current[code]) {
-              clearTimeout(hoverTimeouts.current[code]);
-            }
-            hoverTimeouts.current[code] = setTimeout(() => {
-              chart.dispatchAction({
-                type: "downplay",
-                seriesName: `${code}-stddev`,
-              });
-            }, 1000);
-          }
-        },
-      }) as EChartsEventsMap,
-    [],
-  );
+  }, [sortedYears, codes, combinedData, colors, chartRef, mobile]);
 
   return (
     <EChartsCore
       {...props}
       echarts={echarts}
       option={chartOption}
-      onEvents={handleEvents}
       replaceMerge="series"
       ref={setChartRef}
     />

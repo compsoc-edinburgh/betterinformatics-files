@@ -208,7 +208,11 @@ export interface CourseStats {
   mean_mark: number | null;
   std_deviation: number | null;
   academic_year: string;
+  student_count: number | null;
   course_organiser: string | null;
+  percentiles: Record<string, number | undefined>;
+  source_name: string;
+  source_date: string; // YYYY-MM-DD
 }
 
 export type CategoryMetaDataAny =
@@ -416,5 +420,5 @@ export interface Testimonial {
   slug: string;
   testimonial: string;
   year_taken: number;
-  approval_status : ApprovalStatus;
+  approval_status: ApprovalStatus;
 }
