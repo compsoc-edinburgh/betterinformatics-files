@@ -7,8 +7,11 @@ import {
   Paper,
   Skeleton,
   Stack,
+  Table,
+  Tabs,
   Text,
   Title,
+  Tooltip,
 } from "@mantine/core";
 
 import { useCourseStats } from "../api/hooks";
@@ -17,6 +20,7 @@ import {
   CategoryGradeStatChart,
   ChartCourseStats,
 } from "./Charts/CategoryGradeStatChart";
+import { IconCalendarMonth } from "@tabler/icons-react";
 
 interface CategoryStatsProps {
   slug: string;
@@ -160,8 +164,8 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
           The chart shows the mean marks (μ) of each course variant over time.
           Hover over the lines to see the 1 standard deviation (σ) range as
           shaded areas. Depending on data availability, we also show percentile
-          data as horizontal bars. 3 horizontal bars show the 25/50/75th
-          percentiles, while 5 show the 5/25/50/75/95th percentiles.
+          data as horizontal bars. Three horizontal bars show the 25/50/75th
+          percentiles, while five of them show the 5/25/50/75/95th percentiles.
         </Text>
         <Paper withBorder p="md" mb="md">
           <CategoryGradeStatChart
@@ -177,59 +181,129 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
         </Text>
         <Text size="sm" c="dimmed" mb="md">
           Where multiple statistics exist for a course variant in a given year,
-          (depending on when the stats were calculated), we show the earliest
-          complete one, to avoid resits skewing the data.
+          we show the earliest complete one, as later statistics may include
+          resits or dropouts that skew data.
         </Text>
       </Box>
 
       {stats.length > 0 && (
         <Box>
           <Title order={3} mb="md">
-            Data Overview
+            Dataset
           </Title>
-          <Group gap="md">
-            {codes.map(code => {
-              const courseStats = stats.filter(s => s.course_code === code);
-              const latestStat = courseStats
-                .sort((a, b) => a.academic_year.localeCompare(b.academic_year))
-                .pop();
-
-              return (
-                <Paper key={code} withBorder p="md" style={{ minWidth: 200 }}>
-                  <Stack gap={0}>
-                    <Text fw={600} size="lg">
-                      {code}
-                    </Text>
-                    <Text size="sm" c="dimmed">
-                      {latestStat?.course_name}
-                    </Text>
-                    {latestStat?.course_organiser && (
-                      <Text size="sm" c="dimmed" mt="xs">
-                        CO: {latestStat.course_organiser}
-                      </Text>
-                    )}
-                    {latestStat?.mean_mark && (
-                      <Text size="md" mt="xs">
-                        Latest Mean:{" "}
-                        <Text span fw={500}>
-                          {latestStat.mean_mark.toFixed(1)}%
-                        </Text>
-                      </Text>
-                    )}
-                    {latestStat?.std_deviation && (
-                      <Text size="sm" c="dimmed">
-                        Std Dev: ±{latestStat.std_deviation.toFixed(1)}%
-                      </Text>
-                    )}
-                    <Text size="xs" c="dimmed" mt="xs">
-                      {courseStats.length} year
-                      {courseStats.length !== 1 ? "s" : ""} of data
-                    </Text>
-                  </Stack>
-                </Paper>
-              );
-            })}
-          </Group>
+          <Tabs
+            defaultValue={
+              stats.toSorted((a, b) =>
+                b.academic_year.localeCompare(a.academic_year),
+              )[0].course_code
+            }
+          >
+            <Tabs.List>
+              {codes.map(code => (
+                <Tabs.Tab key={code} value={code}>
+                  {code}
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+            {codes.map(code => (
+              <Tabs.Panel key={code} value={code} style={{ overflowX: "auto" }}>
+                <Table layout="fixed">
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th w="5em">Year (source)</Table.Th>
+                      <Table.Th w="10em">Organiser</Table.Th>
+                      <Table.Th w="2em" title="Student Count">
+                        n
+                      </Table.Th>
+                      <Table.Th w="2em" title="Mean Mark">
+                        μ
+                      </Table.Th>
+                      <Table.Th w="2em" title="Standard Deviation">
+                        σ
+                      </Table.Th>
+                      <Table.Th w="2em" title="5th Percentile">
+                        P<sub>5</sub>
+                      </Table.Th>
+                      <Table.Th w="2em" title="25th Percentile">
+                        P<sub>25</sub>
+                      </Table.Th>
+                      <Table.Th w="2em" title="50th Percentile">
+                        P<sub>50</sub>
+                      </Table.Th>
+                      <Table.Th w="2em" title="75th Percentile">
+                        P<sub>75</sub>
+                      </Table.Th>
+                      <Table.Th w="2em" title="95th Percentile">
+                        P<sub>95</sub>
+                      </Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {stats
+                      .filter(s => s.course_code === code)
+                      .toReversed()
+                      .map(stat => (
+                        <Table.Tr key={stat.academic_year}>
+                          <Table.Td>
+                            <Group gap="xs">
+                              {stat.academic_year}
+                              <Tooltip
+                                label={`From ${stat.source_name} on ${new Date(stat.source_date).toLocaleDateString()}`}
+                                withArrow
+                              >
+                                <IconCalendarMonth
+                                  size={16}
+                                  color="var(--mantine-color-dimmed)"
+                                />
+                              </Tooltip>
+                            </Group>
+                          </Table.Td>
+                          <Table.Td>{stat.course_organiser}</Table.Td>
+                          <Table.Td>
+                            {stat.student_count ?? <Text c="dimmed">N/A</Text>}
+                          </Table.Td>
+                          <Table.Td>
+                            {stat.mean_mark?.toFixed(1) ?? (
+                              <Text c="dimmed">N/A</Text>
+                            )}
+                          </Table.Td>
+                          <Table.Td>
+                            {stat.std_deviation?.toFixed(1) ?? (
+                              <Text c="dimmed">N/A</Text>
+                            )}
+                          </Table.Td>
+                          <Table.Td>
+                            {stat.percentiles["5"]?.toFixed(1) ?? (
+                              <Text c="dimmed">N/A</Text>
+                            )}
+                          </Table.Td>
+                          <Table.Td>
+                            {stat.percentiles["25"]?.toFixed(1) ?? (
+                              <Text c="dimmed">N/A</Text>
+                            )}
+                          </Table.Td>
+                          <Table.Td>
+                            {stat.percentiles["50"]?.toFixed(1) ?? (
+                              <Text c="dimmed">N/A</Text>
+                            )}
+                          </Table.Td>
+                          <Table.Td>
+                            {stat.percentiles["75"]?.toFixed(1) ?? (
+                              <Text c="dimmed">N/A</Text>
+                            )}
+                          </Table.Td>
+                          <Table.Td>
+                            {stat.percentiles["95"]?.toFixed(1) ?? (
+                              <Text c="dimmed">N/A</Text>
+                            )}
+                          </Table.Td>
+                        </Table.Tr>
+                      ))}
+                  </Table.Tbody>
+                </Table>
+              </Tabs.Panel>
+            ))}
+          </Tabs>
         </Box>
       )}
     </Stack>

@@ -208,6 +208,7 @@ export interface CourseStats {
   mean_mark: number | null;
   std_deviation: number | null;
   academic_year: string;
+  student_count: number | null;
   course_organiser: string | null;
   percentiles: Record<string, number | undefined>;
   source_name: string;
