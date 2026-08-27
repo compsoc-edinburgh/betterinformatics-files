@@ -192,6 +192,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             Dataset
           </Title>
           <Tabs
+            variant="outline"
             defaultValue={
               stats.toSorted((a, b) =>
                 b.academic_year.localeCompare(a.academic_year),
