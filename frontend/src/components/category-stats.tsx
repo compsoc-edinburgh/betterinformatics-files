@@ -91,6 +91,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
         const stat = yearGroups[year]?.[code];
         if (stat?.mean_mark !== null && stat?.mean_mark !== undefined) {
           yearData.course_code[code] = {
+            course_name: stat.course_name,
             mean_mark: Number(stat.mean_mark.toFixed(1)),
             std_deviation: stat.std_deviation
               ? Number(stat.std_deviation.toFixed(1))

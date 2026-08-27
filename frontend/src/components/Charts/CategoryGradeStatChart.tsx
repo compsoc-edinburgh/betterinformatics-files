@@ -51,6 +51,7 @@ echarts.use([
 ]);
 
 interface ChartCourseInstanceStats {
+  course_name: string;
   mean_mark: number | null;
   std_deviation: number | null;
   percentiles: Percentiles;
@@ -419,13 +420,14 @@ export const CategoryGradeStatChart: React.FC<
               return;
             }
             const code = param.seriesName;
+            const name = value[5];
             const meanMark = value[1];
             const stdDev = value[2];
             const organiser = value[3];
             const color = param.color as string;
             tooltip += `<span><span style="color: ${color}">\u25CF</span> <strong>${code}</strong>: μ ${meanMark}%, σ ${stdDev}%</span>`;
             if (organiser) {
-              tooltip += `<span style="color:var(--mantine-color-dimmed)">CO: ${organiser}</span>`;
+              tooltip += `<span style="color:var(--mantine-color-dimmed)">${name}</span>`;
             }
           });
           tooltip += "</div>";
@@ -514,6 +516,7 @@ export const CategoryGradeStatChart: React.FC<
               d.course_code[code]?.std_deviation,
               d.course_code[code]?.course_organiser,
               d.course_code[code]?.organiser_changed,
+              d.course_code[code]?.course_name,
             ];
             if (d.course_code[code]?.organiser_changed) {
               return {
