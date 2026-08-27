@@ -92,7 +92,7 @@ def login(request: HttpRequest):
         (
             f"Thank you for using Better Informatics! \n\n"
             f"There is a new sign-in request to access "
-            f"Better Informatics File Collection (files.betterinformatics.com).\n\n"
+            f"Better Informatics (betterinformatics.com).\n\n"
             f"If this is you, please confirm your identity using the following "
             f"verification code when prompted:\n\n{codeRow.code}\n\n"
             f"If you did not request this verification, please ignore this email.\n"

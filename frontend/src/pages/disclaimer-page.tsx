@@ -13,20 +13,20 @@ export const DisclaimerPage: React.FC = () => {
       </Title>
       <Title order={2}>Legal Disclaimer</Title>
       <p>
-        Better Informatics File Collection is not affiliated with the University
-        of Edinburgh, but is a student project run by volunteers within CompSoc,
-        the UoE Technology society. The platform is neither endorsed nor
-        supported by the University of Edinburgh School of Informatics.
+        Better Informatics is not affiliated with the University of Edinburgh,
+        but is a student project run by volunteers within CompSoc, the UoE
+        Technology society. The platform is neither endorsed nor supported by
+        the University of Edinburgh School of Informatics.
       </p>
       <p>
-        Better Informatics File Collection is a platform designed to facilitate
-        collaborative learning by providing existing University of Edinburgh
-        students with access to past papers and community-contributed answers.
-        The past papers mirror those published on the Exam Papers Online, an
-        independent service provided by University of Edinburgh Library and
-        University Collections for the purpose of study aid. Access to the past
-        papers both on Exam Papers Online and on our File Collection service is
-        restricted to current University of Edinburgh students only (via email
+        Better Informatics is a platform designed to facilitate collaborative
+        learning by providing existing University of Edinburgh students with
+        access to past papers and community-contributed answers. The past papers
+        mirror those published on the Exam Papers Online, an independent service
+        provided by University of Edinburgh Library and University Collections
+        for the purpose of study aid. Access to the past papers both on Exam
+        Papers Online and on the Better Informatics service is restricted to
+        current University of Edinburgh students only (via email
         authentication).
       </p>
       <p>
@@ -46,7 +46,7 @@ export const DisclaimerPage: React.FC = () => {
       <p>
         If you are a member of the University of Edinburgh staff and would like
         to request the removal of a past paper or any of its community-provided
-        answers from Better Informatics File Collection, please contact us at{" "}
+        answers from Better Informatics, please contact us at{" "}
         <a href={`mailto:${serverData.email_address}`}>
           {serverData.email_address}
         </a>
@@ -56,8 +56,8 @@ export const DisclaimerPage: React.FC = () => {
 
       <Title order={2}>License and Copyright</Title>
       <p>
-        The past papers available on Better Informatics File Collection belong
-        to the University of Edinburgh.
+        The past papers available on Better Informatics belong to the University
+        of Edinburgh.
       </p>
       <p>
         The community-provided answers are licensed under the Creative Commons
