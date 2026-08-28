@@ -65,7 +65,7 @@ const LoginOverlay: React.FC = () => {
     e.preventDefault();
     if (!processingAgreement) {
       setLoginState(LoginState.AWAITING_UUN_INPUT);
-      setError("BetterInformatics cannot sign you in without your consent.");
+      setError("Better Informatics cannot sign you in without your consent.");
       return;
     }
 

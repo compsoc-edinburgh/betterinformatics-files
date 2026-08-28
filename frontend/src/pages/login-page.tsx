@@ -30,20 +30,14 @@ const LoginPage: React.FC<{ isHome?: boolean }> = ({ isHome = false }) => {
               {uwu ? (
                 <KawaiiBetterInformatics />
               ) : (
-                <>
-                  <Text size="4rem" lh={1} mt="lg">
-                    Better&shy;Informatics
-                  </Text>
-                  <Text size="2.5rem" lh={1.2} my="lg">
-                    File Collection
-                  </Text>
-                </>
+                <Text size="2.5rem" lh={1.2} my="lg">
+                  Better Informatics
+                </Text>
               )}
               <Text fw={500}>
-                BetterInformatics File Collection is a platform for students to
-                share notes, summaries, tips and recommendations for courses, as
-                well as a study platform to collaborate on answers to previous
-                exams.
+                Better Informatics is a platform for students to share notes,
+                summaries, tips and recommendations for courses, as well as a
+                study platform to collaborate on answers to previous exams.
               </Text>
             </Flex>
           </Grid.Col>

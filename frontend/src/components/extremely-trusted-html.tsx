@@ -101,7 +101,7 @@ const sequence = (
  * malicious, it would've been displayed to the user anyway through other means.
  * (i.e. an arbitrary user submitting HTML to be displayed with this component
  * should be as equally difficult as deploying a malicious version of
- * BetterInformatics)
+ * Better Informatics)
  */
 export const ExtremelyTrustedHTML: React.FC<{
   html: string;

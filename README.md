@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./logo.png" alt="Logo Image of Better Informatics File Collection" align="center" height="80" />
+  <img src="./logo.png" alt="Logo Image of Better Informatics" align="center" height="80" />
 
   <p align="center">Platform for crowdsourcing Informatics study materials.<br />Passionately built by students, for students.</p>
 
@@ -7,15 +7,18 @@
     <strong><a href="https://files.betterinformatics.com">files.betterinformatics.com</a></strong>
   </p>
 
-  <img alt="Screenshot of Better Informatics File Collection" src="./screenshot.png">
+  <img alt="Screenshot of Better Informatics" src="./screenshot.png">
 </p>
 
 ## Project Overview
 
-This is the codebase of Better Informatics File Collection serving University of
-Edinburgh Informatics students! The service is a customised/vendored fork of a
-GPL-licensed software called "Community Solutions", developed originally by
-students at ETH Zurich for their own exam collection.
+This is the codebase of Better Informatics!
+
+Better Informatics is a web service for helping students studying at the
+University of Edinburgh School of Informatics. The platform is a
+heavily-customised/vendored fork of a GPL-licensed software called
+"Community Solutions", developed originally by students at ETH Zurich for their
+own exam collection.
 
 Our fork contains many original features, like support for passwordless auth,
 Euclid Course Codes, email notifications, knowledgebase, etc. At the same time,
@@ -46,6 +49,7 @@ or [CompSoc IRC](https://comp-soc.com/irc). Alternatively, write a GitHub issue!
   - [Pre-commit hooks](#pre-commit-hooks)
   - [Editing frontend code](#editing-frontend-code)
   - [Editing the backend code](#editing-the-backend-code)
+  - [Codegen](#codegen)
   - [Testing](#testing)
   - [Sending a Pull Request](#sending-a-pull-request)
 - [Observability](#observability)
@@ -431,7 +435,7 @@ Behind the scenes, the following components are used:
 ## Deployment
 
 This section is only interesting if you want to contribute to the deployment and
-administration of File Collection as a service.
+administration of Better Informatics as a service.
 
 ### About the Dockerfile
 

@@ -334,7 +334,7 @@ const App: React.FC = () => {
                 <BottomHeader
                   lang={"en"}
                   appNav={bottomHeaderNav}
-                  title={"File Collection"}
+                  title={"Better Informatics"}
                   size="xl"
                   icon={configOptions.logo}
                   loginButton={loginButton}
@@ -343,7 +343,7 @@ const App: React.FC = () => {
                   signet={configOptions.logo ?? defaultConfigOptions.logo}
                   selectedLanguage={"en"}
                   appNav={bottomHeaderNav}
-                  title={"File Collection"}
+                  title={"Better Informatics"}
                   loginButton={loginButton}
                 />
                 <AnnouncementHeader />
