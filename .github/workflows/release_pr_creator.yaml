@@ -73,10 +73,18 @@ jobs:
         (startsWith(github.ref, 'refs/tags/') && needs.determine_base_branch.outputs.base_branch == 'master')
       )
     steps:
+      - name: Generate a token for BI app
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.BI_APP_CLIENT_ID }}
+          private-key: ${{ secrets.BI_APP_PRIVATE_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
 
       - name: Resolve since-tag and base branch
         id: context
@@ -93,7 +101,7 @@ jobs:
       - name: Check for existing PR title
         id: existing_pr
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           existing_title=$(gh pr list \
             --head next-release \
@@ -170,13 +178,16 @@ jobs:
             echo CI_RAW_CHANGELOG_NEW
           } >> "$GITHUB_OUTPUT"
 
+      # We specifically use a GitHub App here, because in mid-2026 GitHub
+      # started requiring approvals for workflows on PRs created by the default
+      # GITHUB_TOKEN. see: https://github.com/orgs/community/discussions/199292
       - name: Create or update pull request
         id: create_update_pr
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Better Informatics"
+          git config user.email "42103905+better-informatics[bot]@users.noreply.github.com"
 
           git checkout -B next-release
           git add CHANGELOG.md
@@ -235,18 +246,20 @@ jobs:
         needs.check_changelog_pr.outputs.version != ''
       )
     steps:
-      - name: Checkout repository with SSH
+      - name: Generate a token for BI app
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.BI_APP_CLIENT_ID }}
+          private-key: ${{ secrets.BI_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          # We need to use a custom deploy key, since GITHUB_TOKEN pushing tags
-          # will not re-trigger the tag push workflow (some default recursion
-          # prevention thing). We need to trigger it to create the new changelog
-          # PR and cause a deployment rollout.
-          ssh-key: ${{ secrets.CI_COMMIT_KEY }}
+          token: ${{ steps.generate-token.outputs.token }}
 
-      - name: Push tag over SSH
+      - name: Push tag
         run: |
           git tag "${{ needs.check_changelog_pr.outputs.version }}" "${{ github.sha }}"
-          git remote set-url origin "git@github.com:${{ github.repository }}.git"
           git push origin "refs/tags/${{ needs.check_changelog_pr.outputs.version }}"

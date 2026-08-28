@@ -45,9 +45,16 @@ jobs:
           fi
           echo "base_branch=$base_branch" >> "$GITHUB_OUTPUT"
 
+      - name: Generate a token for BI app
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.BI_APP_CLIENT_ID }}
+          private-key: ${{ secrets.BI_APP_PRIVATE_KEY }}
+
       - name: Mark PR as ready and set title
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           gh pr ready ${{ github.event.issue.number }} \
             --repo ${{ github.repository }}
@@ -59,13 +66,12 @@ jobs:
       - name: Checkout next-release branch
         uses: actions/checkout@v6
         with:
+          token: ${{ steps.generate-token.outputs.token }}
           fetch-depth: 0
           ref: next-release
 
       - name: Generate changelog for explicit version
         id: changelog
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           release_name="${{ steps.parse.outputs.release_name }}"
           base_branch="${{ steps.verify.outputs.base_branch }}"
@@ -128,10 +134,13 @@ jobs:
           cat ONLY_NEW.md >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
+      # We specifically use a GitHub App here, because in mid-2026 GitHub
+      # started requiring approvals for workflows on PRs updated by the default
+      # GITHUB_TOKEN. see: https://github.com/orgs/community/discussions/199292
       - name: Commit changelog update
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "Better Informatics"
+          git config user.email "42103905+better-informatics[bot]@users.noreply.github.com"
 
           git add CHANGELOG.md
           if git diff --cached --quiet; then
@@ -143,7 +152,7 @@ jobs:
 
       - name: Update PR body with changelog
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           raw_body="${{ steps.changelog.outputs.raw_new }}"
           printf '%s\n' '<table><tbody><tr><td>' '' "$raw_body" '' '</td></tr></tbody></table>' '' 'This PR tracks the upcoming release and keeps an automatically generated changelog for it. It auto-rebases when the master branch ref is updated.' '' 'Comment "/release v<version number>" when it is time to release the next version.' 'This will mark the PR as Ready and regenerate the changelog with the specified version. (Note that this will overwrite any manual commits.)' 'After "/release", you can manually edit the changelog if necessary.' 'Finally, squash-merge this PR to create the release.' > pr-body.txt
@@ -154,7 +163,7 @@ jobs:
 
       - name: Post instructions comment
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           release_name="${{ steps.parse.outputs.release_name }}"
           gh pr comment ${{ github.event.issue.number }} \
