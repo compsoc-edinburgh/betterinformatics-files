@@ -72,6 +72,7 @@ urlpatterns = [
         },
     ),
     path("metrics/", restrict_proxied(exports.ExportToDjangoView)),
+    path("courses.json", views.courses_json),
 ]
 
 if DEBUG:
