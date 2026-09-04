@@ -1,5 +1,12 @@
 # Changelog
 
+## v2026.09.04
+
+- File Collection is now just "Better Informatics" ([\#155](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/155))
+- Performance optimizations on guide pages ([\#158](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/158))
+- Bug fixes ([\#154](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/154)), ([\#157](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/157)), ([\#156](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/156))
+- Developer improvements ([\#159](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/159)), ([\#160](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/160))
+
 ## v2026.08.27
 
 - Add more granular grade statistics! ([\#149](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/149)), ([\#152](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/152))
