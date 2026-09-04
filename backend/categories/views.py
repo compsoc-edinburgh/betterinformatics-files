@@ -501,8 +501,10 @@ def remove_euclid_code(request, slug):
     return response.success()
 
 
-@response.request_get("code")
+@response.request_get()
 def get_category_from_euclid_code(request):
+    if "code" not in request.GET:
+        return response.not_possible("Missing code parameter")
     code = request.GET["code"].upper()
     cat = get_object_or_404(Category, euclid_codes__code=code)
     return response.success(value=cat.slug)
