@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import {
   PageListResponse,
   PageListResponseItem,
@@ -15,6 +15,7 @@ import {
   MultiSelect,
   Paper,
   Select,
+  Skeleton,
   Text,
   TextInput,
   Title,
@@ -22,7 +23,7 @@ import {
 import MarkdownText, { slugifyHeading } from "./markdown-text";
 import { IconBook, IconHierarchy } from "@tabler/icons-react";
 import style from "./page-article.module.css";
-import Editor from "./Editor";
+const Editor = lazy(() => import("./Editor"));
 import { UndoStack } from "./Editor/utils/undo-stack";
 import { GuideSidebarRight } from "./guide-sidebar-right";
 import { useTableOfContents } from "../hooks/useTableOfContents";
@@ -35,7 +36,7 @@ import { Link, useMatch, useNavigate, useSearchParams } from "react-router-dom";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { ExtremelyTrustedHTML } from "./extremely-trusted-html";
 import { usePendingImages } from "./Editor/pending-images";
-import { HtmlEditor } from "./html-editor";
+const HtmlEditor = lazy(() => import("./html-editor"));
 import useTitle from "../hooks/useTitle";
 import { PageArticleContent } from "./page-article-content";
 import serverData from "../utils/server-data";
@@ -201,35 +202,43 @@ export const PageArticle: React.FC<{
         )}
         {editing ? (
           page.kind === "static_html" ? (
-            <HtmlEditor
-              value={formState.content}
-              onChange={value => setFormValue("content", value)}
-              imageHandler={deferredImageHandler}
-              undoStack={undoStack}
-              setUndoStack={setUndoStack}
-              preview={value => <ExtremelyTrustedHTML html={value} />}
-            />
+            <Suspense
+              fallback={<Skeleton ff="monospace">{formState.content}</Skeleton>}
+            >
+              <HtmlEditor
+                value={formState.content}
+                onChange={value => setFormValue("content", value)}
+                imageHandler={deferredImageHandler}
+                undoStack={undoStack}
+                setUndoStack={setUndoStack}
+                preview={value => <ExtremelyTrustedHTML html={value} />}
+              />
+            </Suspense>
           ) : (
-            <Editor
-              allowOfficialAnswer={false}
-              imageHandler={deferredImageHandler}
-              undoStack={undoStack}
-              setUndoStack={setUndoStack}
-              preview={value => (
-                <MarkdownText
-                  value={value}
-                  addAnchors={true}
-                  localLinkBase="https://betterinformatics.com"
-                  ignoreHtml={true}
-                  pendingImages={pendingObjectUrls}
-                />
-              )}
-              /* Manually unpack registerInput since Editor takes a different type for onChange */
-              value={formState.content}
-              onChange={value => {
-                setFormValue("content", value);
-              }}
-            />
+            <Suspense
+              fallback={<Skeleton ff="monospace">{formState.content}</Skeleton>}
+            >
+              <Editor
+                allowOfficialAnswer={false}
+                imageHandler={deferredImageHandler}
+                undoStack={undoStack}
+                setUndoStack={setUndoStack}
+                preview={value => (
+                  <MarkdownText
+                    value={value}
+                    addAnchors={true}
+                    localLinkBase="https://betterinformatics.com"
+                    ignoreHtml={true}
+                    pendingImages={pendingObjectUrls}
+                  />
+                )}
+                /* Manually unpack registerInput since Editor takes a different type for onChange */
+                value={formState.content}
+                onChange={value => {
+                  setFormValue("content", value);
+                }}
+              />
+            </Suspense>
           )
         ) : (
           <PageArticleContent page={page} />
