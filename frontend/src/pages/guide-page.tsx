@@ -1,10 +1,11 @@
-import React from "react";
+import React, { Suspense } from "react";
 import {
   Anchor,
   Container,
   Drawer,
   Flex,
   Group,
+  Loader,
   Paper,
   Portal,
 } from "@mantine/core";
@@ -61,7 +62,9 @@ const GuideArticlePage: React.FC = () => {
             </Anchor>
           </Portal>
         )}
-        <Outlet />
+        <Suspense fallback={<Loader />}>
+          <Outlet />
+        </Suspense>
       </Flex>
     </Container>
   );

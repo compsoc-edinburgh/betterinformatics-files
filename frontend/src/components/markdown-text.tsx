@@ -12,11 +12,12 @@ import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";
 import { escapeRegExp } from "lodash-es";
-import CodeBlock from "./code-block";
-import { Alert, Table } from "@mantine/core";
+import { Alert, Skeleton, Table } from "@mantine/core";
 import ErrorBoundary from "./error-boundary";
 import { clsx } from "clsx";
 import classes from "./markdown-text.module.css";
+
+const CodeBlock = React.lazy(() => import("./code-block"));
 
 const transformImageUri = (
   uri: string,
@@ -173,10 +174,18 @@ const createComponents = (
       });
     }
     return language ? (
-      <CodeBlock
-        language={language}
-        value={String(children).replace(/\n$/, "")}
-      />
+      <React.Suspense
+        fallback={
+          <Skeleton ff="monospace">
+            {String(children).replace(/\n$/, "")}
+          </Skeleton>
+        }
+      >
+        <CodeBlock
+          language={language}
+          value={String(children).replace(/\n$/, "")}
+        />
+      </React.Suspense>
     ) : (
       <code className={className} {...props}>
         {children}

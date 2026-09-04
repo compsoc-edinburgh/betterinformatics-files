@@ -191,3 +191,5 @@ export const HtmlEditor: React.FC<Props> = ({
     </div>
   );
 };
+
+export default HtmlEditor;
