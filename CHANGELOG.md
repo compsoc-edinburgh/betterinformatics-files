@@ -1,5 +1,15 @@
 # Changelog
 
+## v2026.09.04
+
+- Fix quotes in PR titles breaking string interpolation in CI ([\#160](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/160))
+- Add courses.json endpoint for serving S3 content if it exists ([\#159](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/159))
+- Make Editor and HtmlEditor lazy in guide pages ([\#158](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/158))
+- Fix request\_get\(param\) being broken after d284be89 ([\#157](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/157))
+- Use GitHub App to work around workflow approval requirement ([\#156](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/156))
+- Update branding: File Collection is now just "Better Informatics" ([\#155](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/155))
+- Fix nonce attributes being removed from script tags in guides ([\#154](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/154))
+
 ## v2026.08.27
 
 - Add more granular grade statistics! ([\#149](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/149)), ([\#152](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/152))
