@@ -38,10 +38,10 @@ def cached_serve(request, path, document_root=None, show_indexes=False):
 
 def courses_json(request):
     try:
-        # Get courses.yaml from S3
+        # Get courses.yml from S3
         data = s3_util.s3_client.get_object(
             Bucket=s3_util.s3_bucket_name,
-            Key="courses.yaml",
+            Key="courses.yml",
         )
     except ClientError:
         return response.not_found()
@@ -50,7 +50,7 @@ def courses_json(request):
         # Convert YAML to JSON
         converted = yaml.safe_load(data["Body"].read())
     except yaml.YAMLError as e:
-        logger.error("Error parsing courses.yaml: %s", e)
+        logger.error("Error parsing courses.yml: %s", e)
         return response.internal_error()
 
     res = JsonResponse(converted, safe=False)
