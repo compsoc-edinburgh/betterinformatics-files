@@ -372,14 +372,19 @@ export const CategoryGradeStatChart: React.FC<
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, 0);
           if (gridX === undefined) {
-            return { left: point[0], top: cursorY }; // Fallback to cursor X
+            return { left: point[0] - size.contentSize[0] / 2, top: cursorY }; // Fallback to cursor X
+          }
+
+          if (sortedYears.length === 1) {
+            // prevent division by zero
+            return { left: gridX - size.contentSize[0] / 2, top: cursorY };
           }
 
           const gridXEnd = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
           if (gridXEnd === undefined) {
-            return { left: point[0], top: cursorY }; // Fallback to cursor X
+            return { left: point[0] - size.contentSize[0] / 2, top: cursorY }; // Fallback to cursor X
           }
           const gridW = gridXEnd - gridX;
 
@@ -501,6 +506,69 @@ export const CategoryGradeStatChart: React.FC<
             areaStyle: {
               opacity: 0.2,
             },
+          },
+        })),
+        // Std dev vertical error bar if there is only one year,
+        // since area won't render in that case
+        ...codes.map((code, _ix) => ({
+          name: `${code}-stddev-vertical`,
+          type: "custom",
+          silent: true,
+          triggerEvent: false,
+          data: combinedData.map(d => [d.academic_year]),
+          renderItem: (
+            _params: CustomSeriesRenderItemParams,
+            api: CustomSeriesRenderItemAPI,
+          ) => {
+            const xValue = api.value(0);
+            const yValue =
+              combinedData[_params.dataIndex]?.course_code[code]?.mean_mark;
+            const stdDev =
+              combinedData[_params.dataIndex]?.course_code[code]?.std_deviation;
+            if (
+              yValue === null ||
+              yValue === undefined ||
+              stdDev === null ||
+              stdDev === undefined
+            ) {
+              return null;
+            }
+
+            if (combinedData.filter(d => d.course_code[code]).length > 1) {
+              return null;
+            }
+
+            const xCoord = api.coord([xValue, 0])[0];
+            const yCoordLower = api.coord([0, yValue - stdDev])[1];
+            const yCoordUpper = api.coord([0, yValue + stdDev])[1];
+
+            return {
+              type: "line",
+              shape: {
+                x1: xCoord,
+                y1: yCoordLower,
+                x2: xCoord,
+                y2: yCoordUpper,
+              },
+              style: api.style({
+                stroke: colors[codes.indexOf(code) % colors.length].replace(
+                  "0.3",
+                  "0.8",
+                ),
+                lineWidth: 2,
+                opacity: 1,
+              }),
+              emphasis: {
+                style: api.style({
+                  stroke: colors[codes.indexOf(code) % colors.length].replace(
+                    "0.3",
+                    "1.0",
+                  ),
+                  lineWidth: 4,
+                  opacity: 1,
+                }),
+              },
+            };
           },
         })),
         // Main line series for each course code
@@ -653,17 +721,12 @@ export const CategoryGradeStatChart: React.FC<
 
               const xCoord = api.coord([xValue, 0])[0];
               const yPercentileCoord = api.coord([0, percentile])[1];
-              let len = percentileLength;
-              // shorter for 5th and 95th percentiles
-              if (key === "5" || key === "95") {
-                len = percentileLength / 3;
-              }
               returnVal.children.push({
                 type: "line",
                 shape: {
-                  x1: xCoord - len / 2,
+                  x1: xCoord - percentileLength / 2,
                   y1: yPercentileCoord,
-                  x2: xCoord + len / 2,
+                  x2: xCoord + percentileLength / 2,
                   y2: yPercentileCoord,
                 },
                 style: customStyle,

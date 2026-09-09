@@ -41,45 +41,71 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
     > = {};
     const allCourseCodes = new Set<string>();
 
-    stats.forEach(stat => {
-      yearGroups[stat.academic_year] ??= {};
+    const years = new Set(stats.map(stat => stat.academic_year));
 
-      // Mutable reference
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const yearGroup = yearGroups[stat.academic_year]!;
-      const existingStat = yearGroup[stat.course_code];
+    years.forEach(year => {
+      yearGroups[year] = {};
 
-      // collect a representative stat for every year-course pair, and extras
-      if (!existingStat) {
-        yearGroup[stat.course_code] = stat;
-      } else {
-        // If we already have a stat for this year-course pair, choose the one
-        // with the earliest source_date while having 25/50/75 percentiles and mean;
-        // if that doesn't exist, choose earliest with mean.
-        const existingHasMean = existingStat.mean_mark !== null;
-        const existingHasPercentiles = ["25", "50", "75"].every(
-          p => existingStat.percentiles[p],
+      // Sort stats for this year by source_date ascending
+      const yearStats = stats
+        .filter(stat => stat.academic_year === year)
+        .sort((a, b) => a.source_date.localeCompare(b.source_date));
+
+      yearStats
+        .map(stat => stat.course_code)
+        .forEach(code => allCourseCodes.add(code));
+
+      allCourseCodes.forEach(code => {
+        const courseStats = yearStats.filter(stat => stat.course_code === code);
+
+        const analysed = courseStats.map(stat => {
+          // Check if the stat has all required fields
+          const hasMean = stat.mean_mark !== null;
+          const hasStdDev = stat.std_deviation !== null;
+          const hasMedian = stat.percentiles["50"];
+          const hasQuartiles =
+            hasMedian && ["25", "75"].every(p => stat.percentiles[p]);
+          const has5th95th =
+            hasQuartiles && ["5", "95"].every(p => stat.percentiles[p]);
+          return {
+            stat,
+            hasMean,
+            hasStdDev,
+            hasMedian,
+            hasQuartiles,
+            has5th95th,
+          };
+        });
+
+        let found = analysed.find(
+          a => a.hasMean && a.hasStdDev && a.hasQuartiles,
         );
-        const statHasMean = stat.mean_mark !== null;
-        const statHasPercentiles = ["25", "50", "75"].every(
-          p => stat.percentiles[p],
-        );
-        if (
-          (!existingHasMean && statHasMean) ||
-          (existingHasMean &&
-            statHasMean &&
-            !existingHasPercentiles &&
-            statHasPercentiles) ||
-          (existingHasMean &&
-            statHasMean &&
-            existingHasPercentiles &&
-            statHasPercentiles &&
-            stat.source_date < existingStat.source_date)
-        ) {
-          yearGroup[stat.course_code] = stat;
+        if (found) {
+          // If any stat has all required fields, use that
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          yearGroups[year]![code] = found.stat;
+          return;
         }
-      }
-      allCourseCodes.add(stat.course_code);
+
+        // otherwise, pick the earliest one with the most complete quartile
+        // and combine it with the earliest one with mean and stddev
+        let partial = {};
+        found = analysed.find(a => a.hasMean && a.hasStdDev);
+        if (found) {
+          partial = found.stat;
+        }
+
+        found = analysed.find(a => a.hasQuartiles);
+        if (found) {
+          partial = {
+            ...partial,
+            percentiles: found.stat.percentiles,
+          };
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        yearGroups[year]![code] = partial as CourseStats;
+      });
     });
 
     const sortedYears = Object.keys(yearGroups).sort();
