@@ -41,9 +41,12 @@ const runScript = (script: HTMLScriptElement, cb: () => void): Node => {
   } else {
     newScript.textContent = script.textContent;
   }
-  // Keep nonce and integrity attributes if present
-  if (script.nonce) {
-    newScript.nonce = script.nonce;
+  // Add nonce from meta tag to script for CSP compliance
+  const nonce = document.querySelector<HTMLMetaElement>(
+    'meta[name="csp-nonce"]',
+  )?.content;
+  if (nonce) {
+    newScript.setAttribute("nonce", nonce);
   }
   if (script.integrity) {
     newScript.integrity = script.integrity;
