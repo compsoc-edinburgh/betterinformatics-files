@@ -721,17 +721,12 @@ export const CategoryGradeStatChart: React.FC<
 
               const xCoord = api.coord([xValue, 0])[0];
               const yPercentileCoord = api.coord([0, percentile])[1];
-              let len = percentileLength;
-              // shorter for 5th and 95th percentiles
-              if (key === "5" || key === "95") {
-                len = percentileLength / 3;
-              }
               returnVal.children.push({
                 type: "line",
                 shape: {
-                  x1: xCoord - len / 2,
+                  x1: xCoord - percentileLength / 2,
                   y1: yPercentileCoord,
-                  x2: xCoord + len / 2,
+                  x2: xCoord + percentileLength / 2,
                   y2: yPercentileCoord,
                 },
                 style: customStyle,
