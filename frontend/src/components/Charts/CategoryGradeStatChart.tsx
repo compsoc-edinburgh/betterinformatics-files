@@ -508,6 +508,69 @@ export const CategoryGradeStatChart: React.FC<
             },
           },
         })),
+        // Std dev vertical error bar if there is only one year,
+        // since area won't render in that case
+        ...codes.map((code, _ix) => ({
+          name: `${code}-stddev-vertical`,
+          type: "custom",
+          silent: true,
+          triggerEvent: false,
+          data: combinedData.map(d => [d.academic_year]),
+          renderItem: (
+            _params: CustomSeriesRenderItemParams,
+            api: CustomSeriesRenderItemAPI,
+          ) => {
+            const xValue = api.value(0);
+            const yValue =
+              combinedData[_params.dataIndex]?.course_code[code]?.mean_mark;
+            const stdDev =
+              combinedData[_params.dataIndex]?.course_code[code]?.std_deviation;
+            if (
+              yValue === null ||
+              yValue === undefined ||
+              stdDev === null ||
+              stdDev === undefined
+            ) {
+              return null;
+            }
+
+            if (combinedData.filter(d => d.course_code[code]).length > 1) {
+              return null;
+            }
+
+            const xCoord = api.coord([xValue, 0])[0];
+            const yCoordLower = api.coord([0, yValue - stdDev])[1];
+            const yCoordUpper = api.coord([0, yValue + stdDev])[1];
+
+            return {
+              type: "line",
+              shape: {
+                x1: xCoord,
+                y1: yCoordLower,
+                x2: xCoord,
+                y2: yCoordUpper,
+              },
+              style: api.style({
+                stroke: colors[codes.indexOf(code) % colors.length].replace(
+                  "0.3",
+                  "0.8",
+                ),
+                lineWidth: 2,
+                opacity: 1,
+              }),
+              emphasis: {
+                style: api.style({
+                  stroke: colors[codes.indexOf(code) % colors.length].replace(
+                    "0.3",
+                    "1.0",
+                  ),
+                  lineWidth: 4,
+                  opacity: 1,
+                }),
+              },
+            };
+          },
+        })),
         // Main line series for each course code
         ...codes.map((code, ix) => ({
           name: code,
