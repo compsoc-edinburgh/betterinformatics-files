@@ -372,14 +372,19 @@ export const CategoryGradeStatChart: React.FC<
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, 0);
           if (gridX === undefined) {
-            return { left: point[0], top: cursorY }; // Fallback to cursor X
+            return { left: point[0] - size.contentSize[0] / 2, top: cursorY }; // Fallback to cursor X
+          }
+
+          if (sortedYears.length === 1) {
+            // prevent division by zero
+            return { left: gridX - size.contentSize[0] / 2, top: cursorY };
           }
 
           const gridXEnd = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
           if (gridXEnd === undefined) {
-            return { left: point[0], top: cursorY }; // Fallback to cursor X
+            return { left: point[0] - size.contentSize[0] / 2, top: cursorY }; // Fallback to cursor X
           }
           const gridW = gridXEnd - gridX;
 
