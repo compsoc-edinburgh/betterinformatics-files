@@ -2,9 +2,8 @@
 
 ## v2026.09.10
 
-- Read courses.yml from S3, not courses.yaml ([\#164](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/164))
-- Place CSP nonce in meta tag for guide pages ([\#163](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/163))
-- Fix visual bugs in grade stat graphs ([\#162](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/162))
+- Visual bugfixes in grade stat graphs ([\#162](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/162))
+- Minor backend bugfixes ([\#163](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/163)) ([\#164](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/164))
 
 ## v2026.09.04
 
