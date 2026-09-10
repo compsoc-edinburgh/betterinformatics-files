@@ -1,5 +1,10 @@
 # Changelog
 
+## v2026.09.10
+
+- Visual bugfixes in grade stat graphs ([\#162](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/162))
+- Minor backend bugfixes ([\#163](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/163)) ([\#164](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/164))
+
 ## v2026.09.04
 
 - File Collection is now just "Better Informatics" ([\#155](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/155))
