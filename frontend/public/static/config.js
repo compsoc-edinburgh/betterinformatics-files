@@ -18,7 +18,7 @@ window.configOptions = {
       childItems: [
         {
           title: "Repository",
-          href: "https://github.com/compsoc-edinburgh/betterinformatics-files",
+          href: "https://github.com/compsoc-edinburgh/betterinformatics",
         },
         {
           title: "Disclaimer",

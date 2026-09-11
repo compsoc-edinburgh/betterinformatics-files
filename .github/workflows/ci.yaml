@@ -229,7 +229,7 @@ jobs:
       # the Discord notification later.
       - name: Retrieve current production commit SHA
         run: |
-          echo "PROD_SHA=$(curl --silent https://files.betterinformatics.com | grep -oE '[a-f0-9]{40}' | head -n 1)" >> $GITHUB_ENV
+          echo "PROD_SHA=$(curl --silent https://betterinformatics.com | grep -oE '[a-f0-9]{40}' | head -n 1)" >> $GITHUB_ENV
       - uses: benjlevesque/short-sha@v2.1
         id: short-sha
         with:
@@ -289,7 +289,7 @@ jobs:
           # deployment is live.
           set -euo pipefail
           while true; do
-            page_source=$(curl --silent https://files.betterinformatics.com)
+            page_source=$(curl --silent https://betterinformatics.com)
             if echo "$page_source" | grep -q "${{ github.sha }}"; then
               echo "Production deployment is live."
               break
@@ -303,4 +303,4 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DISCORD_AVATAR: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
-          DISCORD_EMBEDS: '[{"title": "Deployment Succeeded", "url": "https://files.betterinformatics.com", "description": "Production traffic is now served by [`${{ steps.short-sha.outputs.sha }}`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n\n[See diff](https://github.com/${{ github.repository }}/compare/${{ env.PROD_SHA }}..${{ github.sha }})", "color": 4495147, "timestamp": "${{ github.event.head_commit.timestamp }}", "fields": [], "footer": {"text": "${{ github.event.head_commit.timestamp }}"}}]'
+          DISCORD_EMBEDS: '[{"title": "Deployment Succeeded", "url": "https://betterinformatics.com", "description": "Production traffic is now served by [`${{ steps.short-sha.outputs.sha }}`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n\n[See diff](https://github.com/${{ github.repository }}/compare/${{ env.PROD_SHA }}..${{ github.sha }})", "color": 4495147, "timestamp": "${{ github.event.head_commit.timestamp }}", "fields": [], "footer": {"text": "${{ github.event.head_commit.timestamp }}"}}]'

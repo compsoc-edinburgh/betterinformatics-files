@@ -67,7 +67,7 @@ const FeedbackForm: React.FC = () => {
         <Anchor
           component="a"
           c="blue"
-          href="https://github.com/compsoc-edinburgh/betterinformatics-files"
+          href="https://github.com/compsoc-edinburgh/betterinformatics"
           target="_blank"
           rel="noopener noreferrer"
         >
