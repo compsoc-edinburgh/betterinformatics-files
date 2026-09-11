@@ -1,10 +1,11 @@
 window.configOptions = {
   logo: "https://betterinformatics.com/static/img/camel-transparent.png",
-  org_logo: "https://comp-soc.com/static/img/compsoc-horizontal-nofill.svg",
+  org_logo:
+    "https://raw.githubusercontent.com/compsoc-edinburgh/brand/refs/heads/master/horizontal/compsoc-horizontal-no-fill.svg",
   org_signet:
     "https://raw.githubusercontent.com/compsoc-edinburgh/brand/master/profile/compsoc-profile-no-fill.svg",
   primaryColor: "#e95468",
-  copyright: "Copyright 2025 CompSoc",
+  copyright: "Copyright 2026 CompSoc",
   languages: [
     {
       key: "en",
