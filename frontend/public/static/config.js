@@ -4,7 +4,7 @@ window.configOptions = {
   org_signet:
     "https://raw.githubusercontent.com/compsoc-edinburgh/brand/master/profile/compsoc-profile-no-fill.svg",
   primaryColor: "#e95468",
-  copyright: "Copyright 2025 CompSoc",
+  copyright: "Copyright 2026 CompSoc",
   languages: [
     {
       key: "en",
