@@ -1,5 +1,11 @@
 # Changelog
 
+## v2026.09.11
+
+- Domain migration! We're now on `betterinformatics.com`!
+- All content on the legacy website has been migrated under [Guides](https://betterinformatics.com/guide/). There is also [an archive](https://archive.betterinformatics.com).
+- (Involved bugfixes: ([\#166](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/166)))
+
 ## v2026.09.10
 
 - Visual bugfixes in grade stat graphs ([\#162](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/162))
