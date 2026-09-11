@@ -73,7 +73,7 @@ or [CompSoc IRC](https://comp-soc.com/irc). Alternatively, write a GitHub issue!
 
 ## Tech Stack Overview
 
-Community Solutions has two parts. The backend API (`/backend`) is written in
+Better Informatics has two parts. The backend API (`/backend`) is written in
 Python with the Django framework. The frontend (`/frontend`) is written in
 TypeScript with React and is a single-page app. While the production instance
 packages both into one Docker image, **it is recommended that you launch the**
@@ -110,7 +110,7 @@ Once Mise is installed:
   config
 - On Windows, add `%localappdata%\mise\shims` to your PATH
 
-Finally, run `mise install` in the Community Solutions source directory to
+Finally, run `mise install` in the Better Informatics source directory to
 install the required tools.
 
 _NOTE: Non-essential tools you need can be added to `mise.local.toml`._
@@ -408,7 +408,7 @@ docker compose -f docker-compose.yml -f docker-compose.observability.yml --profi
 
 Now you can access:
 
-- Community solutions frontend on [localhost:3000](http://localhost:3000)
+- Better Informatics frontend on [localhost:3000](http://localhost:3000)
 - Grafana / Monitoring data on [localhost:3001](http://localhost:3001)
 
 For Grafana, look at the sidebar, search for "Explore" and "Drilldown" and "Traces". There, you can have a quick overview. You can select appropriate traces, which usually start in the browser of the user, then to the backend where multiple DB queries are started. There are many other things you can do with the data and other ways to query for it, familiarize yourself with Grafana, Prometheus, Tempo, Loki, (Pyroscope)... if interested:)
@@ -444,7 +444,7 @@ the production-ready image, while the `backend-hotreload` stage is what is
 usually used for local development (if you use Docker Compose). Essentially,
 for production, we build and package up the entire frontend as a module within
 the backend (as `/backend/frontend`). This allows a single Docker image to
-contain the entirety of Community Solutions. In production, we deploy this image
+contain the entirety of Better Informatics. In production, we deploy this image
 and point it to a separately deployed PostgreSQL and S3 instance.
 
 ### About cinit
@@ -467,7 +467,7 @@ is hosted with Docker Compose outside of the cluster for persistence (with
 nightly backups), and for S3 we use Tardis' hosted Minio service.
 
 In case the CI is broken and you need to manually deploy an image, or in case
-you are trying to run Community Solutions on your own server, follow these steps:
+you are trying to run Better Informatics on your own server, follow these steps:
 
 1. Run `docker build -t yourname/yourtag .` to build the image properly, which
    will also build the frontend, optimise it for production (this can take 5-10
