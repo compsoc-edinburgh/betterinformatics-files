@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Aftermath cleanup of domain migration ([\#168](https://github.com/compsoc-edinburgh/betterinformatics/pull/168))
+
 ## v2026.09.11
 
 - Domain migration! We're now on `betterinformatics.com`!
