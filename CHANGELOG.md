@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.09.11
+
+- Fix broken camel image after domain migration ([\#166](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/166))
+
 ## v2026.09.10
 
 - Visual bugfixes in grade stat graphs ([\#162](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/162))
