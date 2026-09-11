@@ -4,7 +4,7 @@
   <p align="center">Platform for crowdsourcing Informatics study materials.<br />Passionately built by students, for students.</p>
 
   <p align="center">
-    <strong><a href="https://files.betterinformatics.com">files.betterinformatics.com</a></strong>
+    <strong><a href="https://betterinformatics.com">betterinformatics.com</a></strong>
   </p>
 
   <img alt="Screenshot of Better Informatics" src="./screenshot.png">
@@ -69,7 +69,7 @@ or [CompSoc IRC](https://comp-soc.com/irc). Alternatively, write a GitHub issue!
 - If you would like to learn about and contribute to the codebase, please keep
   reading.
 - If you are instead looking to contribute data like model answers, cheatsheets,
-  or links, please visit the [live instance itself](https://files.betterinformatics.com).
+  or links, please visit the [live instance itself](https://betterinformatics.com).
 
 ## Tech Stack Overview
 
